@@ -5,6 +5,10 @@
 
 class Tile:
    ## maps nodeId --> Node object
-   _nodes = {}
-   _links = {}
-   _geohash =
+
+   def __init__(self):
+      """"""
+      self._nodes = {}
+      self._links = {}
+      self._geohash = None
+

@@ -1,6 +1,10 @@
+"""
 
+
+"""
 
 class LatLon:
-    _lat =  null
-    _lon =  null
 
+    def __init__(self, lat, lon):
+        self._lat = lat
+        self._lon = lon

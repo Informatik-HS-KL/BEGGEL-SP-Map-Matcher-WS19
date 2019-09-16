@@ -1,8 +1,13 @@
+"""
 
+"""
 
 class Node:
-    _id
-    _latLon
 
+    def __init__(self, id, latlon):
+        self._id = id
+        self._latLon = latlon
 
-    getLinks ()
+    def getLinks(self):
+        """"""
+        pass

@@ -1,7 +1,10 @@
+"""
 
+"""
 
 class OverPassWrapper:
 
-    def loadTile (geoHash):
-
+    def loadTile (self, geoHash):
+        """
+        """
         return tile;
