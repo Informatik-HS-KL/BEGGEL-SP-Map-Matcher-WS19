@@ -11,7 +11,13 @@ class MapService:
     geoHashLevel = 5
 
     def getNodesInBoundingBox(self, latLon1, latLon2):
-        """"""
+        """
+        Knoten einer Boudingbox zurückgeben.
+        Knoten werden aus den Tiles geladen
+        :param latLon1:
+        :param latLon2:
+        :return:
+        """
         ret = []
         geoHashLevel = None
 

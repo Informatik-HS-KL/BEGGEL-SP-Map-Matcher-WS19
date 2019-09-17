@@ -31,7 +31,8 @@ class GeoHashWrapper:
         return listOfGeoHashes;
         """
 
+
         pass
 
-     def getBoundingBox(self, geoHash) :
+    def getBoundingBox(self, geoHash) :
          """implement with lib"""
