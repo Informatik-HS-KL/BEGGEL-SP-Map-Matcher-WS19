@@ -1,8 +1,8 @@
 """
 """
 
-import GeoUtil
-import GeoHashWrapper
+from src import GeoUtil, GeoHashWrapper
+
 
 class MapService:
     """"""
