@@ -1,6 +1,11 @@
 """
 Läd daten von der OVerpass schnittstelle in eine Kachel
 """
+import  requests
+import geohash2 as Geohash
+from Tile import Tile
+
+OVERPASS_URL = "http://overpass-api.de/api/interpreter"
 
 class OverPassWrapper:
 
@@ -9,15 +14,23 @@ class OverPassWrapper:
             from geohash to Boundingbox
         """
 
-        # url = "%s?data=[out:json];area[name=Kaiserslautern];way[name='Dansenberger Straße'];>;<;out;" % (self.root_url)
-        # print(url)
-        # resp = requests.get(url)
-        # data = resp.json()
+        bbox = Geohash.decode_exactly(geoHash)
+        bboxstr = "(%s,%s,%s,%s)" % (bbox[0] - bbox[2], bbox[1] - bbox[3], bbox[0] + bbox[2], bbox[1] + bbox[3])
+        query = '[out:json];way%s;out;' % bboxstr
+        url = "%s?data=%s" % (OVERPASS_URL, query)
+        print(query)
 
-        # nodes = {}
-        # for way in ways:
-        #     for node in way.nodes:
-        #         nodes.update({node: []})
+        resp = requests.get(url)
+        json_ways = resp.json().get("elements")
+
+        tile = Tile(geoHash)
+
+        for way in json_ways:
+            for node in way["nodes"]:
+
+                tile.addNode(node)
+                print(node)
+        return None
 
 
-        return tile
+OverPassWrapper().loadTile("u0v921")
