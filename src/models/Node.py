@@ -12,7 +12,7 @@ class Node:
 
     def getLinks(self):
         """"""
-        pass
+        return self.__links
 
     def getId(self):
         return self.__id

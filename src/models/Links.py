@@ -5,6 +5,7 @@ for WKT see:
 https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
 
 """
+from . import Node
 
 class Link:
     """
@@ -17,12 +18,12 @@ class Link:
         self.endNode = endNode
         self.__outs = []
 
-    def getNodeAtStart (self):
+    def getNodeAtStart (self) -> Node:
         """
         """
         return self.startNode
 
-    def getNodeAtEnd(self):
+    def getNodeAtEnd(self) -> Node:
         """
         """
         return self.endNode

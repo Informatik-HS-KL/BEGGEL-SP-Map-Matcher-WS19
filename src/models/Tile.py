@@ -1,4 +1,4 @@
-
+from src.models.Links import Link
 ## In a tile all informration of the map is stored for a geohash rectangle (e.g. ezs42)
 
 class Tile:
@@ -17,5 +17,5 @@ class Tile:
    def getNodes(self):
       return self._nodes
 
-   def getLinks(self):
-      return  self._links
+   def getLinks(self) -> Link:
+      return self._links
