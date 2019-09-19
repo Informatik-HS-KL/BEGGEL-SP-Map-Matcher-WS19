@@ -5,6 +5,7 @@ https://github.com/vinsci/geohash/
 import geohash2 as Geohash
 from src.utils import decode2Box
 
+
 class GeoHashWrapper:
 
     def getGeoHash(self, pos: tuple, level):
@@ -31,8 +32,8 @@ class GeoHashWrapper:
         return listOfGeoHashes;
         """
 
-        bboxMiddle = ( (bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2 )
-        geoHashforMiddle = self.getGeoHash(bboxMiddle, level-1)
+        bboxMiddle = ((bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2)
+        geoHashforMiddle = self.getGeoHash(bboxMiddle, level - 1)
         boundingBoxBig = geoHashforMiddle[:-1]
 
         if self.isFirstBboxLargerThanSecondBbox():
@@ -49,13 +50,89 @@ class GeoHashWrapper:
 
         return listOfGeoHashes
 
-    def overlapse(self, bbox1, bbox2):
+    @staticmethod
+    def overlap(bounding_box1, bounding_box2):
         """"""
+        lukas_stuff = True
+        if lukas_stuff:
+            # Lukas stuff
+            lat_intervall_1 = (bounding_box1[0], bounding_box1[2])
+            lat_intervall_2 = (bounding_box2[0], bounding_box2[2])
 
+            if not GeoHashWrapper.overlap_intervalls(lat_intervall_1, lat_intervall_2,
+                                                     90):  # Hier wird wird nie ein overflow passieren
+                return False
 
+            lon_intervall_1 = (bounding_box1[1], bounding_box1[3])
+            lon_intervall_2 = (bounding_box2[1], bounding_box2[3])
+
+            if not GeoHashWrapper.overlap_intervalls(lon_intervall_1, lon_intervall_2, 180):
+                return False
+
+            return True
+        else:
+            # Sebastian's stuff
+            lat = 0
+            long = 1
+
+            # special cases
+            if bounding_box1 == bounding_box2:
+                return True
+
+            is_overlapping = overlap_axis(bounding_box1, bounding_box2, lat)
+            is_overlapping = is_overlapping and overlap_axis(bounding_box1, bounding_box2, long)
+            return is_overlapping
+
+    @staticmethod
+    def overlap_intervalls(intervall_1, intervall_2, overflow_mark):
+        """Diese Methode überprüft, ob sich zwei Zahlenintervalle überschneiden.
+           overflow_mark gibt an, ab welchem (positiven) Wert die Zahlen überlaufen, also wieder im negativen Bereich landen
+           (Bei Längengraden wäre overflow_mark = 180)"""
+
+        a1, b1 = intervall_1
+        a2, b2 = intervall_2
+
+        if GeoHashWrapper.number_is_in_intervall(a1, intervall_2, overflow_mark):
+            return True
+        if GeoHashWrapper.number_is_in_intervall(b1, intervall_2, overflow_mark):
+            return True
+
+        if GeoHashWrapper.number_is_in_intervall(a2, intervall_1, overflow_mark):
+            return True
+        if GeoHashWrapper.number_is_in_intervall(b2, intervall_1, overflow_mark):
+            return True
+
+        return False
+
+    @staticmethod
+    def number_is_in_intervall(number, intervall, overflow_mark):
+        """Diese Methode überprüft, ob eine Zahl innerhalb eines Zahlenintervalls liegt.
+            overflow_mark gibt an, ab welchem (positiven) Wert die Zahlen überlaufen, also wieder im negativen Bereich landen
+            (Bei Längengraden wäre overflow_mark = 180)"""
+
+        a, b = intervall
+        if (a < number < b and a < b) or ((a < number <= overflow_mark or -overflow_mark < number < b) and b < a):
+            return True
+        return False
 
     def isFirstBboxLargerThanSecondBbox(self, bbox1, bbox2):
         """"""
 
-    def getBoundingBox(self, geoHash) :
-         """implement with lib"""
+    def getBoundingBox(self, geoHash):
+        """implement with lib"""
+
+
+def overlap_axis(bounding_box1, bounding_box2, axis):
+    if bounding_box1[axis] > bounding_box2[axis]:
+        tmp = bounding_box1
+        bounding_box1 = bounding_box2
+        bounding_box2 = tmp
+    if (bounding_box1[axis] < bounding_box2[axis] < bounding_box1[axis] or
+            bounding_box1[axis] < bounding_box2[axis + 2] < bounding_box1[axis]):
+        return False
+    if bounding_box2[axis] > bounding_box2[axis + 2]:
+        return False
+    return True
+# bbox1 = (31.27, -110.19, 37.64, -102.1)
+# bbox2 = (-5.8, 46.3, 6.3, 60.9)
+# print(GeoHashWrapper.overlapse(bbox1, bbox2))
