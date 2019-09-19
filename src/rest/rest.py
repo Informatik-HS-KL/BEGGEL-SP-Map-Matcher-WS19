@@ -13,7 +13,7 @@ def rootpage():
 @app.route('/tiles')
 @app.route('/tiles/')
 def get_tiles():
-    """
+    """ :return List of Geohashes of the cached Tiles
     """
 
     tiles = mapservice.getAllCachedTiles()
@@ -21,7 +21,7 @@ def get_tiles():
 
 @app.route('/tiles/<string:geohash>')
 def get_tile(geohash):
-    """
+    """ :return tile of given GeoHash
     """
     if len(geohash) < 4:
         return jsonify({"Error": "Level have to be >= 4"})
@@ -40,7 +40,7 @@ def get_tile(geohash):
 
 @app.route('/tile/<string:geohash>/nodes')
 def get_nodes(geohash):
-    """
+    """ :return Nodes of tile of Geohash
     """
     if len(geohash) < 4:
         return jsonify({"Error": "Level have to be >= 4"})
@@ -58,7 +58,7 @@ def get_nodes(geohash):
 
 @app.route('/tiles/<string:geohash>/links')
 def get_links(geohash):
-    """
+    """ :return Links of Tile of given hash
     """
 
     if len(geohash) < 4:
@@ -76,8 +76,8 @@ def get_links(geohash):
 
     return jsonify(data)
 
-    return str(tile.getLinks())
-
+@app.route('/tiles/<string:geohash>/links')
+def get_route()
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0")

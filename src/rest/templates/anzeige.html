@@ -28,20 +28,24 @@
 	}).addTo(mymap);
 
     var marker = L.marker(loc).addTo(mymap);
-    var circle = L.circle(loc, {
-        color: 'red',
-        fillColor: '#2700ff',
-        fillOpacity: 0.5,
-        radius: 500
-    }).addTo(mymap);
 
-
+    GEO = []
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'tiles/u0v92/nodes');
+    xhr.open('GET', 'tile/u0v92u2/nodes');
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onload = function() {
         if (xhr.status === 200) {
-          L.geoJSON(JSON.parse(xhr.responseText)).addTo(mymap);
+          geoData = JSON.parse(xhr.responseText);
+          GEO = geoData
+          geoData.forEach(function(element){
+              var circle = L.circle(element["coordinates"], {
+                  color: 'red',
+                  fillColor: '#ff0911',
+                  fillOpacity: 0.5,
+                  radius: 10
+              }).addTo(mymap);
+
+          });
         }
     };
     xhr.send();
