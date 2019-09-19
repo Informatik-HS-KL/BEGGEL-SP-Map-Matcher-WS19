@@ -52,7 +52,7 @@ class GeoHashWrapper:
     def overlapse(self, bbox1, bbox2):
         """"""
 
-        
+
 
     def isFirstBboxLargerThanSecondBbox(self, bbox1, bbox2):
         """"""

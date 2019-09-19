@@ -16,7 +16,7 @@
 </div>
 <script>
 
-    var loc = [49.4532, 8.0629]
+    var loc = [49.46112, 7.76316]
 	var mymap = L.map('mapid').setView(loc, 13);
 
 	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
@@ -27,14 +27,27 @@
 		id: 'mapbox.streets'
 	}).addTo(mymap);
 
-
     var marker = L.marker(loc).addTo(mymap);
-    var circle = L.circle([51.508, -0.11], {
+    var circle = L.circle(loc, {
         color: 'red',
         fillColor: '#2700ff',
         fillOpacity: 0.5,
         radius: 500
     }).addTo(mymap);
+
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'tiles/u0v92/nodes');
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+          L.geoJSON(JSON.parse(xhr.responseText)).addTo(mymap);
+        }
+    };
+    xhr.send();
+
+
+
 
 </script>
 </html>

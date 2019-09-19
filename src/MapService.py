@@ -2,7 +2,7 @@
 """
 
 from src import GeoUtil, GeoHashWrapper
-
+from src.OverPassWrapper import OverPassWrapper
 
 class MapService:
     """"""
@@ -22,17 +22,22 @@ class MapService:
         geoHashLevel = None
 
         for geoHash in GeoHashWrapper.getGeoHashes(latLon1, latLon2, geoHashLevel):
-            tile = getOrLoadTile (geoHash)
+            tile = self.getOrLoadTile (geoHash)
             for node in tile._nodes:
-                if GeoUtil.contains (node, latLon1, latLon2)
+                if GeoUtil.contains (node, latLon1, latLon2):
                     ret.append(node)
-         return ret
+
+        return ret
 
 
-    def getOrLoadTile(self, geoash):
+    def getOrLoadTile(self, geohash):
         """"""
-        if geohash not in tileCache:
-            tileCache[geohash] = OverPassWrapper.loadTile(geoHash)
+        if geohash not in self.tileCache:
+            self.tileCache[geohash] = OverPassWrapper().loadTile(geohash)
 
-        return tileCache[geohash]
+        return self.tileCache[geohash]
 
+
+
+    def getAllCachedTiles(self):
+        return self.tileCache
