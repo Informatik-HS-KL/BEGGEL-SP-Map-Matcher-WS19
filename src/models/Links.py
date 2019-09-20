@@ -8,25 +8,47 @@ https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
 from . import Node
 
 class Link:
-    """
-    """
 
-    def __init__(self, startNode, endNode):
+    def __init__(self, start_node: Node, end_node: Node):
         """
+        :param startNode: Node Start of this Link
+        :param endNode: Node End of this Link
         """
-        self.startNode = startNode
-        self.endNode = endNode
+        self.__startNode = start_node
+        self.__endNode = end_node
         self.__outs = []
 
-    def getNodeAtStart (self) -> Node:
+    def get_start_node(self):
+        """ :return Node
         """
-        """
-        return self.startNode
+        return self.__startNode
 
-    def getNodeAtEnd(self) -> Node:
+    def get_end_node(self):
+        """ :return Node
         """
-        """
-        return self.endNode
+        return self.__endNode
 
-    def getOutgoingLinks(self):
-        return self.__outs
+    def get_links(self):
+        return self.__startNode.get_links().extend(self.__endNode.get_links())
+
+    def get_tags(self):
+        """
+        Attributes of this Link
+        :return: dict
+        """
+        # TODO
+        return {}
+
+    def __repr__(self):
+        return "<Link Start:%s End:%s>" % (self.__startNode.get_id(), self.__endNode.get_id())
+
+    def to_geojson(self):
+        """"""
+        data = { "type": "LineString",
+            "coordinates": [
+                [self.__startNode.get_lat(), self.__endNode.get_lon()],
+                [self.__endNode.get_lat(), self.__endNode.get_lon()]
+            ]
+        }
+        return data
+

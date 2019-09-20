@@ -1,21 +1,40 @@
 from src.models.Links import Link
-## In a tile all informration of the map is stored for a geohash rectangle (e.g. ezs42)
+
 
 class Tile:
-   ## maps nodeId --> Node object
+       ## maps nodeId --> Node object
 
-   def __init__(self, geoHash, nodes : list, links : list):
-      """"""
+    def __init__(self, geohash, nodes: dict, links: list):
+        """"""
 
-      self._nodes = nodes
-      self._links = links
-      self._geohash = geoHash
+        self.__nodes = nodes
+        self.__links = links
+        self.__geohash = geohash
 
-   def addNode(self, node):
-      self._nodes.update({node._id: node})
+    def add_node(self, node):
+        self.__nodes.update({node.get_id(): node})
 
-   def getNodes(self):
-      return self._nodes
+    def add_link(self, link):
+        """
+        :param link:
+        :return:
+        """
+        self.__links.append(link)
 
-   def getLinks(self) -> Link:
-      return self._links
+    def get_node(self, osmid: int):
+        """
+        :param osmid: int
+        :return: Node
+        """
+        return self.__nodes[osmid]
+
+
+    def get_nodes(self):
+        """
+        :return:
+        """
+        return self.__nodes
+
+    def get_links(self):
+        """"""
+        return self.__links

@@ -31,7 +31,7 @@ class OverPassWrapper:
         for element in elements:
             if element["type"] == "node":
                 node = Node(element["id"], (element["lat"], element["lon"]))
-                nodes[node.getId()] = node
+                nodes[node.get_id()] = node
 
         for element in elements:
             if element["type"] == "way":
@@ -40,18 +40,8 @@ class OverPassWrapper:
                     sn = nodes[way_nodes[i]]
                     en = nodes[way_nodes[i + 1]]
                     link = Link(sn, en)
-                    sn.addLink(link)
-                    en.addLink(link)
+                    sn.add_link(link)
+                    en.add_link(link)
                     links.append(link)
 
-        return Tile(geoHash, nodes.values(), links)
-
-tile = OverPassWrapper().loadTile("u0v92u1")
-
-print(tile)
-print("NODES:", tile.getNodes())
-print("LINKS:", tile.getLinks())
-
-from src.utils import printPretty
-printPretty(tile)
-
+        return Tile(geoHash, nodes, links)
