@@ -46,12 +46,3 @@ class OverPassWrapper:
 
         return Tile(geoHash, nodes.values(), links)
 
-tile = OverPassWrapper().loadTile("u0v92u1")
-
-print(tile)
-print("NODES:", tile.getNodes())
-print("LINKS:", tile.getLinks())
-
-from src.utils import printPretty
-printPretty(tile)
-

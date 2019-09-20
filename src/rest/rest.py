@@ -38,7 +38,7 @@ def get_tile(geohash):
 
     return jsonify(data)
 
-@app.route('/tile/<string:geohash>/nodes')
+@app.route('/tiles/<string:geohash>/nodes')
 def get_nodes(geohash):
     """ :return Nodes of tile of Geohash
     """
@@ -76,8 +76,46 @@ def get_links(geohash):
 
     return jsonify(data)
 
+@app.route('/tiles/<string:geohash>/nodes/crossroads')
+def get_crossroads(geohash):
+
+    if len(geohash) < 4:
+        return jsonify({"Error": "Level have to be >= 4"})
+
+    tile = mapservice.getOrLoadTile(geohash)
+    data = []
+    for node in tile.getNodes():
+        if len(node.getLinks()) > 2:
+            point = {
+                "type": "Point",
+                "coordinates": list(node.getLatLon())
+            }
+            data.append(point)
+
+    return jsonify(data)
+
+@app.route('/tiles/<string:geohash>/nodes/crossroads')
+def get_crossroads(geohash):
+
+    if len(geohash) < 4:
+        return jsonify({"Error": "Level have to be >= 4"})
+
+    tile = mapservice.getOrLoadTile(geohash)
+    data = []
+    for node in tile.getNodes():
+        if len(node.getLinks()) > 2:
+            point = {
+                "type": "Point",
+                "coordinates": list(node.getLatLon())
+            }
+            data.append(point)
+
+    return jsonify(data)
+
 @app.route('/tiles/<string:geohash>/links')
-def get_route()
+def get_route():
+    pass
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0")
