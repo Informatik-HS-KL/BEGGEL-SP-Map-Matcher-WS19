@@ -24,13 +24,15 @@ class OverPassWrapper:
 
         resp = requests.get(url)
         elements = resp.json().get("elements")
-        nodes = {}
-        ways = []
-        links = []
+
+        nodes = {} # Initalize
+        ways = []  # Initalize
+        links = [] # Initalize
 
         for element in elements:
             if element["type"] == "node":
                 node = Node(element["id"], (element["lat"], element["lon"]))
+                node.set_tags(element.get("tags", {}))
                 nodes[node.get_id()] = node
 
         for element in elements:
