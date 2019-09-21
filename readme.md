@@ -11,6 +11,8 @@ Fragen
 TODO
 --
 - Refactor der Overpass Query in load Tile
+- Refactor GeoHashWrapper
+- adequate Testumgebung realisieren (alle Tests über einen Befehl durchführen)
 - Einbahnstraßen
 - Abbiegeverbote
 - Routing
