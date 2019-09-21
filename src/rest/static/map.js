@@ -1,7 +1,7 @@
 
 
 function buildMap(startLocation){
-    var mymap = L.map('mapid').setView(startLocation, 13);
+    var mymap = L.map('mapid').setView(startLocation, 10);
 
     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
         maxZoom: 18,
@@ -26,6 +26,12 @@ function renderNodes(map, nodes){
     });
 }
 
+function renderInfos(map, nodes) {
+    wrapper = document.getElementById("output");
+    var nodecount = document.createElement("span")
+    nodecount.textContent = "Nodes:"+ nodes.length;
+    wrapper.appendChild(nodecount)
+}
 function getUserInputs(){
     geoHash = document.getElementById("input-tile").value
     onlyCrossRoads = document.getElementById("input-only-crossroads").checked
@@ -53,6 +59,7 @@ window.onload = function() {
             if (xhr.status === 200) {
                 geoData = JSON.parse(xhr.responseText);
                 renderNodes(map, geoData);
+                renderInfos(map, geoData);
             }
         };
         xhr.send();
