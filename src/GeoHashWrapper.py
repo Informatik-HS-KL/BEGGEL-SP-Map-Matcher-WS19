@@ -124,7 +124,7 @@ class GeoHashWrapper:
         a, b = intervall
 
         if excluding_endpoints:
-            if (a < number < b and a <= b) or ((a < number <= overflow_mark or -overflow_mark < number < b) and b < a):
+            if (a < number < b and a <= b) or ((a < number <= overflow_mark or -overflow_mark <= number < b) and b < a):
                 return True
             return False
         else:
