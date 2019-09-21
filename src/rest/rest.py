@@ -5,6 +5,17 @@ from src.MapService import MapService
 from src.GeoHashWrapper import GeoHashWrapper
 app = Flask(__name__)
 
+
+
+def _resp(data):
+    """
+
+    :param data:
+    :return:
+    """
+
+    return jsonify(data)
+
 mapservice = MapService()
 
 @app.route('/')
@@ -18,7 +29,7 @@ def get_tiles():
     """
 
     tiles = mapservice.getAllCachedTiles()
-    return jsonify({"description": "All Cached Tiles", "tiles": list(tiles.keys())})
+    return _resp({"description": "All Cached Tiles", "tiles": list(tiles.keys())})
 
 @app.route('/geohashes', methods=["GET"])
 def get_geohashes():
@@ -36,7 +47,7 @@ def get_geohashes():
     print(tuple(bbox))
     print(geohashes)
 
-    return str(geohashes)
+    return _resp(geohashes)
 
 @app.route('/tiles/<string:geohash>')
 def get_tile(geohash):
@@ -55,7 +66,7 @@ def get_tile(geohash):
         }
         data.append(point)
 
-    return jsonify(data)
+    return _resp(data)
 
 @app.route('/tiles/<string:geohash>/nodes')
 def get_nodes(geohash):
@@ -73,7 +84,7 @@ def get_nodes(geohash):
         }
         data.append(point)
 
-    return jsonify(data)
+    return _resp(data)
 
 @app.route('/tiles/<string:geohash>/links')
 def get_links(geohash):
@@ -93,11 +104,15 @@ def get_links(geohash):
         }
         data.append(linestr)
 
-    return jsonify(data)
+    return _resp(data)
 
 @app.route('/tiles/<string:geohash>/nodes/crossroads')
 def get_crossroads(geohash):
-
+    """
+    Nodes wich represents a Crossing
+    :param geohash:
+    :return: json
+    """
     if len(geohash) < 4:
         return jsonify({"Error": "Level have to be >= 4"})
 
@@ -113,7 +128,7 @@ def get_crossroads(geohash):
             }
             data.append(point)
 
-    return jsonify(data)
+    return _resp(data)
 
 @app.route('/tiles/<string:geohash>/links')
 def get_route():
