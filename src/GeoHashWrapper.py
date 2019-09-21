@@ -52,10 +52,15 @@ class GeoHashWrapper:
 
     @staticmethod
     def overlap(bounding_box1, bounding_box2):
-        """"""
+        """Diese Methode überprüft, ob sich zwei Bounding-Boxen überlappen.
+           Rückgabe erfolgt als boolean.
+           Beachte: Wenn die beiden Bounding-Boxen sich lediglich an ihren Rändern berühren, so zählt dies NICHT als Überlappung"""
         lukas_stuff = True
         if lukas_stuff:
             # Lukas stuff
+            if bounding_box1 == bounding_box2:
+                return True
+
             lat_intervall_1 = (bounding_box1[0], bounding_box1[2])
             lat_intervall_2 = (bounding_box2[0], bounding_box2[2])
 
@@ -87,7 +92,12 @@ class GeoHashWrapper:
     def overlap_intervalls(intervall_1, intervall_2, overflow_mark):
         """Diese Methode überprüft, ob sich zwei Zahlenintervalle überschneiden.
            overflow_mark gibt an, ab welchem (positiven) Wert die Zahlen überlaufen, also wieder im negativen Bereich landen
-           (Bei Längengraden wäre overflow_mark = 180)"""
+           (Bei Längengraden wäre overflow_mark = 180).
+           Die Rückgabe erfolgt als boolean.
+           Beachte: Überlappen sich lediglich die Ränder von intervall_1 und intervall_2, so wird False zurückgegeben."""
+
+        if intervall_1 == intervall_2:
+            return True
 
         a1, b1 = intervall_1
         a2, b2 = intervall_2
@@ -106,9 +116,10 @@ class GeoHashWrapper:
 
     @staticmethod
     def number_is_in_intervall(number, intervall, overflow_mark):
-        """Diese Methode überprüft, ob eine Zahl innerhalb eines Zahlenintervalls liegt.
-            overflow_mark gibt an, ab welchem (positiven) Wert die Zahlen überlaufen, also wieder im negativen Bereich landen
-            (Bei Längengraden wäre overflow_mark = 180)"""
+        """Diese Methode überprüft, ob eine Zahl innerhalb eines Zahlenintervalls liegt. overflow_mark gibt an,
+        ab welchem (positiven) Wert die Zahlen überlaufen, also wieder im negativen Bereich landen (bei Längengraden
+        wäre overflow_mark = 180). Die Rückgabe erfolgt als boolean. Beachte: Liegt number auf einem der beiden
+        Ränder des Zahlenintervalls intervall, so wird False zurückgegeben. """
 
         a, b = intervall
         if (a < number < b and a < b) or ((a < number <= overflow_mark or -overflow_mark < number < b) and b < a):
