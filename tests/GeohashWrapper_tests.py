@@ -51,20 +51,46 @@ class TestGeohashWrapper(unittest.TestCase):
 
     def test_number_is_in_intervall(self):
         intervall_1 = (0, 5)
-        self.assertTrue(GeoHashWrapper.number_is_in_intervall(3, intervall_1, 7))
-        self.assertTrue(GeoHashWrapper.number_is_in_intervall(4.9, intervall_1, 10))
-        self.assertFalse(GeoHashWrapper.number_is_in_intervall(0, intervall_1, 40.9))
-        self.assertFalse(GeoHashWrapper.number_is_in_intervall(5, intervall_1, 13))
-        self.assertFalse(GeoHashWrapper.number_is_in_intervall(-2, intervall_1, 9))
+        self.assertTrue(GeoHashWrapper.number_is_in_intervall(3, intervall_1, 7, excluding_endpoints=True))
+        self.assertTrue(GeoHashWrapper.number_is_in_intervall(4.9, intervall_1, 10, excluding_endpoints=True))
+        self.assertTrue(GeoHashWrapper.number_is_in_intervall(0, intervall_1, 40.9, excluding_endpoints=False))
+        self.assertTrue(GeoHashWrapper.number_is_in_intervall(5, intervall_1, 13, excluding_endpoints=False))
+        self.assertFalse(GeoHashWrapper.number_is_in_intervall(0, intervall_1, 40.9, excluding_endpoints=True))
+        self.assertFalse(GeoHashWrapper.number_is_in_intervall(5, intervall_1, 13, excluding_endpoints=True))
+        self.assertFalse(GeoHashWrapper.number_is_in_intervall(-2, intervall_1, 9, excluding_endpoints=True))
 
         intervall_2 = (3, -6)
-        self.assertTrue(GeoHashWrapper.number_is_in_intervall(4, intervall_2, 8))
-        self.assertTrue(GeoHashWrapper.number_is_in_intervall(-7, intervall_2, 10))
-        self.assertFalse(GeoHashWrapper.number_is_in_intervall(3, intervall_2, 20))
-        self.assertFalse(GeoHashWrapper.number_is_in_intervall(-6, intervall_2, 7))
-        self.assertFalse(GeoHashWrapper.number_is_in_intervall(-5, intervall_2, 9.5))
+        self.assertTrue(GeoHashWrapper.number_is_in_intervall(4, intervall_2, 8, excluding_endpoints=True))
+        self.assertTrue(GeoHashWrapper.number_is_in_intervall(-7, intervall_2, 10, excluding_endpoints=True))
+        self.assertTrue(GeoHashWrapper.number_is_in_intervall(3, intervall_2, 20, excluding_endpoints=False))
+        self.assertTrue(GeoHashWrapper.number_is_in_intervall(-6, intervall_2, 7, excluding_endpoints=False))
+        self.assertFalse(GeoHashWrapper.number_is_in_intervall(3, intervall_2, 20, excluding_endpoints=True))
+        self.assertFalse(GeoHashWrapper.number_is_in_intervall(-6, intervall_2, 7, excluding_endpoints=True))
+        self.assertFalse(GeoHashWrapper.number_is_in_intervall(-5, intervall_2, 9.5, excluding_endpoints=True))
 
-    # TODO: Tests for getGeoHash, getGeoHashes, isFirstBboxLargerThanSecondBbox, getBoundingBox, overlap_axis
+    def test_firstBboxContainsSecondBbox(self):
+        bbox_1 = (0.513282437, 0.0159996796, 84.0942163677, 89.3608800602)
+        self.assertTrue(GeoHashWrapper.firstBboxContainsSecondBbox(bbox_1, bbox_1))
+        self.assertTrue(GeoHashWrapper.firstBboxContainsSecondBbox(bbox_1, (21.6647872488, 15.5327550602, 65.2416229192, 89.3608800602)))
+        self.assertTrue(GeoHashWrapper.firstBboxContainsSecondBbox(bbox_1, (21.6647872488, 15.5327550602, 65.2416229192, 67.5640050602)))
+        self.assertTrue(GeoHashWrapper.firstBboxContainsSecondBbox(bbox_1, (60.4394489351, 1.4702550602, 73.7411216463, 53.5015050602)))
+
+        self.assertFalse(GeoHashWrapper.firstBboxContainsSecondBbox(bbox_1, (64.0372106287, 111.1577550602, 75.7716930825, -160.2484949398)))
+        self.assertFalse(GeoHashWrapper.firstBboxContainsSecondBbox(bbox_1, (-63.6817377051, 4.9858800602, -14.894669805, 93.5796300602)))
+        self.assertFalse(GeoHashWrapper.firstBboxContainsSecondBbox(bbox_1, (-11.8165911863, -44.2328699398, 48.95656608, 44.3608800602)))
+
+        bbox_2 = (-66.9097288411, 89.3608800602, 0.403422688, -132.8266199398)
+        self.assertTrue(GeoHashWrapper.firstBboxContainsSecondBbox(bbox_2, bbox_2))
+        self.assertTrue(GeoHashWrapper.firstBboxContainsSecondBbox(bbox_2, (-66.9097288411, 89.3608800602, 0.403422688, 162.4858800602)))
+        self.assertTrue(GeoHashWrapper.firstBboxContainsSecondBbox(bbox_2, (-60.0389493929, 104.1265050602, -18.9299746389, 161.7827550602)))
+        self.assertTrue(GeoHashWrapper.firstBboxContainsSecondBbox(bbox_2, (-35.1314035932, 162.1343175602, -6.613091808, -169.0375574398)))
+
+        self.assertFalse(GeoHashWrapper.firstBboxContainsSecondBbox(bbox_2, (-35.1314035932, 162.1343175602, 16.3488238092, -169.0375574398)))
+        self.assertFalse(GeoHashWrapper.firstBboxContainsSecondBbox(bbox_2, (-18.5970967976, -33.3344324398, 33.4747130173, 53.5015050602)))
+        self.assertFalse(GeoHashWrapper.firstBboxContainsSecondBbox(bbox_2, (-69.9426596955, 63.5210363102, -40.807816162, 150.3569738102)))
+
+
+    # TODO: Tests for getGeoHash, getGeoHashes, isFirstBboxLargerThanSecondBbox, getBoundingBox, overlap_axis, firstIntervallContainsSecondIntervall
 
 
 if __name__ == '__main__':
