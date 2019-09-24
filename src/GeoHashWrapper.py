@@ -58,55 +58,55 @@ class GeoHashWrapper:
         if bounding_box1 == bounding_box2:
             return True
 
-        lat_intervall_1 = (bounding_box1[0], bounding_box1[2])
-        lat_intervall_2 = (bounding_box2[0], bounding_box2[2])
+        lat_interval_1 = (bounding_box1[0], bounding_box1[2])
+        lat_interval_2 = (bounding_box2[0], bounding_box2[2])
 
-        if not GeoHashWrapper.overlap_intervalls(lat_intervall_1, lat_intervall_2,
+        if not GeoHashWrapper.overlap_intervalls(lat_interval_1, lat_interval_2,
                                                  90):  # Hier wird wird nie ein overflow passieren
             return False
 
-        lon_intervall_1 = (bounding_box1[1], bounding_box1[3])
-        lon_intervall_2 = (bounding_box2[1], bounding_box2[3])
+        lon_interval_1 = (bounding_box1[1], bounding_box1[3])
+        lon_interval_2 = (bounding_box2[1], bounding_box2[3])
 
-        if not GeoHashWrapper.overlap_intervalls(lon_intervall_1, lon_intervall_2, 180):
+        if not GeoHashWrapper.overlap_intervalls(lon_interval_1, lon_interval_2, 180):
             return False
 
         return True
 
     @staticmethod
-    def overlap_intervalls(intervall_1, intervall_2, overflow_mark):
+    def overlap_intervalls(interval_1, interval_2, overflow_mark):
         """Diese Methode überprüft, ob sich zwei Zahlenintervalle überschneiden.
            overflow_mark gibt an, ab welchem (positiven) Wert die Zahlen überlaufen, also wieder im negativen Bereich landen
            (Bei Längengraden wäre overflow_mark = 180).
            Die Rückgabe erfolgt als boolean.
            Beachte: Überlappen sich lediglich die Ränder von intervall_1 und intervall_2, so wird False zurückgegeben."""
 
-        if intervall_1 == intervall_2:
+        if interval_1 == interval_2:
             return True
 
-        a1, b1 = intervall_1
-        a2, b2 = intervall_2
+        a1, b1 = interval_1
+        a2, b2 = interval_2
 
-        if GeoHashWrapper.number_is_in_intervall(a1, intervall_2, overflow_mark, excluding_endpoints=True):
+        if GeoHashWrapper.number_is_in_intervall(a1, interval_2, overflow_mark, excluding_endpoints=True):
             return True
-        if GeoHashWrapper.number_is_in_intervall(b1, intervall_2, overflow_mark, excluding_endpoints=True):
+        if GeoHashWrapper.number_is_in_intervall(b1, interval_2, overflow_mark, excluding_endpoints=True):
             return True
 
-        if GeoHashWrapper.number_is_in_intervall(a2, intervall_1, overflow_mark, excluding_endpoints=True):
+        if GeoHashWrapper.number_is_in_intervall(a2, interval_1, overflow_mark, excluding_endpoints=True):
             return True
-        if GeoHashWrapper.number_is_in_intervall(b2, intervall_1, overflow_mark, excluding_endpoints=True):
+        if GeoHashWrapper.number_is_in_intervall(b2, interval_1, overflow_mark, excluding_endpoints=True):
             return True
 
         return False
 
     @staticmethod
-    def number_is_in_intervall(number, intervall, overflow_mark, excluding_endpoints=False):
+    def number_is_in_intervall(number, interval, overflow_mark, excluding_endpoints=False):
         """Diese Methode überprüft, ob eine Zahl innerhalb eines Zahlenintervalls liegt. overflow_mark gibt an,
         ab welchem (positiven) Wert die Zahlen überlaufen, also wieder im negativen Bereich landen (bei Längengraden
         wäre overflow_mark = 180). Die Rückgabe erfolgt als boolean. exluding_endpoints gibt an, ob es sich um ein offenes
          oder ein geschlossenes Intervall handelt (excluding_endpoints=False --> geschlossenes Intervall)."""
 
-        a, b = intervall
+        a, b = interval
 
         if excluding_endpoints:
             if (a < number < b and a <= b) or ((a < number <= overflow_mark or -overflow_mark <= number < b) and b < a):
@@ -121,7 +121,7 @@ class GeoHashWrapper:
     def isFirstBboxLargerThanSecondBbox(self, bbox1, bbox2):
         """"""
 
-    def getBoundingBox(self, geoHash):
+    def getBoundingBox(self, geohash):
         """implement with lib"""
 
     @staticmethod
@@ -147,17 +147,17 @@ class GeoHashWrapper:
         return True
 
     @staticmethod
-    def firstIntervallContainsSecondIntervall(intervall_1, intervall_2, overflow_mark):
+    def firstIntervallContainsSecondIntervall(interval_1, interval_2, overflow_mark):
         """Diese Methode überprüft, ob intervall_2 eine Teilmenge von intervall_1 ist.
         Die Rückgabe erfolgt als boolean. Beachte: intervall_1 == intervall_2 liefert ebenfalls True."""
 
-        if intervall_1 == intervall_2:
+        if interval_1 == interval_2:
             return True
 
-        a2, b2 = intervall_2
-        if not (GeoHashWrapper.number_is_in_intervall(a2, intervall_1,
+        a2, b2 = interval_2
+        if not (GeoHashWrapper.number_is_in_intervall(a2, interval_1,
                                                       overflow_mark) and GeoHashWrapper.number_is_in_intervall(b2,
-                                                                                                               intervall_1,
+                                                                                                               interval_1,
                                                                                                                overflow_mark)):
             return False
 
