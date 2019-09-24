@@ -51,6 +51,9 @@ class BoundingBox:
         return self.south == other.south and self.west == other.west and \
                self.north == other.north and self.east == other.east
 
+    def __str__(self):
+        return "(%s,%s,%s,%s)" % (self.south, self.west, self.north, self.east)
+
     def overlap(self, other_bbox):
         """Diese Methode überprüft, ob sich zwei Bounding-Boxen überlappen.
            Rückgabe erfolgt als boolean.

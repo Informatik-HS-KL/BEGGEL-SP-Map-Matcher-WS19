@@ -1,7 +1,7 @@
 import unittest
 
 from src.models.BoundingBox import BoundingBox
-
+from src.models.Node import Node
 
 class TestBoundingBox(unittest.TestCase):
     def test_overlap(self):
@@ -69,3 +69,39 @@ class TestBoundingBox(unittest.TestCase):
             -18.5970967976, -33.3344324398, 33.4747130173, 53.5015050602)))
         self.assertFalse(bbox_2.contains_bbox(BoundingBox(
             -69.9426596955, 63.5210363102, -40.807816162, 150.3569738102)))
+
+    def test_contains_node(self):
+        """
+        BBOX:
+        (49.4549560546875,7.789306640625,49.46044921875,7.80029296875)
+        Punkte darin:
+            - 49.4548433 / 7.794187
+            - 49.4527781 / 7.7882418
+            - 49.4567621 / 7.7974489
+
+        Nicht darin:
+        49.4425199 / 7.7771835
+        49.4435975 / 7.7778411
+        :return:
+        """
+        bbox = BoundingBox(50.0, 10.0, 50.5, 12.0)
+        #Liegen in der bbox
+        n1 = Node(1, (50.0, 10.0))
+        n2 = Node(2, (50.0, 11.0))
+        n3 = Node(3, (50.2, 10.0))
+        n4 = Node(4, (50.5, 11.0))
+
+        #Liegen nicht in der bbox
+        n5 = Node(5, (49.0, 9.0))
+        n6 = Node(6, (49.0, 10.0))
+        n7 = Node(7, (50.0, 9.0))
+
+        self.assertTrue(bbox.contains_node(n1))
+        self.assertTrue(bbox.contains_node(n2))
+        self.assertTrue(bbox.contains_node(n3))
+        self.assertTrue(bbox.contains_node(n4))
+        self.assertTrue(bbox.contains_node(Node(8, (bbox.south, bbox.west))))
+
+        self.assertFalse(bbox.contains_node(n5), False)
+        self.assertFalse(bbox.contains_node(n6), False)
+        self.assertFalse(bbox.contains_node(n7), False)

@@ -18,7 +18,7 @@ class OverPassWrapper:
             from geohash to Boundingbox
         """
 
-        bboxstr = "(%s,%s,%s,%s)" % BoundingBox.from_geohash(geoHash)
+        bboxstr = "%s" % BoundingBox.from_geohash(geoHash)
         query = '[out:json];way[highway]%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out body;' % bboxstr
         url = "%s?data=%s" % (OVERPASS_URL, query)
         print(query)
