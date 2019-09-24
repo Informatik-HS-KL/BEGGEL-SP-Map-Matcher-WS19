@@ -55,38 +55,23 @@ class GeoHashWrapper:
         """Diese Methode überprüft, ob sich zwei Bounding-Boxen überlappen.
            Rückgabe erfolgt als boolean.
            Beachte: Wenn die beiden Bounding-Boxen sich lediglich an ihren Rändern berühren, so zählt dies NICHT als Überlappung"""
-        lukas_stuff = True
-        if lukas_stuff:
-            # Lukas stuff
-            if bounding_box1 == bounding_box2:
-                return True
-
-            lat_intervall_1 = (bounding_box1[0], bounding_box1[2])
-            lat_intervall_2 = (bounding_box2[0], bounding_box2[2])
-
-            if not GeoHashWrapper.overlap_intervalls(lat_intervall_1, lat_intervall_2,
-                                                     90):  # Hier wird wird nie ein overflow passieren
-                return False
-
-            lon_intervall_1 = (bounding_box1[1], bounding_box1[3])
-            lon_intervall_2 = (bounding_box2[1], bounding_box2[3])
-
-            if not GeoHashWrapper.overlap_intervalls(lon_intervall_1, lon_intervall_2, 180):
-                return False
-
+        if bounding_box1 == bounding_box2:
             return True
-        else:
-            # Sebastian's stuff
-            lat = 0
-            long = 1
 
-            # special cases
-            if bounding_box1 == bounding_box2:
-                return True
+        lat_intervall_1 = (bounding_box1[0], bounding_box1[2])
+        lat_intervall_2 = (bounding_box2[0], bounding_box2[2])
 
-            is_overlapping = overlap_axis(bounding_box1, bounding_box2, lat)
-            is_overlapping = is_overlapping and overlap_axis(bounding_box1, bounding_box2, long)
-            return is_overlapping
+        if not GeoHashWrapper.overlap_intervalls(lat_intervall_1, lat_intervall_2,
+                                                 90):  # Hier wird wird nie ein overflow passieren
+            return False
+
+        lon_intervall_1 = (bounding_box1[1], bounding_box1[3])
+        lon_intervall_2 = (bounding_box2[1], bounding_box2[3])
+
+        if not GeoHashWrapper.overlap_intervalls(lon_intervall_1, lon_intervall_2, 180):
+            return False
+
+        return True
 
     @staticmethod
     def overlap_intervalls(intervall_1, intervall_2, overflow_mark):
@@ -128,7 +113,8 @@ class GeoHashWrapper:
                 return True
             return False
         else:
-            if (a <= number <= b and a <= b) or ((a <= number <= overflow_mark or -overflow_mark <= number <= b) and b < a):
+            if (a <= number <= b and a <= b) or (
+                    (a <= number <= overflow_mark or -overflow_mark <= number <= b) and b < a):
                 return True
             return False
 
@@ -169,25 +155,10 @@ class GeoHashWrapper:
             return True
 
         a2, b2 = intervall_2
-        if not (GeoHashWrapper.number_is_in_intervall(a2, intervall_1, overflow_mark) and GeoHashWrapper.number_is_in_intervall(b2, intervall_1, overflow_mark)):
+        if not (GeoHashWrapper.number_is_in_intervall(a2, intervall_1,
+                                                      overflow_mark) and GeoHashWrapper.number_is_in_intervall(b2,
+                                                                                                               intervall_1,
+                                                                                                               overflow_mark)):
             return False
 
         return True
-
-
-
-
-def overlap_axis(bounding_box1, bounding_box2, axis):
-    if bounding_box1[axis] > bounding_box2[axis]:
-        tmp = bounding_box1
-        bounding_box1 = bounding_box2
-        bounding_box2 = tmp
-    if (bounding_box1[axis] < bounding_box2[axis] < bounding_box1[axis] or
-            bounding_box1[axis] < bounding_box2[axis + 2] < bounding_box1[axis]):
-        return False
-    if bounding_box2[axis] > bounding_box2[axis + 2]:
-        return False
-    return True
-# bbox1 = (31.27, -110.19, 37.64, -102.1)
-# bbox2 = (-5.8, 46.3, 6.3, 60.9)
-# print(GeoHashWrapper.overlapse(bbox1, bbox2))
