@@ -45,7 +45,7 @@ class GeoHashWrapper:
         listOfGeoHashes = []
         for b in base32:
             newGeoHash = geoHashforMiddle + b
-            if self.overlaps(decode2Box(newGeoHash), bbox):
+            if self.overlap(decode2Box(newGeoHash), bbox):
                 listOfGeoHashes.append(newGeoHash)
 
         return listOfGeoHashes
