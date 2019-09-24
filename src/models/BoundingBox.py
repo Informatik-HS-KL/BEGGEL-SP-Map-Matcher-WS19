@@ -1,5 +1,6 @@
-from .Node import Node
-import src.utils as ut
+from src.models import Node
+import src.geo_utils as ut
+import geohash2 as Geohash
 
 
 class BoundingBox:
@@ -18,8 +19,9 @@ class BoundingBox:
         else:
             raise TypeError("{} is not supported by this method.".format(type(item)))
 
-    def contains_node(self, node):
-        pass
+    def contains_node(self, node: Node):
+        return (ut.number_is_in_interval(node.get_lat(), (self.south, self.north), 90) and
+                ut.number_is_in_interval(node.get_lon(), (self.west, self.east),  180))
 
     def contains_bbox(self, other):
         """Diese Methode überprüft, ob other eine Teilmenge von self ist.
@@ -71,10 +73,7 @@ class BoundingBox:
 
         return True
 
-
-
-
-
-
-
-
+    @staticmethod
+    def from_geohash(geohash):
+        bbox = Geohash.decode_exactly(geohash)
+        return BoundingBox(bbox[0] - bbox[2], bbox[1] - bbox[3], bbox[0] + bbox[2], bbox[1] + bbox[3])

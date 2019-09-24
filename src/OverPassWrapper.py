@@ -6,7 +6,8 @@ import geohash2 as Geohash
 from src.models import Tile
 from src.models import Node
 from src.models import Link
-from src.utils import decode2Box
+from src.models import BoundingBox
+
 
 OVERPASS_URL = "http://overpass-api.de/api/interpreter"
 
@@ -17,7 +18,7 @@ class OverPassWrapper:
             from geohash to Boundingbox
         """
 
-        bboxstr = "(%s,%s,%s,%s)" % decode2Box(geoHash)
+        bboxstr = "(%s,%s,%s,%s)" % BoundingBox.from_geohash(geoHash)
         query = '[out:json];way[highway]%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out body;' % bboxstr
         url = "%s?data=%s" % (OVERPASS_URL, query)
         print(query)

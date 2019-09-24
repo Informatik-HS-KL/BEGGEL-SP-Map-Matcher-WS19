@@ -1,5 +1,5 @@
 import unittest
-import src.utils as ut
+import src.geo_utils as ut
 
 
 class TestUtils(unittest.TestCase):

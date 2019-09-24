@@ -3,11 +3,16 @@ https://github.com/vinsci/geohash/
 
 """
 import geohash2 as Geohash
-from src.utils import decode2Box
 from src.models.BoundingBox import BoundingBox
 
 
 class GeoHashWrapper:
+
+    base32 = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'b', 'c', 'd', 'e', 'f',
+              'g', 'h', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'}
+
+    def __init__(self):
+        pass
 
     def getGeoHash(self, pos: tuple, level):
         """Wrapper fpr Geohash Lib"""
@@ -40,13 +45,10 @@ class GeoHashWrapper:
 #        if self.isFirstBboxLargerThanSecondBbox():
 #            raise Exception("Willst du die ganze welt runterladen oder was?")
 
-        base32 = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'b', 'c', 'd', 'e', 'f',
-                  'g', 'h', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'}
-
         listOfGeoHashes = []
-        for b in base32:
+        for b in self.base32:
             newGeoHash = geoHashforMiddle + b
-            if bbox.overlap(decode2Box(newGeoHash)):
+            if bbox.overlap(BoundingBox.from_geohash(newGeoHash)):
                 listOfGeoHashes.append(newGeoHash)
 
         return listOfGeoHashes
