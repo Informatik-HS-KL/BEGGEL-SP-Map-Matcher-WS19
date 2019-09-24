@@ -18,4 +18,5 @@ class TestNode(unittest.TestCase):
         self.assertEqual(n.get_lon(), 2.5)
 
         self.assertEqual(n.get_latlon(), (2.4, 2.5))
-        self.assertEqual(n.add_link(l), l in n.get_links())
+        n.add_link(l)
+        self.assertTrue(l in n.get_links())
