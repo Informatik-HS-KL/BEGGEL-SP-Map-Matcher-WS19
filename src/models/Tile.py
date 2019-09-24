@@ -33,7 +33,7 @@ class Tile:
         """
         :return:
         """
-        return self.__nodes
+        return self.__nodes.values()
 
     def get_links(self):
         """"""

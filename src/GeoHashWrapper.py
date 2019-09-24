@@ -36,8 +36,8 @@ class GeoHashWrapper:
         geoHashforMiddle = self.getGeoHash(bboxMiddle, level - 1)
         boundingBoxBig = geoHashforMiddle[:-1]
 
-        if not GeoHashWrapper.firstBboxContainsSecondBbox():
-            raise Exception("Willst du die ganze welt runterladen oder was?")
+#        if self.isFirstBboxLargerThanSecondBbox():
+#            raise Exception("Willst du die ganze welt runterladen oder was?")
 
         base32 = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'b', 'c', 'd', 'e', 'f',
                   'g', 'h', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'}
@@ -45,7 +45,7 @@ class GeoHashWrapper:
         listOfGeoHashes = []
         for b in base32:
             newGeoHash = geoHashforMiddle + b
-            if self.overlaps(decode2Box(newGeoHash), bbox):
+            if self.overlap(decode2Box(newGeoHash), bbox):
                 listOfGeoHashes.append(newGeoHash)
 
         return listOfGeoHashes
