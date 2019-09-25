@@ -89,17 +89,6 @@ def get_tile(geohash):
     if len(geohash) < 3:
         return jsonify({"Error": "Level have to be >= 4"})
 
-<<<<<<< Updated upstream
-    tile = mapservice.getOrLoadTile(geohash)
-    data = []
-
-    for node in tile.get_nodes():
-        point = {
-            "type": "Point",
-            "coordinates": list(node.get_latlon())
-        }
-        data.append(point)
-=======
     tile = map_service.get_or_load_tile(geohash)
     data = {
         "geohash": tile.get_geohash(),
@@ -107,7 +96,6 @@ def get_tile(geohash):
         "links.length": len(tile.get_links()),
         "bbox": str(BoundingBox.from_geohash(geohash))
     }
->>>>>>> Stashed changes
 
     return _resp(data)
 
@@ -130,8 +118,7 @@ def get_nodes(geohash):
 
     return _resp(data)
 
-<<<<<<< Updated upstream
-=======
+
 @api.route('/tiles/<string:geohash>/nodes/<int:osmid>')
 def get_node(geohash, osmid):
     """ :return Nodes of tile of Geohash
@@ -150,7 +137,6 @@ def get_node(geohash, osmid):
     }
     return _resp(point)
 
->>>>>>> Stashed changes
 @api.route('/tiles/<string:geohash>/links')
 def get_links(geohash):
     """ :return Links of Tile of given hash
@@ -171,12 +157,7 @@ def get_links(geohash):
 
     return _resp(data)
 
-<<<<<<< Updated upstream
-@api.route('/tiles/<string:geohash>/nodes/crossroads')
-=======
-
 @api.route('/tiles/<string:geohash>/crossroads')
->>>>>>> Stashed changes
 def get_crossroads(geohash):
     """
     Nodes wich represents a Crossing
