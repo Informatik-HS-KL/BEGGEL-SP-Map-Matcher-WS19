@@ -1,10 +1,11 @@
-from src.models.Tile import Tile
+from src.models.tile import Tile
 
-def printPretty(tile : Tile):
+
+def print_pretty(tile: Tile):
     """"""
 
     for n in tile.get_nodes():
-        print("-"*20)
+        print("-" * 20)
         print("Node:", n.get_id())
         print("Links", [(l.get_start_node(), l.get_end_node()) for l in n.get_links()])
 
@@ -44,7 +45,7 @@ def overlap_intervals(interval_1, interval_2, overflow_mark):
             number_is_in_interval(b2, interval_1, overflow_mark, excluding_endpoints=True))
 
 
-def firstIntervalContainsSecondInterval(first_interval: tuple, second_interval: tuple, overflow_mark: float):
+def first_interval_contains_second_interval(first_interval: tuple, second_interval: tuple, overflow_mark: float):
     """Diese Methode überprüft, ob interval_2 eine Teilmenge von interval_1 ist.
     Die Rückgabe erfolgt als boolean. Beachte: interval_1 == interval_2 liefert ebenfalls True."""
 

@@ -2,23 +2,22 @@
 https://github.com/vinsci/geohash/
 
 """
-import geohash2 as Geohash
-from src.models.BoundingBox import BoundingBox
+import geohash2 as geohash
+from src.models.bounding_box import BoundingBox
 
 
 class GeoHashWrapper:
-
     base32 = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'b', 'c', 'd', 'e', 'f',
               'g', 'h', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'}
 
     def __init__(self):
         pass
 
-    def getGeoHash(self, pos: tuple, level):
+    def get_geohash(self, pos: tuple, level):
         """Wrapper fpr Geohash Lib"""
-        return Geohash.encode(pos[0], pos[1], precision=level)
+        return geohash.encode(pos[0], pos[1], precision=level)
 
-    def getGeoHashes(self, bbox: BoundingBox, level: int):
+    def get_geohashes(self, bbox: BoundingBox, level: int):
         """
         latLonMiddle = mitte der boundiung box
         geoHashforMiddle  = getGeoHash(latLonMiddle, level -1 );
@@ -38,24 +37,25 @@ class GeoHashWrapper:
         return listOfGeoHashes;
         """
 
-        bboxMiddle = ((bbox.south + bbox.north) / 2, (bbox.west + bbox.east) / 2)
-        geoHashforMiddle = self.getGeoHash(bboxMiddle, level - 1)
-        boundingBoxBig = geoHashforMiddle[:-1]
+        bbox_middle = ((bbox.south + bbox.north) / 2, (bbox.west + bbox.east) / 2)
+        geohash_for_middle = self.get_geohash(bbox_middle, level - 1)
+        bounding_box_big = geohash_for_middle[:-1]
 
-#        if self.isFirstBboxLargerThanSecondBbox():
-#            raise Exception("Willst du die ganze welt runterladen oder was?")
+        #        if self.isFirstBboxLargerThanSecondBbox():
+        #            raise Exception("Willst du die ganze welt runterladen oder was?")
 
-        listOfGeoHashes = []
+        list_of_geo_hashes = []
         for b in self.base32:
-            newGeoHash = geoHashforMiddle + b
-            if bbox.overlap(BoundingBox.from_geohash(newGeoHash)):
-                listOfGeoHashes.append(newGeoHash)
+            new_geohash = geohash_for_middle + b
+            if bbox.overlap(BoundingBox.from_geohash(new_geohash)):
+                list_of_geo_hashes.append(new_geohash)
 
-        return listOfGeoHashes
+        return list_of_geo_hashes
 
-
-    def isFirstBboxLargerThanSecondBbox(self, bbox1, bbox2):
+    def is_first_bbox_larger_than_second_bbox(self, bbox1, bbox2):
         """"""
+        # TODO wird noch benötigt ?
 
-    def getBoundingBox(self, geohash):
+    def get_bounding_box(self, geohash):
         """implement with lib"""
+        # TODO wird noch benötigt ?

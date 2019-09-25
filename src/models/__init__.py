@@ -1,5 +1,5 @@
-from .Node import Node
-from .Tile import Tile
-from .Links import Link
-from .BoundingBox import BoundingBox
+from .node import Node
+from .tile import Tile
+from .links import Link
+from .bounding_box import BoundingBox
 

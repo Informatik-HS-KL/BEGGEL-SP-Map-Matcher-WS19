@@ -1,12 +1,13 @@
 import requests
 from flask import jsonify
 from flask import Response, request, Blueprint
-from src.MapService import MapService
-from src.GeoHashWrapper import GeoHashWrapper
-from src.models.BoundingBox import BoundingBox
+from src.map_service import MapService
+from src.geo_hash_wrapper import GeoHashWrapper
+from src.models.bounding_box import BoundingBox
 
-mapservice = MapService()
+map_service = MapService()
 api = Blueprint('api', __name__)
+
 
 def _resp(data):
     """
@@ -22,7 +23,7 @@ def get_tiles():
     """ :return List of Geohashes of the cached Tiles
     """
 
-    tiles = mapservice.getAllCachedTiles()
+    tiles = map_service.get_all_cached_tiles()
     data = {}
     for k, v in tiles.items():
         bbox = BoundingBox.from_geohash(k)
@@ -49,8 +50,9 @@ def get_geohashes():
     for val in bbox_str.split(","):
         bbox.append(float(val))
 
-    geohashes = GeoHashWrapper().getGeoHashes(tuple(bbox), 5)
+    geohashes = GeoHashWrapper().get_geohashes(tuple(bbox), 5)
     return _resp(geohashes)
+
 
 @api.route('/tiles/<string:geohash>')
 def get_tile(geohash):
@@ -59,7 +61,7 @@ def get_tile(geohash):
     if len(geohash) < 3:
         return jsonify({"Error": "Level have to be >= 4"})
 
-    tile = mapservice.getOrLoadTile(geohash)
+    tile = map_service.get_or_load_tile(geohash)
     data = []
 
     for node in tile.get_nodes():
@@ -70,6 +72,7 @@ def get_tile(geohash):
         data.append(point)
 
     return _resp(data)
+
 
 @api.route('/tiles/<string:geohash>/nodes')
 def get_nodes(geohash):
@@ -78,7 +81,7 @@ def get_nodes(geohash):
     if len(geohash) < 4:
         return jsonify({"Error": "Level have to be >= 4"})
 
-    tile = mapservice.getOrLoadTile(geohash)
+    tile = map_service.get_or_load_tile(geohash)
     data = []
     for node in tile.get_nodes():
         point = {
@@ -88,6 +91,7 @@ def get_nodes(geohash):
         data.append(point)
 
     return _resp(data)
+
 
 @api.route('/tiles/<string:geohash>/links')
 def get_links(geohash):
@@ -97,7 +101,7 @@ def get_links(geohash):
     if len(geohash) < 4:
         return jsonify({"Error": "Level have to be >= 4"})
 
-    tile = mapservice.getOrLoadTile(geohash)
+    tile = map_service.get_or_load_tile(geohash)
 
     data = []
     for link in tile.get_links():
@@ -109,6 +113,7 @@ def get_links(geohash):
 
     return _resp(data)
 
+
 @api.route('/tiles/<string:geohash>/nodes/crossroads')
 def get_crossroads(geohash):
     """
@@ -119,7 +124,7 @@ def get_crossroads(geohash):
     if len(geohash) < 4:
         return jsonify({"Error": "Level have to be >= 4"})
 
-    tile = mapservice.getOrLoadTile(geohash)
+    tile = map_service.get_or_load_tile(geohash)
     data = []
     for node in tile.get_nodes():
         if len(node.get_links()) > 2:
@@ -143,7 +148,7 @@ def sum_tiles():
     hashes_list = hashes_s.split(",")
     nodes = {}
     for hash in hashes_list:
-        tile = mapservice.getOrLoadTile(hash)
+        tile = map_service.get_or_load_tile(hash)
         nodes.update(tile.get_nodes())
 
     return _resp(nodes)

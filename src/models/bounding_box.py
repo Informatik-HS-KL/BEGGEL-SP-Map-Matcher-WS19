@@ -33,13 +33,13 @@ class BoundingBox:
         lat_interval_1 = (self.south, self.north)
         lat_interval_2 = (other.south, other.north)
 
-        if not ut.firstIntervalContainsSecondInterval(lat_interval_1, lat_interval_2, 90):
+        if not ut.first_interval_contains_second_interval(lat_interval_1, lat_interval_2, 90):
             return False
 
         lon_interval_1 = (self.west, self.east)
         lon_interval_2 = (other.west, other.east)
 
-        if not ut.firstIntervalContainsSecondInterval(lon_interval_1, lon_interval_2, 180):
+        if not ut.first_interval_contains_second_interval(lon_interval_1, lon_interval_2, 180):
             return False
 
         return True

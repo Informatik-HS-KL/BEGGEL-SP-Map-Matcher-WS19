@@ -5,10 +5,10 @@ import unittest
 from src.models import Node
 from src.models import Link
 
+
 class TestNode(unittest.TestCase):
 
     def test(self):
-
         n = Node(1, (2.4, 2.5))
         l = Link(n, Node(2, (47.4, 45.5)))
 

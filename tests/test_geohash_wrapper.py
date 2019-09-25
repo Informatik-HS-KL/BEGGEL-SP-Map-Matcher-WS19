@@ -1,5 +1,5 @@
 import unittest
-from src.GeoHashWrapper import GeoHashWrapper
+from src.geo_hash_wrapper import GeoHashWrapper
 
 
 # Diese Klasse soll die Funktionalität des GeoHashWrapper testen.

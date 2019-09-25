@@ -1,7 +1,8 @@
 import unittest
 
-from src.models.BoundingBox import BoundingBox
-from src.models.Node import Node
+from src.models.bounding_box import BoundingBox
+from src.models.node import Node
+
 
 class TestBoundingBox(unittest.TestCase):
     def test_overlap(self):
@@ -72,26 +73,16 @@ class TestBoundingBox(unittest.TestCase):
 
     def test_contains_node(self):
         """
-        BBOX:
-        (49.4549560546875,7.789306640625,49.46044921875,7.80029296875)
-        Punkte darin:
-            - 49.4548433 / 7.794187
-            - 49.4527781 / 7.7882418
-            - 49.4567621 / 7.7974489
-
-        Nicht darin:
-        49.4425199 / 7.7771835
-        49.4435975 / 7.7778411
         :return:
         """
         bbox = BoundingBox(50.0, 10.0, 50.5, 12.0)
-        #Liegen in der bbox
+        # Liegen in der bbox
         n1 = Node(1, (50.0, 10.0))
         n2 = Node(2, (50.0, 11.0))
         n3 = Node(3, (50.2, 10.0))
         n4 = Node(4, (50.5, 11.0))
 
-        #Liegen nicht in der bbox
+        # Liegen nicht in der bbox
         n5 = Node(5, (49.0, 9.0))
         n6 = Node(6, (49.0, 10.0))
         n7 = Node(7, (50.0, 9.0))

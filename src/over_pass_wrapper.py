@@ -1,34 +1,33 @@
 """
 Läd daten von der OVerpass schnittstelle in eine Kachel
 """
-import  requests
-import geohash2 as Geohash
+import requests
+
 from src.models import Tile
 from src.models import Node
 from src.models import Link
 from src.models import BoundingBox
 
 
-OVERPASS_URL = "http://overpass-api.de/api/interpreter"
+class OverpassWrapper:
+    OVERPASS_URL = "http://overpass-api.de/api/interpreter"
 
-class OverPassWrapper:
-
-    def loadTile (self, geoHash):
+    def load_tile(self, geo_hash):
         """ Daten von der Overpass api laden
             from geohash to Boundingbox
         """
 
-        bboxstr = "%s" % BoundingBox.from_geohash(geoHash)
-        query = '[out:json];way[highway]%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out body;' % bboxstr
-        url = "%s?data=%s" % (OVERPASS_URL, query)
+        bbox_str = "%s" % BoundingBox.from_geohash(geo_hash)
+        query = '[out:json];way[highway]%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out body;' % bbox_str
+        url = "%s?data=%s" % (self.OVERPASS_URL, query)
         print(query)
 
         resp = requests.get(url)
         elements = resp.json().get("elements")
 
-        nodes = {} # Initalize
+        nodes = {}  # Initalize
         ways = []  # Initalize
-        links = [] # Initalize
+        links = []  # Initalize
 
         for element in elements:
             if element["type"] == "node":
@@ -39,7 +38,7 @@ class OverPassWrapper:
         for element in elements:
             if element["type"] == "way":
                 way_nodes = element["nodes"]
-                for i in range(0, len(way_nodes)-1):
+                for i in range(0, len(way_nodes) - 1):
                     sn = nodes[way_nodes[i]]
                     en = nodes[way_nodes[i + 1]]
                     link = Link(sn, en)
@@ -47,5 +46,4 @@ class OverPassWrapper:
                     en.add_link(link)
                     links.append(link)
 
-        return Tile(geoHash, nodes, links)
-
+        return Tile(geo_hash, nodes, links)

@@ -5,14 +5,14 @@ Node is a Point on the Map with a geo Position lat/lon
 
 class Node:
 
-    def __init__(self, osmid: int, latlon: tuple):
+    def __init__(self, osm_id: int, lat_lon: tuple):
         """
         :param id: id from OSM Overpass API
-        :param latlon: tuple with the float position values lat and lon
+        :param lat_lon: tuple with the float position values lat and lon
         """
 
-        self.__id = osmid
-        self.__latLon = latlon
+        self.__id = osm_id
+        self.__latLon = lat_lon
         self.__tags = {}
         self.__links = []
 

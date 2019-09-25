@@ -1,8 +1,8 @@
-from src.models.Links import Link
+from src.models.links import Link
 
 
 class Tile:
-       ## maps nodeId --> Node object
+    ## maps nodeId --> Node object
 
     def __init__(self, geohash, nodes: dict, links: list):
         """"""
@@ -21,13 +21,12 @@ class Tile:
         """
         self.__links.append(link)
 
-    def get_node(self, osmid: int):
+    def get_node(self, osm_id: int):
         """
-        :param osmid: int
+        :param osm_id: int
         :return: Node
         """
-        return self.__nodes[osmid]
-
+        return self.__nodes[osm_id]
 
     def get_nodes(self):
         """

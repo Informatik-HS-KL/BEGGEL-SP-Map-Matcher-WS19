@@ -7,6 +7,7 @@ https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
 """
 from . import Node
 
+
 class Link:
 
     def __init__(self, start_node: Node, end_node: Node):
@@ -44,11 +45,10 @@ class Link:
 
     def to_geojson(self):
         """"""
-        data = { "type": "LineString",
-            "coordinates": [
-                [self.__startNode.get_lat(), self.__endNode.get_lon()],
-                [self.__endNode.get_lat(), self.__endNode.get_lon()]
-            ]
-        }
+        data = {"type": "LineString",
+                "coordinates": [
+                    [self.__startNode.get_lat(), self.__endNode.get_lon()],
+                    [self.__endNode.get_lat(), self.__endNode.get_lon()]
+                ]
+                }
         return data
-
