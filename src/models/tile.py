@@ -11,6 +11,9 @@ class Tile:
         self.__links = links
         self.__geohash = geohash
 
+    def get_geohash(self):
+        return self.__geohash
+
     def add_node(self, node):
         self.__nodes.update({node.get_id(): node})
 
@@ -26,7 +29,7 @@ class Tile:
         :param osm_id: int
         :return: Node
         """
-        return self.__nodes[osm_id]
+        return self.__nodes.get(osm_id, None)
 
     def get_nodes(self):
         """
@@ -37,3 +40,10 @@ class Tile:
     def get_links(self):
         """"""
         return self.__links
+
+    def get_neigbors(self):
+        """
+
+        :return:
+        """
+        # TODO

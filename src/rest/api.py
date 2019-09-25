@@ -14,8 +14,24 @@ def _resp(data):
     :param data:
     :return:
     """
+
+    #return Response(response=, status=200, mimetype="text/html")
     return jsonify(data)
 
+@api.route('/')
+def get_doc():
+    """ :return
+    """
+    data = {
+
+        "/api/tiles/": "Get all cached tiles infos",
+        "/api/tiles/<geohash>/": "get tile infos of given geohash",
+        "/api/tiles/<geohash>/nodes": "get nodes of given tile",
+        "/api/tiles/<geohash>/nodes/1": "get specific node of tile",
+        "/api/tiles/<geohash>/crossroads": "get crossroads of tile",
+        "/api/geohashes?south,west,north,east": "Liste aller geohashes, die von dieser bbox betroffen sind"
+    }
+    return _resp(data)
 
 @api.route('tiles')
 @api.route('tiles/')
@@ -50,11 +66,23 @@ def get_geohashes():
     for val in bbox_str.split(","):
         bbox.append(float(val))
 
-    geohashes = GeoHashWrapper().get_geohashes(tuple(bbox), 5)
-    return _resp(geohashes)
+    south, west, north, east = tuple(bbox)
 
+    geohashes = GeoHashWrapper().get_geohashes(BoundingBox(south, west,north,east), 5)
+
+    data = {}
+
+    for geohash in geohashes:
+        data[geohash] = {
+            "south": BoundingBox.from_geohash(geohash).south,
+            "west": BoundingBox.from_geohash(geohash).west,
+            "north": BoundingBox.from_geohash(geohash).north,
+            "east": BoundingBox.from_geohash(geohash).east,
+        }
+    return _resp(data)
 
 @api.route('/tiles/<string:geohash>')
+@api.route('/tiles/<string:geohash>/')
 def get_tile(geohash):
     """ :return tile of given GeoHash
     """
@@ -62,14 +90,12 @@ def get_tile(geohash):
         return jsonify({"Error": "Level have to be >= 4"})
 
     tile = map_service.get_or_load_tile(geohash)
-    data = []
-
-    for node in tile.get_nodes():
-        point = {
-            "type": "Point",
-            "coordinates": list(node.get_latlon())
-        }
-        data.append(point)
+    data = {
+        "geohash": tile.get_geohash(),
+        "nodes.length": len(tile.get_nodes()),
+        "links.length": len(tile.get_links()),
+        "bbox": str(BoundingBox.from_geohash(geohash))
+    }
 
     return _resp(data)
 
@@ -86,11 +112,31 @@ def get_nodes(geohash):
     for node in tile.get_nodes():
         point = {
             "type": "Point",
-            "coordinates": list(node.get_latlon())
+            "coordinates": list(node.get_latlon()),
+            "osmid": node.get_id()
         }
         data.append(point)
 
     return _resp(data)
+
+
+@api.route('/tiles/<string:geohash>/nodes/<int:osmid>')
+def get_node(geohash, osmid):
+    """ :return Nodes of tile of Geohash
+    """
+    if len(geohash) < 4:
+        return jsonify({"Error": "Level have to be >= 4"})
+
+    tile = map_service.get_or_load_tile(geohash)
+    node = tile.get_node(osmid)
+    if not node:
+        return _resp({"error": "No Node with osm id:" + str(osmid)})
+    point = {
+        "type": "Point",
+        "coordinates": list(node.get_latlon()),
+        "osmid": osmid
+    }
+    return _resp(point)
 
 
 @api.route('/tiles/<string:geohash>/links')
@@ -113,8 +159,7 @@ def get_links(geohash):
 
     return _resp(data)
 
-
-@api.route('/tiles/<string:geohash>/nodes/crossroads')
+@api.route('/tiles/<string:geohash>/crossroads')
 def get_crossroads(geohash):
     """
     Nodes wich represents a Crossing
