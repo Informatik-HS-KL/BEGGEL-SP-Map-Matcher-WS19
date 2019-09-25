@@ -65,10 +65,6 @@ def get_geohashes():
     for val in bbox_str.split(","):
         bbox.append(float(val))
 
-<<<<<<< Updated upstream
-    geohashes = GeoHashWrapper().getGeoHashes(tuple(bbox), 5)
-    return _resp(geohashes)
-=======
     south, west, north, east = tuple(bbox)
 
     geohashes = GeoHashWrapper().get_geohashes(BoundingBox(south, west,north,east), 5)
