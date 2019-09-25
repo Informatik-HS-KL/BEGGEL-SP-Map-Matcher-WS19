@@ -1,21 +1,13 @@
+
 <html>
-    <head>
-         <link rel="stylesheet" href="{{ url_for('static', filename='./leaflet/leaflet.css') }}"/>
-         <link rel="stylesheet" href="{{ url_for('static', filename='./bootstrap.min.css') }}"/>
-
-        <link rel="stylesheet" href="{{ url_for('static', filename='./styles.css') }}"/>
-
-         <script src="{{ url_for('static', filename='./leaflet/leaflet.js') }}"></script>
-         <script src="{{ url_for('static', filename='jquery-3.4.1.min.js') }}"></script>
-         <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-        <script src="{{ url_for('static', filename='map.js') }}"></script>
-
-    </head>
+    {% include "head.html" %}
 
     <body>
-        <div id="header">
-            <div class="jumbotron text-center" style="margin-bottom:0">
-                <h1>Map Service</h1>
+        <div>
+            <div id="header">
+                <div class="jumbotron text-center" style="margin-bottom:0">
+                    <h1>Map Service</h1>
+                </div>
             </div>
         </div>
         <div class="container-fluid">

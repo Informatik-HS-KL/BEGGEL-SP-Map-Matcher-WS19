@@ -18,7 +18,9 @@ class OverpassWrapper:
         """
 
         bbox_str = "%s" % BoundingBox.from_geohash(geo_hash)
-        query = '[out:json];way[highway]%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out body;' % bbox_str
+        q_filter = '(if: t["highway"] == "motorway" || t["highway"] == "trunk" || t["highway"] == "primary" || t["highway"] == "secondary" || t["highway"] == "tertiary" || t["highway"] == "unclassified" || t["highway"] == "residential" || t["highway"] == "motorway_link" || t["highway"] == "trunk_link" || t["highway"] == "primary_link" || t["highway"] == "secondary_link" || t["highway"] == "tertiary_link" || t["highway"] == "living_street")'
+
+        query = '[out:json];way%s%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out body;' % (bbox_str, q_filter)
         url = "%s?data=%s" % (self.OVERPASS_URL, query)
         print(query)
 

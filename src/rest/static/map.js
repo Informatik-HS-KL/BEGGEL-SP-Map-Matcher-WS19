@@ -50,7 +50,7 @@ window.onload = function() {
 
         url = '/api/tiles/'+ inputs.geoHash +'/nodes'
         if(inputs.onlyCrossRoads){
-            url = '/api/tiles/'+ inputs.geoHash +'/nodes/crossroads';
+            url = '/api/tiles/'+ inputs.geoHash +'/crossroads';
         }
 
         xhr.open('GET', url);

@@ -9,6 +9,19 @@ map_service = MapService()
 api = Blueprint('api', __name__)
 
 
+def documentation():
+
+
+    data = [
+        { "url": "/api/tiles/","description":"Get all cached tiles infos"},
+        {"url":"/api/tiles/<geohash>/", "description": "get tile infos of given geohash"},
+        { "url":"/api/tiles/<geohash>/nodes", "description":"get nodes of given tile"},
+        { "url":"/api/tiles/<geohash>/nodes/1", "description":"get specific node of tile"},
+        { "url": "/api/tiles/<geohash>/crossroads", "description":"get crossroads of tile"},
+        { "url": "/api/geohashes?south,west,north,east", "description": "Liste aller geohashes, die von dieser bbox betroffen sind"}
+    ]
+    return data
+
 def _resp(data):
     """
     :param data:
@@ -18,20 +31,13 @@ def _resp(data):
     #return Response(response=, status=200, mimetype="text/html")
     return jsonify(data)
 
+
 @api.route('/')
 def get_doc():
     """ :return
     """
-    data = {
+    return _resp(documentation())
 
-        "/api/tiles/": "Get all cached tiles infos",
-        "/api/tiles/<geohash>/": "get tile infos of given geohash",
-        "/api/tiles/<geohash>/nodes": "get nodes of given tile",
-        "/api/tiles/<geohash>/nodes/1": "get specific node of tile",
-        "/api/tiles/<geohash>/crossroads": "get crossroads of tile",
-        "/api/geohashes?south,west,north,east": "Liste aller geohashes, die von dieser bbox betroffen sind"
-    }
-    return _resp(data)
 
 @api.route('tiles')
 @api.route('tiles/')
