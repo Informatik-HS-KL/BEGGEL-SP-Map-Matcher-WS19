@@ -64,5 +64,21 @@ class Node:
         """
         self.__links.append(link)
 
+    def get_distance(self, other):
+        """
+
+        :param other: Node
+        :return:
+        """
+
+        # TODO Berechne Distanz zu anderem Knoten
+
+
+    def to_geo_json(self):
+        """
+        :return:
+        """
+        # TODO KP: MAcht das Sinn hier sowas zu erstellen oder lieber an einer anderen Stelle?
+
     def __repr__(self):
         return "<Node: %s>" % self.__id
