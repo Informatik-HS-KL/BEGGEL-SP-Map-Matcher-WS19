@@ -1,41 +1,48 @@
 import requests
 from flask import jsonify
-from flask import Flask, Response, request, render_template
+from flask import Response, request, Blueprint
 from src.MapService import MapService
 from src.GeoHashWrapper import GeoHashWrapper
-app = Flask(__name__)
+from src.models.BoundingBox import BoundingBox
 
-
+mapservice = MapService()
+api = Blueprint('api', __name__)
 
 def _resp(data):
     """
-
     :param data:
     :return:
     """
-
     return jsonify(data)
 
-mapservice = MapService()
 
-@app.route('/')
-def rootpage():
-    return render_template('anzeige.html')
-
-@app.route('/tiles')
-@app.route('/tiles/')
+@api.route('tiles')
+@api.route('tiles/')
 def get_tiles():
     """ :return List of Geohashes of the cached Tiles
     """
 
     tiles = mapservice.getAllCachedTiles()
-    return _resp({"description": "All Cached Tiles", "tiles": list(tiles.keys())})
+    data = {}
+    for k, v in tiles.items():
+        bbox = BoundingBox.from_geohash(k)
+        data[k] = {
+            "nodes.length": len(v.get_nodes()),
+            "bbox": {
+                "south": bbox.south,
+                "west": bbox.west,
+                "north": bbox.north,
+                "east": bbox.east
+            }
+        }
 
-@app.route('/geohashes', methods=["GET"])
+    return _resp({"description": "All Cached Tiles", "tiles": data})
+
+
+@api.route('/geohashes', methods=["GET"])
 def get_geohashes():
     """ :return tile of given GeoHash
     """
-
     bbox_str = request.args.get("bbox")
 
     bbox = []
@@ -43,17 +50,13 @@ def get_geohashes():
         bbox.append(float(val))
 
     geohashes = GeoHashWrapper().getGeoHashes(tuple(bbox), 5)
-
-    print(tuple(bbox))
-    print(geohashes)
-
     return _resp(geohashes)
 
-@app.route('/tiles/<string:geohash>')
+@api.route('/tiles/<string:geohash>')
 def get_tile(geohash):
     """ :return tile of given GeoHash
     """
-    if len(geohash) < 4:
+    if len(geohash) < 3:
         return jsonify({"Error": "Level have to be >= 4"})
 
     tile = mapservice.getOrLoadTile(geohash)
@@ -68,7 +71,7 @@ def get_tile(geohash):
 
     return _resp(data)
 
-@app.route('/tiles/<string:geohash>/nodes')
+@api.route('/tiles/<string:geohash>/nodes')
 def get_nodes(geohash):
     """ :return Nodes of tile of Geohash
     """
@@ -86,7 +89,7 @@ def get_nodes(geohash):
 
     return _resp(data)
 
-@app.route('/tiles/<string:geohash>/links')
+@api.route('/tiles/<string:geohash>/links')
 def get_links(geohash):
     """ :return Links of Tile of given hash
     """
@@ -106,7 +109,7 @@ def get_links(geohash):
 
     return _resp(data)
 
-@app.route('/tiles/<string:geohash>/nodes/crossroads')
+@api.route('/tiles/<string:geohash>/nodes/crossroads')
 def get_crossroads(geohash):
     """
     Nodes wich represents a Crossing
@@ -123,17 +126,24 @@ def get_crossroads(geohash):
             point = {
                 "type": "Point",
                 "coordinates": list(node.get_latlon())
-                #"coordinates": list(node.get_latlon())
-
             }
             data.append(point)
 
     return _resp(data)
 
-@app.route('/tiles/<string:geohash>/links')
-def get_route():
-    pass
 
+@api.route('/tiles/sum', methods=["GET"])
+def sum_tiles():
+    """ Fasst mehrere Tiles in get zusammen
+        ?hashes=1,2,3
+    """
+    # TODO HIER KÖNNTE UNS DER HAUPSPEICHER VOLL LAUFEN
 
-if __name__ == '__main__':
-    app.run(host="0.0.0.0")
+    hashes_s = request.args.get("hashed", "")
+    hashes_list = hashes_s.split(",")
+    nodes = {}
+    for hash in hashes_list:
+        tile = mapservice.getOrLoadTile(hash)
+        nodes.update(tile.get_nodes())
+
+    return _resp(nodes)

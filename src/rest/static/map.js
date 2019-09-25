@@ -48,9 +48,9 @@ window.onload = function() {
         var xhr = new XMLHttpRequest();
         inputs = getUserInputs()
 
-        url = 'tiles/'+ inputs.geoHash +'/nodes'
+        url = '/api/tiles/'+ inputs.geoHash +'/nodes'
         if(inputs.onlyCrossRoads){
-            url = 'tiles/'+ inputs.geoHash +'/nodes/crossroads';
+            url = '/api/tiles/'+ inputs.geoHash +'/nodes/crossroads';
         }
 
         xhr.open('GET', url);
