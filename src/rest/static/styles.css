@@ -2,7 +2,19 @@
     height: 500px;
 }
 
-
 #header .jumbotron{
     padding: 1rem 2rem !important;
+}
+
+#left > *{
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+.tileinfo{
+    padding: 5px;
+    margin: 5px;
+  -moz-box-shadow:    1px 1px 2px 4px #ccc;
+  -webkit-box-shadow: 1px 1px 2px 4px #ccc;
+  box-shadow:         1px 1px 2px 4px #ccc;
 }

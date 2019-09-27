@@ -13,16 +13,23 @@
         <div class="container-fluid">
         <div class="row">
 
-            <div class="col-4">
+            <div class="col-4" id="left">
                 <div class="row">
-                    <form class="form-inline" id="form-tile-load">
-                      <div class="form-group">
-                          <label for="tile">Kachel</label>
-                          <input type="text" class="form-control" id="input-tile" placeholder=""/>
-                          <label for="tile">Nur Kreuzungen</label>
-                          <input type="checkbox" class="form-control" id="input-only-crossroads"/>
-                          <input type="button" id="btn-submit-tile" class="btn btn-primary" name="load" value="Load"/>
-                      </div>
+                    <form class="form" id="form-tile-load">
+                        <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-default">Geohash</span>
+                          </div>
+                          <input type="text" class="form-control" id="input-tile" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+                        </div>
+                        <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-default">Nur Kreuzungen anzeigen</span>
+                          </div>
+                          <input type="checkbox" class="form-control" id="input-only-crossroads" aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default">
+                            <input type="button" id="btn-submit-tile" class="btn btn-primary" name="load" value="Load"/>
+                        </div>
+
                     </form>
                 </div>
                 <div id="output" class="row">

@@ -26,12 +26,7 @@ function renderNodes(map, nodes){
     });
 }
 
-function renderInfos(map, nodes) {
-    wrapper = document.getElementById("output");
-    var nodecount = document.createElement("span")
-    nodecount.textContent = "Nodes:"+ nodes.length;
-    wrapper.appendChild(nodecount)
-}
+
 function getUserInputs(){
     geoHash = document.getElementById("input-tile").value
     onlyCrossRoads = document.getElementById("input-only-crossroads").checked
@@ -39,6 +34,38 @@ function getUserInputs(){
 }
 
 window.onload = function() {
+    function TileInfo(geoHash, nodeCount){
+        this.props = {
+            "nodeCount": { title: "Anzahl Nodes", val: nodeCount},
+            "geoHash": { title: "Kachel", val: geoHash}
+        }
+    }
+
+    TileInfo.prototype.render = function () {
+        wrapper = document.createElement("div")
+        wrapper.className = "tileinfo";
+        for(var i in this.props){
+            div = document.createElement("div");
+            span = document.createElement("span");
+            span.textContent = this.props[i].title + " "+ this.props[i].val;
+            div.appendChild(span)
+            wrapper.appendChild(div);
+        }
+        return wrapper;
+    }
+
+
+    function renderInfos(map, nodes, inputs) {
+        // wrapper = document.getElementById("output");
+        // var nodecount = document.createElement("span")
+        // nodecount.textContent = "Nodes:"+ nodes.length;
+        // wrapper.appendChild(nodecount)
+
+        container = document.getElementById("output")
+        container.appendChild(new TileInfo(inputs.geoHash, nodes.length).render());
+
+    }
+
     console.log("Document loaded")
     var loc = [49.46112, 7.76316]
     map = buildMap(loc);
@@ -47,10 +74,10 @@ window.onload = function() {
     function load(evt) {
         var xhr = new XMLHttpRequest();
         inputs = getUserInputs()
-
-        url = '/api/tiles/'+ inputs.geoHash +'/nodes'
+        root_url = "/api/tiles/"
+        url = root_url + inputs.geoHash +'/nodes'
         if(inputs.onlyCrossRoads){
-            url = '/api/tiles/'+ inputs.geoHash +'/crossroads';
+            url = root_url + inputs.geoHash +'/crossroads';
         }
 
         xhr.open('GET', url);
@@ -59,7 +86,7 @@ window.onload = function() {
             if (xhr.status === 200) {
                 geoData = JSON.parse(xhr.responseText);
                 renderNodes(map, geoData);
-                renderInfos(map, geoData);
+                renderInfos(map, geoData, inputs);
             }
         };
         xhr.send();
