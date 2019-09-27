@@ -203,3 +203,14 @@ def sum_tiles():
         nodes.update(tile.get_nodes())
 
     return _resp(nodes)
+
+@api.route('/samples', methods=["GET"])
+def samples():
+    data = {
+        "geohashes": {
+            "nähe Zweibrücken": "u0v0p",
+            "nähe Homburg": "u0v0",
+            "nähe Saarbrücken": "u0v03"
+        }
+    }
+    return jsonify(data)
