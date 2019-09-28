@@ -18,7 +18,7 @@ def documentation():
         { "url":"/api/tiles/<geohash>/nodes", "description":"get nodes of given tile"},
         { "url":"/api/tiles/<geohash>/nodes/1", "description":"get specific node of tile"},
         { "url": "/api/tiles/<geohash>/crossroads", "description":"get crossroads of tile"},
-        { "url": "/api/geohashes?south,west,north,east", "description": "Liste aller geohashes, die von dieser bbox betroffen sind"}
+        { "url": "/api/geohashes?bbox=south,west,north,east", "description": "Liste aller geohashes, die von dieser bbox betroffen sind"}
     ]
     return data
 

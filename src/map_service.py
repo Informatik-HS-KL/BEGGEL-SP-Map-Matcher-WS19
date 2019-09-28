@@ -1,7 +1,7 @@
 """
 """
 
-from src import geo_hash_wrapper
+from src.geo_hash_wrapper import GeoHashWrapper
 from src.over_pass_wrapper import OverpassWrapper
 from src.models.bounding_box import BoundingBox
 
@@ -21,7 +21,7 @@ class MapService:
         """
         ret = []
 
-        for geoHash in geo_hash_wrapper().get_geohashes(bbox, self._geoHashLevel):
+        for geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
             tile = self.get_or_load_tile(geoHash)
             for node in tile.get_nodes():
                 if node in bbox:
