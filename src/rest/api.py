@@ -207,10 +207,13 @@ def sum_tiles():
 @api.route('/samples', methods=["GET"])
 def samples():
     data = {
-        "geohashes": {
-            "nähe Zweibrücken": "u0v0p",
-            "nähe Homburg": "u0v0",
-            "nähe Saarbrücken": "u0v03"
-        }
+        "Homburg":{
+            "bbox": "49.293105512,7.2850287149,49.3553136219,7.3705160806",
+            "tiles": ["u0v0t", "u0v0y", "u0v0r"],
+        },
+        "Köln":{
+            "bbox": "50.9099067349,6.9170473881,50.9700490766,7.0025347539",
+            "tiles": ["u1hcv", "u1hcw", "u1hcz"]
+        },
     }
     return jsonify(data)
