@@ -9,6 +9,7 @@ from . import Node
 
 
 class Link:
+    _mapService =null
 
     def __init__(self, start_node: Node, end_node: Node):
         """
@@ -22,7 +23,9 @@ class Link:
     def get_start_node(self):
         """ :return Node
         """
-        return self.__startNode
+
+        #return self.__startNode
+        return mapService.loadNode(startNodeRef)
 
     def get_end_node(self):
         """ :return Node
@@ -52,3 +55,9 @@ class Link:
                 ]
                 }
         return data
+
+    def getLinksAsStartNode(self):
+        startNode = get_start_node()
+
+        return startNode.getLinks () ## entferne mich selber
+
