@@ -1,4 +1,4 @@
-from src.models.links import Link
+from src.models.link import Link
 
 
 class Tile:
@@ -41,9 +41,32 @@ class Tile:
         """"""
         return self.__links
 
-    def get_neigbors(self):
-        """
+    def get_geohash(self):
+        return self.__geohash
 
-        :return:
-        """
-        # TODO
+    def get_nachbar(self):
+        nachbar = Tile[8]
+        nachbar[0] = get_right(get_top(self))
+        nachbar[1] = get_top(self)
+        nachbar[2] = get_left(get_top(self))
+        nachbar[3] = get_right(self)
+        nachbar[4] = get_left(self)
+        nachbar[5] = get_right(get_below(self))
+        nachbar[6] = get_below(self)
+        nachbar[7] = get_left(get_below(self))
+
+
+def get_top(other):
+    return other.get_geohash()
+
+
+def get_below(other):
+    return other.get_geohash()
+
+
+def get_left(other):
+    return other.get_geohash()
+
+
+def get_right(other):
+    return other.get_geohash()

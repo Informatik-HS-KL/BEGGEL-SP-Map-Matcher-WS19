@@ -29,6 +29,9 @@ class MapService:
 
         return ret
 
+    def get_links_in_bounding_box(self, bbox):
+        pass
+
     def get_or_load_tile(self, geohash):
         """"""
         if geohash not in self._tileCache:
@@ -38,3 +41,15 @@ class MapService:
 
     def get_all_cached_tiles(self):
         return self._tileCache
+
+    def load_link(self, id):
+        pass
+
+    def load_link(self, way_id, start_node):
+        pass
+
+    def load_links(self, way_id):
+        pass
+
+    def get_links_in_radius(self, pos, max_distance):
+        pass
