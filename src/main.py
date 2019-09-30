@@ -20,34 +20,41 @@ def main():
     ##todo
     links = mapService.get_links_in_bounding_box(bbox)
 
+    # Jeder Link soll die Information enthalten, von wem er benutzt werden kann (also z.B. Radfahrer, Fußgänger, Autos)
     links.navigatable # car, bike, pedestrial
+    # Links sollen in bestimmte nützliche Geoformate umgewandelt werden können (Wkt, geoJson):
     link.toWkt()
     link.toGeoJson()
-    link.getLinksAsStartNode()
-    link.getLinksAsEndNode()
+    # Ausgehende Links am Start- bzw. Endknoten eines Links sollen geliefert werden können:
+    link.getLinksAtStartNode()
+    link.getLinksAtEndNode()
 
-    # lange des links in metern
-    #Haversine formula
-    #https://medium.com/@petehouston/calculate-distance-of-two-locations-on-earth-using-python-1501b1944d97
+    # Länge des links in metern
+    # Haversine formula
+    # https://medium.com/@petehouston/calculate-distance-of-two-locations-on-earth-using-python-1501b1944d97
     link.getLength()
 
-    ## kann der link vom Start knoten zum End knoten befahren werden
+    # Es muss klar, in welcher Richtung der Link befahren werden kann.
+    # Kann der link vom Startknoten zum Endknoten befahren werden.
     link.isFromStart()
-    ## kann der link vom End knoten zum Start knoten befahren werden
+    # Kann der link vom Endknoten zum Startknoten befahren werden.
     link.isToStart()
 
-    # (wayId , startNoteId, geoHash[volle länge])
+    # Auch Links sollen eine Id haben die sich wie folgt zusammensetzt: (wayId , startNoteId, geoHash[volle Länge])
     link.id
 
-    mapService.loadLink (link.id)
-
+    # Es soll möglich sein einen Link anhand seiner Id zu "laden" (wir "laden" aber immer noch das ganze Tile):
+    mapService.loadLink(link.id)
+    # Es soll möglich sein einen Link anhand von wayId und StartknotenId zu "laden" (wir "laden" aber immer noch das ganze Tile):
     mapService.loadLink(link.id.way_id,link.id.startNode)
 
+    # Es soll möglich sein, alle zu Links, aus denen sich ein Way zusammensetzt, zu "laden" (wir "laden" aber immer noch das ganze Tile):
     List<Link> ll = mapService.loadLinks(link.id.way_id)
 
-    # (nodeId, geoHash [volle länge])
+    # Nodes bekommen eine Id in der folgenden Form: (nodeId, geoHash [volle länge])
     node.id
 
+    # Es werden alle Links im Umkreis einer Koordinate zurückgegeben (Radius=maxDistance).
     List<LinkDistance> listDistanceData = mapService.getLinksinRadius (lat, lon, maxDistance)
 
 

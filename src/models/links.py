@@ -9,6 +9,9 @@ from . import Node
 
 
 class Link:
+
+    # Links sollen nur noch Referenzen auf die Knoten (also die nodeIds) enthalten.
+    # In get_start_node bzw. get_end_node wird dann über mapService der entsprechende Knoten geladen.
     _mapService =null
 
     def __init__(self, start_node: Node, end_node: Node):
@@ -25,7 +28,7 @@ class Link:
         """
 
         #return self.__startNode
-        return mapService.loadNode(startNodeRef)
+        return mapService.loadNode(startNodeId)
 
     def get_end_node(self):
         """ :return Node
