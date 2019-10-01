@@ -3,15 +3,22 @@ Node is a Point on the Map with a geo Position lat/lon
 """
 
 
+class NodeId:
+    def __init__(self, osm_node_id, geohash):
+        """:param geohash: geohash wird in voller Länge (als String) angegeben."""
+        self.osm_node_id = osm_node_id
+        self.geohash = geohash
+
+
 class Node:
 
-    def __init__(self, osm_id: int, lat_lon: tuple):
+    def __init__(self, node_id: NodeId, lat_lon: tuple):
         """
         :param id: id from OSM Overpass API
         :param lat_lon: tuple with the float position values lat and lon
         """
 
-        self.__id = osm_id
+        self.__id = node_id
         self.__latLon = lat_lon
         self.__tags = {}
         self.__links = []
@@ -76,9 +83,12 @@ class Node:
 
     def to_geo_json(self):
         """
-        :return:
+        :return: Gibt den Knoten im GeoJson-Format (als String) zurück.
         """
-        # TODO KP: MAcht das Sinn hier sowas zu erstellen oder lieber an einer anderen Stelle?
+        # TODO KP: Macht das Sinn hier sowas zu erstellen oder lieber an einer anderen Stelle?
+
+    def to_wkt(self):
+        """:return: Gibt den Knoten im WKT-Format (als String) zurück."""
 
     def __repr__(self):
         return "<Node: %s>" % self.__id

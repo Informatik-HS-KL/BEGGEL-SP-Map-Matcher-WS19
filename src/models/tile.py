@@ -4,7 +4,7 @@ from src.models.link import Link
 class Tile:
     ## maps nodeId --> Node object
 
-    def __init__(self, geohash, nodes: dict, links: list):
+    def __init__(self, geohash, nodes: dict, links: dict):
         """"""
 
         self.__nodes = nodes

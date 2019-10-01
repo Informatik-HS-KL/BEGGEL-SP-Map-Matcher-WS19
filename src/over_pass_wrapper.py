@@ -49,3 +49,12 @@ class OverpassWrapper:
                     links.append(link)
 
         return Tile(geo_hash, nodes, links)
+
+    def load_links(self):
+        pass
+
+    def load_link(self):
+        pass
+
+    def load_node(self):
+        pass

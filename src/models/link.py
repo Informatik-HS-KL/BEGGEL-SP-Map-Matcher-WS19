@@ -5,15 +5,16 @@ for WKT see:
 https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
 
 """
-from . import Node
+from .node import NodeId
 
 
-class Link_id:
+class LinkId:
 
-    def __init__(self, way_id, geohash, start_node):
-        self.way_id = way_id
+    def __init__(self, osm_way_id, geohash, start_node_id):
+        self.osm_way_id = osm_way_id
         self.geohash = geohash
-        self.start_node = start_node
+        self.start_node_id = start_node_id
+
 
 class Link:
 
@@ -21,29 +22,44 @@ class Link:
     # In get_start_node bzw. get_end_node wird dann über mapService der entsprechende Knoten geladen.
     _map_service = None
 
-    def __init__(self, start_node: Node, end_node: Node):
+    def __init__(self, start_node_id: NodeId, end_node_id: NodeId):
         """
         :param startNode: Node Start of this Link
         :param endNode: Node End of this Link
         """
-        self.__startNode = start_node
-        self.__endNode = end_node
+        self.__start_node_id = start_node_id
+        self.__end_node_id = end_node_id
         self.__outs = []
 
     def get_start_node(self):
-        """ :return Node
+        """
+        :return Gibt den Startknoten (als Node) zurück.
         """
 
         #return self.__startNode
-        return _map_service.loadNode(startNodeId)
+        return self._map_service.load_node(self.__start_node_id)
 
     def get_end_node(self):
-        """ :return Node
+        """ :return Gibt den Endknoten (als Node) zurück.
         """
-        return self.__endNode
+        return self._map_service.load_node(self.__end_node_id)
 
-    def get_links(self):
-        return self.__startNode.get_links().extend(self.__endNode.get_links())
+    # def get_links(self):
+    #     return self.__startNode.get_links().extend(self.__endNode.get_links())
+
+    def get_links_at_start_node(self):
+        """
+        Gibt alle vom Startknoten ausgehende Links zurück (exclusive self).
+        :return: Liste von Link-Objekten
+        """
+        pass
+
+    def get_links_at_end_node(self):
+        """
+        Gibt alle vom Endknoten ausgehende Links zurück (exclusive self).
+        :return: Liste von Link-Objekten
+        """
+        pass
 
     def get_tags(self):
         """
@@ -54,14 +70,14 @@ class Link:
         return {}
 
     def __repr__(self):
-        return "<Link Start:%s End:%s>" % (self.__startNode.get_id(), self.__endNode.get_id())
+        return "<Link start_node_id:%s end_node_id:%s>" % (self.__start_node_id, self.__end_node_id)
 
     def to_geojson(self):
         """"""
         data = {"type": "LineString",
                 "coordinates": [
-                    [self.__startNode.get_lat(), self.__endNode.get_lon()],
-                    [self.__endNode.get_lat(), self.__endNode.get_lon()]
+                    [self.get_start_node().get_lat(), self.get_start_node().get_lon()],
+                    [self.get_end_node().get_lat(), self.get_end_node().get_lon()]
                 ]
                 }
         return data
@@ -69,10 +85,10 @@ class Link:
     def to_wkt(self):
         pass
 
-    def get_links_at_endnode(self):
+    def get_links_at_end_node(self):
         pass
 
-    def get_links_at_startnode(self):
+    def get_links_at_start_node(self):
         pass
 
     def get_length(self):

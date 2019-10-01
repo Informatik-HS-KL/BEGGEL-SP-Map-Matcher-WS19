@@ -1,6 +1,7 @@
 from src.map_service import MapService
 from src.models.bounding_box import BoundingBox
 
+
 def main():
     """
     """
@@ -17,7 +18,7 @@ def main():
     for node in nodes:
         print(node, node.get_lat(), node.get_lon())
 
-    ##todo
+    ## todo
     link = mapService.get_links_in_bounding_box(bbox)
 
     # Jeder Link soll die Information enthalten, von wem er benutzt werden kann (also z.B. Radfahrer, Fußgänger, Autos)
@@ -56,7 +57,6 @@ def main():
 
     # Es werden alle Links im Umkreis einer Koordinate zurückgegeben (Radius=maxDistance).
     listDistanceData = mapService.get_links_in_radius((1.0, 2.0), 50)
-
 
 
 main()

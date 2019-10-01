@@ -95,7 +95,7 @@ def get_tile(geohash):
     if len(geohash) < 3:
         return jsonify({"Error": "Level have to be >= 4"})
 
-    tile = map_service.get_or_load_tile(geohash)
+    tile = map_service.get_tile(geohash)
     data = {
         "geohash": tile.get_geohash(),
         "nodes.length": len(tile.get_nodes()),
@@ -113,7 +113,7 @@ def get_nodes(geohash):
     if len(geohash) < 4:
         return jsonify({"Error": "Level have to be >= 4"})
 
-    tile = map_service.get_or_load_tile(geohash)
+    tile = map_service.get_tile(geohash)
     data = []
     for node in tile.get_nodes():
         point = {
@@ -133,7 +133,7 @@ def get_node(geohash, osmid):
     if len(geohash) < 4:
         return jsonify({"Error": "Level have to be >= 4"})
 
-    tile = map_service.get_or_load_tile(geohash)
+    tile = map_service.get_tile(geohash)
     node = tile.get_node(osmid)
     if not node:
         return _resp({"error": "No Node with osm id:" + str(osmid)})
@@ -153,7 +153,7 @@ def get_links(geohash):
     if len(geohash) < 4:
         return jsonify({"Error": "Level have to be >= 4"})
 
-    tile = map_service.get_or_load_tile(geohash)
+    tile = map_service.get_tile(geohash)
 
     data = []
     for link in tile.get_links():
@@ -175,7 +175,7 @@ def get_crossroads(geohash):
     if len(geohash) < 4:
         return jsonify({"Error": "Level have to be >= 4"})
 
-    tile = map_service.get_or_load_tile(geohash)
+    tile = map_service.get_tile(geohash)
     data = []
     for node in tile.get_nodes():
         if len(node.get_links()) > 2:
@@ -199,7 +199,7 @@ def sum_tiles():
     hashes_list = hashes_s.split(",")
     nodes = {}
     for hash in hashes_list:
-        tile = map_service.get_or_load_tile(hash)
+        tile = map_service.get_tile(hash)
         nodes.update(tile.get_nodes())
 
     return _resp(nodes)
