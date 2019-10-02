@@ -25,7 +25,6 @@ class OverpassWrapper:
         print(query)
 
         resp = requests.get(url)
-        print(resp.content)
         elements = resp.json().get("elements")
 
         nodes = {}  # Initalize
@@ -44,7 +43,7 @@ class OverpassWrapper:
                 for i in range(0, len(way_nodes) - 1):
                     sn = nodes[way_nodes[i]]
                     en = nodes[way_nodes[i + 1]]
-                    link = Link(sn, en)
+                    link = Link(element["id"], sn.get_id(), en)
                     sn.add_link(link)
                     en.add_link(link)
                     links.append(link)
