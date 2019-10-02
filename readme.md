@@ -2,31 +2,33 @@ Fragen
 --
 - Projekt umbenennen Github + Campusboard
 - Englische Commits + Readme?
+- Testen wie?
+- Wirklich nur Straßen
+    - Wie filtern wir Straßen? Anhand der Tags?
 - Karten nachladen 
-    - Wie finden wir Überschneidungen mit den anderen Kacheln?
-    - Wie berücksichtigen wir diese Überschneidungen in unserem Datenmodell?
- - Sollen wir neben base32 auch andere Geocode-Systeme im GeohashWrapper unterstützen?
- - Wie können wir unsere Performance testen?
- - Wie bauen wir unsere Konfiguration auf?
-    - API Key
- - Wie können wir den Cache entlasten:
-    - Welche Informationen sind nicht essentiell?
+    - Wie finden wir Überschneidungen mit den anderen Kacheln
 
 TODO
 --
--  Bugfix und Refactor von loadTile():
-    - Performance
-    - Einbahnstraßen
-    - Abbiegeverbote    
-- Refactor GeohashWrapper
+- Refactor der Overpass Query in load Tile
+- Refactor GeoHashWrapper
+- adequate Testumgebung realisieren (alle Tests über einen Befehl durchführen)
+- Einbahnstraßen
+- Abbiegeverbote
+- Routing
 
-
-Ideen
---
-- Die Logik aus der REST-API in eine extra API schreiben, sodass die REST-API lesbarer wird.
-- Datenmodell um zusätzliche Informationen ergänzen, sodass Ergebnisse im FrontEnd leichter zu verstehen sind:
-    - Angeben in welchem Land ein Tile bzw. eine Bounding Box liegt
-- FrontEnd ergänzen um:
-    - nur die Grenzen eines Tiles anzeigen
- - von einem Tile, die benachbarten Tiles erhalten
+(25.09.2019)
+Ideen:
+1.	Extra API für Funktionen, die über REST Präsentiert werden
+2.	Bei BBox anzeigen, in welchem Land sie liegt
+3.	Fontend zeigt nur BBox und geladene Kacheln an
+4.	Schnittstellenbeschreibung
+5.	Performance Test
+6.	Tile get Nachbar
+7.	Konfig (Wie bauen wir unsere Konfiguration auf ?)
+8.	API Key (Funktion)
+9.	Routing über mehrere Tiles ?
+10.	Nodes Tags (Richtung usw.)
+Fragen Kai:
+1.	Tile Klasse -> links als Liste bleiben?
 
