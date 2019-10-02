@@ -25,6 +25,7 @@ class OverpassWrapper:
         print(query)
 
         resp = requests.get(url)
+        print(resp.content)
         elements = resp.json().get("elements")
 
         nodes = {}  # Initalize
@@ -51,15 +52,19 @@ class OverpassWrapper:
         return Tile(geo_hash, nodes, links)
 
     def car_filter(self):
-        return ('t["highway"] == "motorway" || t["highway"] == "trunk" '
+        return ('   t["highway"] == "motorway" || t["highway"] == "trunk" '
                 '|| t["highway"] == "primary" || t["highway"] == "secondary" '
                 '|| t["highway"] == "tertiary" || t["highway"] == "unclassified" '
                 '|| t["highway"] == "residential" || t["highway"] == "motorway_link" '
                 '|| t["highway"] == "trunk_link" || t["highway"] == "primary_link" '
                 '|| t["highway"] == "secondary_link" || t["highway"] == "tertiary_link" '
                 '|| t["highway"] == "living_street" '
-                '|| t["highway"] == "service"' +  # service ways
+                '|| t["highway"] == "service"'  # service ways
                 '|| t["highway"] == "road"')  # Unknown street type
+
+    def footway_filter(self):
+        return ('t["highway"] == "footway" || t["highway"] == "steps"'
+                '|| t["highway"] == "path" || t["sidewalk"]')
 
     def load_links(self):
         pass

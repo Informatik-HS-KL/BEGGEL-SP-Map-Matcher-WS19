@@ -22,7 +22,7 @@ class Tile:
         :param link:
         :return:
         """
-        self.__links.append(link)
+        self.__links.update(link, link)
 
     def get_node(self, osm_id: int):
         """
@@ -36,6 +36,12 @@ class Tile:
         :return:
         """
         return self.__nodes.values()
+
+    def get_nodes_with_keys(self):
+        """
+        :return:
+        """
+        return self.__nodes
 
     def get_links(self):
         """"""

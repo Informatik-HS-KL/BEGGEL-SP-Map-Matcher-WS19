@@ -9,6 +9,15 @@ class NodeId:
         self.osm_node_id = osm_node_id
         self.geohash = geohash
 
+    def __eq__(self, other):
+        if type(other) is not NodeId:
+            return False
+        assert (isinstance(other, NodeId))
+
+        return other.osm_node_id == self.osm_node_id and other.geohash == self.geohash
+
+    def __ne__(self, other):
+        return not (self is other)
 
 class Node:
 

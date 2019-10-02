@@ -36,17 +36,18 @@ class MapService:
     def get_links_in_bounding_box(self, bbox):
         pass
 
-    def get_tile(self, geohash):
+    def get_tile(self, geohash_str):
         """Stellt sicher das immer nur Tile's mit dem vorgegebenen Level geladen werden """
-        if len(geohash) >= self._geoHashLevel:
+        if len(geohash_str) >= self._geoHashLevel:
+            # TODO kleinerer Geohash zurückgeben
             return self.__get_tile(geohash[:self._geoHashLevel])
         nodes = {}
         links = {}
-        bbox = geohash.decode_exactly(geohash)
+        bbox = BoundingBox.from_geohash(geohash_str)
         for tile_geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
-            nodes.update(self.__get_tile(tile_geoHash).get_nodes())
+            nodes.update(self.__get_tile(tile_geoHash).get_nodes_with_keys())
             links.update(self.__get_tile(tile_geoHash).get_links())
-        return Tile(geohash, nodes, links)
+        return Tile(geohash_str, nodes, links)
 
     def __get_tile(self, geohash):
         """Gibt das entprechende Tile zurück. Liegt es noch nicht im Tile-Cache,

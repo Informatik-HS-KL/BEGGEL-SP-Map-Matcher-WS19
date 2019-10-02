@@ -11,6 +11,7 @@ def main():
     # mapService.setConfig2()
     # mapService.setConfig3()
     # mapService.setApiKey("dsffdsfds")
+    # mapservice.set_config("cachelevel",5)
 
     bbox = BoundingBox(49.24742019, 7.27371679, 49.38637445, 7.40483063)
     nodes = mapService.get_nodes_in_bounding_box(bbox)
