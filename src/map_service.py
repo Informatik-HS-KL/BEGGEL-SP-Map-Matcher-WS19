@@ -6,6 +6,8 @@ from src.over_pass_wrapper import OverpassWrapper
 from src.models.bounding_box import BoundingBox
 from src.models.link import LinkId
 from src.models.node import NodeId
+from src.models.tile import Tile
+import geohash2 as geohash
 
 
 class MapService:
@@ -35,6 +37,18 @@ class MapService:
         pass
 
     def get_tile(self, geohash):
+        """Stellt sicher das immer nur Tile's mit dem vorgegebenen Level geladen werden """
+        if len(geohash) >= self._geoHashLevel:
+            return self.__get_tile(geohash[:self._geoHashLevel])
+        nodes = {}
+        links = {}
+        bbox = geohash.decode_exactly(geohash)
+        for tile_geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
+            nodes.update(self.__get_tile(tile_geoHash).get_nodes())
+            links.update(self.__get_tile(tile_geoHash).get_links())
+        return Tile(geohash, nodes, links)
+
+    def __get_tile(self, geohash):
         """Gibt das entprechende Tile zurück. Liegt es noch nicht im Tile-Cache,
         so wird es erst noch geladen und im Cache gespeichert."""
         if geohash not in self._tileCache:
