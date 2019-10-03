@@ -4,8 +4,8 @@ Läd daten von der OVerpass schnittstelle in eine Kachel
 import requests
 
 from src.models import Tile
-from src.models import Node
-from src.models import Link
+from src.models import Node, NodeId
+from src.models import Link, LinkId
 from src.models import BoundingBox
 
 
@@ -33,7 +33,11 @@ class OverpassWrapper:
 
         for element in elements:
             if element["type"] == "node":
-                node = Node(element["id"], (element["lat"], element["lon"]))
+                # kapl: TODO: wir müssen über die erstellung von NodeId reden
+                # NodeId direkt über Node Klasse erstellen?
+                # NodeId: wo bekommen wir den full geohash her?
+                node_id = NodeId(element["id"], "DUMMY %s" % element["id"])
+                node = Node(node_id, (element["lat"], element["lon"]))
                 node.set_tags(element.get("tags", {}))
                 nodes[node.get_id()] = node
 
@@ -41,9 +45,14 @@ class OverpassWrapper:
             if element["type"] == "way":
                 way_nodes = element["nodes"]
                 for i in range(0, len(way_nodes) - 1):
-                    sn = nodes[way_nodes[i]]
-                    en = nodes[way_nodes[i + 1]]
-                    link = Link(element["id"], sn.get_id(), en)
+
+                    # kapl TODO: Schaut ich die folgende recherche in unserem Dictonary nodes an:
+                    # Wir müssen bevor wir in einem nodes oder link dict recherieren erst mal die geohashes des Nodes rausfinden
+                    # Dann ein Objekt NodeId erstellen und mit diesem als Key suchen
+                    sn = nodes[NodeId(way_nodes[i], "DUMMY %s" % way_nodes[i])]
+                    en = nodes[NodeId(way_nodes[i], "DUMMY %s" % way_nodes[i])]
+                    link_id = LinkId(element["id"], sn.get_id())
+                    link = Link(link_id, sn.get_id(), en.get_id())
                     sn.add_link(link)
                     en.add_link(link)
                     links.append(link)

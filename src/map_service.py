@@ -40,7 +40,7 @@ class MapService:
         """Stellt sicher das immer nur Tile's mit dem vorgegebenen Level geladen werden """
         if len(geohash_str) >= self._geoHashLevel:
             # TODO kleinerer Geohash zurückgeben
-            return self.__get_tile(geohash[:self._geoHashLevel])
+            return self.__get_tile(geohash_str[:self._geoHashLevel])
         nodes = {}
         links = {}
         bbox = BoundingBox.from_geohash(geohash_str)
@@ -49,13 +49,13 @@ class MapService:
             links.update(self.__get_tile(tile_geoHash).get_links())
         return Tile(geohash_str, nodes, links)
 
-    def __get_tile(self, geohash):
+    def __get_tile(self, geohash_str):
         """Gibt das entprechende Tile zurück. Liegt es noch nicht im Tile-Cache,
         so wird es erst noch geladen und im Cache gespeichert."""
-        if geohash not in self._tileCache:
-            self._tileCache[geohash] = OverpassWrapper().load_tile(geohash)
+        if geohash_str not in self._tileCache:
+            self._tileCache[geohash_str] = OverpassWrapper().load_tile(geohash_str)
 
-        return self._tileCache[geohash]
+        return self._tileCache[geohash_str]
 
     def get_all_cached_tiles(self):
         return self._tileCache

@@ -15,9 +15,6 @@ class LinkId:
         self.geohash = start_node_id.geohash
         self.start_node_id = start_node_id
 
-    def to_tuple(self):
-        return self.geohash, self.osm_way_id
-
     def __eq__(self, other):
         if type(other) is not LinkId:
             return False
@@ -28,6 +25,12 @@ class LinkId:
 
     def __ne__(self, other):
         return not (self is other)
+
+    def __hash__(self):
+        # kapl TODO: Ist das hier safe?
+        # hash(str) liefer ein integer. geohash und geonode könnten doch aber doppel vorkommen oder?
+
+        return hash("%s%s" % (self.osm_way_id, self.geohash))
 
 
 class Link:

@@ -19,6 +19,9 @@ class NodeId:
     def __ne__(self, other):
         return not (self is other)
 
+    def __hash__(self):
+        return self.osm_node_id
+
 class Node:
 
     def __init__(self, node_id: NodeId, lat_lon: tuple):
@@ -41,7 +44,7 @@ class Node:
 
     def get_id(self):
         """
-        :return: int of OSM Node ID
+        :return: NodeId Object
         """
         return self.__id
 
