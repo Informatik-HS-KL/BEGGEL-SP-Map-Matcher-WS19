@@ -20,6 +20,7 @@ class NodeId:
         return not (self is other)
 
     def __hash__(self):
+        # ToDo: Muss überarbeitet werden. Hashes sind derzeit noch eindeutig. Vielleicht einfach self.osm_node_id % p (wobei p eine ausreichend große Primzahl ist).
         return self.osm_node_id
 
 class Node:

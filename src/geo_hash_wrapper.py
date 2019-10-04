@@ -38,11 +38,17 @@ class GeoHashWrapper:
         """
 
         bbox_middle = ((bbox.south + bbox.north) / 2, (bbox.west + bbox.east) / 2)
+        # Wir gehen ein geohash-Level höher:
         geohash_for_middle = self.get_geohash(bbox_middle, level - 1)
-        bounding_box_big = geohash_for_middle[:-1]
+        # bounding_box_big = geohash_for_middle[:-1]
+        # Wir bestimmen die BoundingBox, die der Kachel entspricht.
+        big_bounding_box = BoundingBox.from_geohash(geohash_for_middle)
 
-        #        if self.isFirstBboxLargerThanSecondBbox():
-        #            raise Exception("Willst du die ganze welt runterladen oder was?")
+        # Wenn bbox nicht in big_bounding_box liegt, dann müsste man eigentlich noch ein geohash-Level höher gehen. Das
+        # ist derzeit allerdings noch nicht implementiert.
+        if bbox not in big_bounding_box:
+            raise Exception("Die angegebene BoundingBox ist zu groß, da sie in keiner Kachel mit geohash_level = %s "
+                            "enthalten ist." %(level-1))
 
         list_of_geo_hashes = []
         for b in self.base32:

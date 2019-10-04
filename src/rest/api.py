@@ -22,6 +22,7 @@ def documentation():
     ]
     return data
 
+
 def _resp(data):
     """
     :param data:
@@ -87,6 +88,7 @@ def get_geohashes():
         }
     return _resp(data)
 
+
 @api.route('/tiles/<string:geohash>')
 @api.route('/tiles/<string:geohash>/')
 def get_tile(geohash):
@@ -119,7 +121,7 @@ def get_nodes(geohash):
         point = {
             "type": "Point",
             "coordinates": list(node.get_latlon()),
-            "osmid": node.get_id()
+            "osmid": str(node.get_id())
         }
         data.append(point)
 
@@ -165,6 +167,7 @@ def get_links(geohash):
 
     return _resp(data)
 
+
 @api.route('/tiles/<string:geohash>/crossroads')
 def get_crossroads(geohash):
     """
@@ -203,6 +206,7 @@ def sum_tiles():
         nodes.update(tile.get_nodes())
 
     return _resp(nodes)
+
 
 @api.route('/samples', methods=["GET"])
 def samples():

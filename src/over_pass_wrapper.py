@@ -2,6 +2,7 @@
 Läd daten von der OVerpass schnittstelle in eine Kachel
 """
 import requests
+from .geo_hash_wrapper import GeoHashWrapper
 
 from src.models import Tile
 from src.models import Node, NodeId
@@ -10,52 +11,67 @@ from src.models import BoundingBox
 
 
 class OverpassWrapper:
-    OVERPASS_URL = "http://overpass-api.de/api/interpreter"
+    OVERPASS_URL = "http://lz4.overpass-api.de/api/interpreter"
+    full_geohash_level = 12
+    counter = 0
 
     def load_tile(self, geo_hash):
         """ Daten von der Overpass api laden
             from geohash to Boundingbox
         """
+        # ---------------------
+        OverpassWrapper.counter += 1
+        print(OverpassWrapper.counter)
+        # ---------------------------
 
         bbox_str = "%s" % BoundingBox.from_geohash(geo_hash)
         q_filter = '(if: ' + self.car_filter() + ')'
 
-        query = '[out:json];way%s%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out body;' % (bbox_str, q_filter)
+        query = '[out:json];way%s%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out geom;' % (bbox_str, q_filter)
         url = "%s?data=%s" % (self.OVERPASS_URL, query)
         print(query)
 
         resp = requests.get(url)
+        print(resp.content)
         elements = resp.json().get("elements")
 
         nodes = {}  # Initalize
         ways = []  # Initalize
-        links = []  # Initalize
+        links = {}  # Initalize
 
         for element in elements:
             if element["type"] == "node":
                 # kapl: TODO: wir müssen über die erstellung von NodeId reden
                 # NodeId direkt über Node Klasse erstellen?
-                # NodeId: wo bekommen wir den full geohash her?
-                node_id = NodeId(element["id"], "DUMMY %s" % element["id"])
-                node = Node(node_id, (element["lat"], element["lon"]))
-                node.set_tags(element.get("tags", {}))
+                node = self.__create_node(element["id"], (element["lat"], element["lon"]), element.get("tags"))
                 nodes[node.get_id()] = node
 
-        for element in elements:
-            if element["type"] == "way":
-                way_nodes = element["nodes"]
-                for i in range(0, len(way_nodes) - 1):
+            elif element["type"] == "way":
+                way_nodes_ids = element["nodes"]
+                way_nodes_positions = element["geometry"]
+                for i in range(0, len(way_nodes_ids) - 1):
 
                     # kapl TODO: Schaut ich die folgende recherche in unserem Dictonary nodes an:
-                    # Wir müssen bevor wir in einem nodes oder link dict recherieren erst mal die geohashes des Nodes rausfinden
+                    # Wir müssen bevor wir in einem nodes oder link dict recherieren erst mal die geohashes des Nodes
+                    # rausfinden.
                     # Dann ein Objekt NodeId erstellen und mit diesem als Key suchen
-                    sn = nodes[NodeId(way_nodes[i], "DUMMY %s" % way_nodes[i])]
-                    en = nodes[NodeId(way_nodes[i], "DUMMY %s" % way_nodes[i])]
-                    link_id = LinkId(element["id"], sn.get_id())
-                    link = Link(link_id, sn.get_id(), en.get_id())
-                    sn.add_link(link)
-                    en.add_link(link)
-                    links.append(link)
+                    # Vielleicht in NodeId eine Funktion get_node_id schreiben, die zu einer osm_node_id die NodeId
+                    # liefert.
+                    ghw = GeoHashWrapper()
+                    start_node_pos = (way_nodes_positions[i]["lat"], way_nodes_positions[i]["lon"])
+                    end_node_pos = (way_nodes_positions[i+1]["lat"], way_nodes_positions[i+1]["lon"])
+
+                    start_node_id = NodeId(way_nodes_ids[i], ghw.get_geohash(start_node_pos,
+                                                                             level=self.full_geohash_level))
+                    end_node_id = NodeId(way_nodes_ids[i+1], ghw.get_geohash(end_node_pos,
+                                                                             level=self.full_geohash_level))
+
+                    link_id = LinkId(element["id"], start_node_id)
+                    link = Link(link_id, start_node_id, end_node_id)
+                    nodes[start_node_id].add_link(link)
+                    nodes[end_node_id].add_link(link)
+
+                    links.update({link_id:link})
 
         return Tile(geo_hash, nodes, links)
 
@@ -82,3 +98,9 @@ class OverpassWrapper:
 
     def load_node(self):
         pass
+
+    def __create_node(self, osm_id, pos: tuple, tags=None):
+        node_id = NodeId(osm_id, GeoHashWrapper().get_geohash(pos, level=self.full_geohash_level))
+        node = Node(node_id, pos)
+        node.set_tags(tags)
+        return node

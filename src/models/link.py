@@ -20,16 +20,13 @@ class LinkId:
             return False
         assert (isinstance(other, LinkId))
 
-        return other.osm_way_id == self.osm_way_id and \
-               self.start_node_id == other.start_node_id and other.geohash == self.geohash
+        return other.osm_way_id == self.osm_way_id and self.start_node_id == other.start_node_id and \
+            other.geohash == self.geohash
 
     def __ne__(self, other):
         return not (self is other)
 
     def __hash__(self):
-        # kapl TODO: Ist das hier safe?
-        # hash(str) liefer ein integer. geohash und geonode könnten doch aber doppel vorkommen oder?
-
         return hash("%s%s" % (self.osm_way_id, self.geohash))
 
 
