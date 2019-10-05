@@ -23,12 +23,13 @@ class Tile:
         """
         self.__links.update(link, link)
 
-    def get_node(self, osm_id: int):
+    def get_node(self, nodeid):
         """
         :param osm_id: int
         :return: Node
         """
-        return self.__nodes.get(osm_id, None)
+
+        return self.__nodes.get(nodeid, None)
 
     def get_nodes(self):
         """

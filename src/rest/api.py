@@ -158,7 +158,9 @@ def get_links(geohash):
     tile = map_service.get_tile(geohash)
 
     data = []
+
     for linkid, link in tile.get_links().items():
+        print(linkid, link)
         linestr = {
             "type": "LineString",
             "coordinates": [list(link.get_start_node().get_latlon()), list(link.get_end_node().get_latlon())],
@@ -192,7 +194,7 @@ def get_crossroads(geohash):
     return _resp(data)
 
 
-@api.route('/ways/<string:way_id>/links', methods=["GET"])
+@api.route('/ways/<int:way_id>/links', methods=["GET"])
 def get_way_links(way_id):
     """Links eines Ways"""
 

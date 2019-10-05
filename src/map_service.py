@@ -92,6 +92,7 @@ class MapService:
                 if linksid.osm_way_id == way_id:
                     result.append(link)
 
+        print(result)
         return result
 
 
@@ -103,5 +104,5 @@ class MapService:
         """"""
 
         tile = self.get_tile(nodeid.geohash[:self._geoHashLevel])
-        return tile.get_node(nodeid.osm_node_id)
+        return tile.get_node(nodeid)
 

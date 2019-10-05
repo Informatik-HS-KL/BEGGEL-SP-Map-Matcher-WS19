@@ -32,12 +32,13 @@ class Link:
         """
 
         # return self.__startNode
+
         return self._map_service.get_node(self.__start_node_id)
 
     def get_end_node(self):
         """ :return Gibt den Endknoten (als Node) zurück.
         """
-        return self._map_service.load_node(self.__end_node_id)
+        return self._map_service.get_node(self.__end_node_id)
 
     # def get_links(self):
     #     return self.__startNode.get_links().extend(self.__endNode.get_links())
@@ -83,11 +84,6 @@ class Link:
     def to_wkt(self):
         pass
 
-    def get_links_at_end_node(self):
-        pass
-
-    def get_links_at_start_node(self):
-        pass
 
     def get_length(self):
         pass
