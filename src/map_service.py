@@ -7,14 +7,16 @@ from src.models.bounding_box import BoundingBox
 from src.models.link import LinkId
 from src.models.node import NodeId
 from src.models.tile import Tile
-import geohash2 as geohash
-
 
 class MapService:
     """"""
     # maps geohash --> Tile class
     _tileCache = {}
     _geoHashLevel = 5
+
+    def __init__(self):
+        """"""
+        self.name = "A"
 
     def get_nodes_in_bounding_box(self, bbox: BoundingBox):
         """
@@ -62,16 +64,42 @@ class MapService:
 
     def get_link_by_id(self, link_id: LinkId):
         """Gibt den Link mit der entsprechenden Id zurück."""
-        return self.get_link(link_id.osm_way_id, link_id.start_node_id)
+
+        tile = self.get_tile(link_id.geohash[:self._geoHashLevel])
+        return tile.get_link(link_id)
 
     def get_link(self, way_id, start_node_id: NodeId):
         """Gibt den Link zurück, der den entsprechenden Knoten als Startknoten hat
         und Teil des entsprechenden Way's ist"""
+
         tile = self.get_tile(start_node_id.geohash[:self._geoHashLevel])
-        pass
+        return tile.get_link(LinkId(way_id, start_node_id))
 
     def get_links(self, way_id):
-        pass
+        """
+        ACHTUNG: DAS HIER IST NOCH NICHT PERFORMANT
+        TODO
+        :param way_id:
+        :return: [Link, Link]
+        """
+
+        result = []
+        for geohash, tile in self._tileCache.items():
+            print(geohash)
+            for linksid, link in tile.get_links().items():
+                if linksid.osm_way_id == way_id:
+                    result.append(link)
+
+        return result
+
 
     def get_links_in_radius(self, pos, max_distance):
         pass
+
+
+    def get_node(self, nodeid: NodeId):
+        """"""
+
+        tile = self.get_tile(nodeid.geohash[:self._geoHashLevel])
+        return tile.get_node(nodeid.osm_node_id)
+

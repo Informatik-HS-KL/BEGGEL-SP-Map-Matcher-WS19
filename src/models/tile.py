@@ -1,4 +1,4 @@
-from src.models.link import Link
+from src.models.link import Link, LinkId
 
 
 class Tile:
@@ -46,6 +46,13 @@ class Tile:
     def get_links(self):
         """"""
         return self.__links
+
+    def get_link(self, link_id: LinkId):
+        """
+        :return:
+        """
+        return self.__links[link_id]
+
 
     def get_geohash(self):
         return self.__geohash

@@ -7,7 +7,6 @@ https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
 """
 from .node import NodeId
 
-
 class LinkId:
 
     def __init__(self, osm_way_id, start_node_id: NodeId):
@@ -33,7 +32,6 @@ class LinkId:
 class Link:
     # Links sollen nur noch Referenzen auf die Knoten (also die nodeIds) enthalten.
     # In get_start_node bzw. get_end_node wird dann über mapService der entsprechende Knoten geladen.
-    _map_service = None
 
     def __init__(self, osm_way_id, start_node_id: NodeId, end_node_id: NodeId):
         """
@@ -45,13 +43,14 @@ class Link:
         self.__outs = []
         self.__link_id = LinkId(osm_way_id, start_node_id)
 
+
     def get_start_node(self):
         """
         :return Gibt den Startknoten (als Node) zurück.
         """
 
         # return self.__startNode
-        return self._map_service.load_node(self.__start_node_id)
+        return self._map_service.get_node(self.__start_node_id)
 
     def get_end_node(self):
         """ :return Gibt den Endknoten (als Node) zurück.

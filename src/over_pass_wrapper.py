@@ -75,6 +75,7 @@ class OverpassWrapper:
 
         return Tile(geo_hash, nodes, links)
 
+
     def car_filter(self):
         return ('   t["highway"] == "motorway" || t["highway"] == "trunk" '
                 '|| t["highway"] == "primary" || t["highway"] == "secondary" '
@@ -90,14 +91,6 @@ class OverpassWrapper:
         return ('t["highway"] == "footway" || t["highway"] == "steps"'
                 '|| t["highway"] == "path" || t["sidewalk"]')
 
-    def load_links(self):
-        pass
-
-    def load_link(self):
-        pass
-
-    def load_node(self):
-        pass
 
     def __create_node(self, osm_id, pos: tuple, tags=None):
         node_id = NodeId(osm_id, GeoHashWrapper().get_geohash(pos, level=self.full_geohash_level))
