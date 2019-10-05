@@ -1,4 +1,4 @@
-from src.models import Node
+from src.models.node import Node
 import src.geo_utils as ut
 import geohash2 as Geohash
 

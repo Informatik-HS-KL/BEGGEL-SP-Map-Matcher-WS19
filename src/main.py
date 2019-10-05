@@ -13,14 +13,14 @@ def main():
     # mapService.setApiKey("dsffdsfds")
     # mapservice.set_config("cachelevel",5)
 
-    bbox = BoundingBox(49.24742019, 7.27371679, 49.38637445, 7.40483063)
-    nodes = mapService.get_nodes_in_bounding_box(bbox)
+    #bbox = BoundingBox(49.24742019, 7.27371679, 49.38637445, 7.40483063)
+    #nodes = mapService.get_nodes_in_bounding_box(bbox)
 
-    for node in nodes:
-        print(node, node.get_lat(), node.get_lon())
+    #for node in nodes:
+    #    print(node, node.get_lat(), node.get_lon())
 
     ## todo
-    link = mapService.get_links_in_bounding_box(bbox)
+    #link = mapService.get_links_in_bounding_box(bbox)
 
     # Jeder Link soll die Information enthalten, von wem er benutzt werden kann (also z.B. Radfahrer, Fußgänger, Autos)
     # link.navigatable # car, bike, pedestrial
@@ -59,5 +59,10 @@ def main():
     # Es werden alle Links im Umkreis einer Koordinate zurückgegeben (Radius=maxDistance).
     listDistanceData = mapService.get_links_in_radius((1.0, 2.0), 50)
 
+def main2():
 
-main()
+    ms = MapService()
+
+
+main2()
+#main()

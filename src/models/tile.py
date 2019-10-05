@@ -1,5 +1,4 @@
-from src.models.link import Link, LinkId
-
+from src.models.link_id import LinkId
 
 class Tile:
     ## maps nodeId --> Node object
