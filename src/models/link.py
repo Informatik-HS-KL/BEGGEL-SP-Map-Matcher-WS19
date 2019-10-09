@@ -8,7 +8,7 @@ https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
 from .node import NodeId
 
 from .link_id import LinkId
-from src.map_service import MapService
+import src.map_service
 
 class Link:
     # Links sollen nur noch Referenzen auf die Knoten (also die nodeIds) enthalten.
@@ -24,7 +24,7 @@ class Link:
         self.__outs = []
         self.__link_id = LinkId(osm_way_id, start_node_id)
 
-        self._map_service = MapService()
+        self._map_service = src.map_service.MapService()
 
     def get_start_node(self):
         """

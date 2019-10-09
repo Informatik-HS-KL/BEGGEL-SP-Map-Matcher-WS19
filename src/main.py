@@ -1,6 +1,8 @@
 from src.map_service import MapService
 from src.models.bounding_box import BoundingBox
-
+from src.models.link import Link
+from src.models.node import NodeId, Node
+from src.models.tile import Tile
 
 def main():
     """
@@ -63,6 +65,10 @@ def main2():
 
     ms = MapService()
 
+    print(ms.get_nodes_in_bounding_box(BoundingBox.from_geohash("u0v3h")))
+    print(ms.get_nodes_in_bounding_box(BoundingBox.from_geohash("u0v3h")))
+
+    print(ms.get_tile("u0v3h"))
 
 main2()
 #main()

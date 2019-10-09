@@ -6,9 +6,9 @@ from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
 from src.models.link import Link
 
-map_service = MapService()
-api = Blueprint('api', __name__)
+from src.map_service import MapService
 
+api = Blueprint('api', __name__)
 
 def documentation():
 
@@ -222,3 +222,5 @@ def samples():
         },
     }
     return jsonify(data)
+
+

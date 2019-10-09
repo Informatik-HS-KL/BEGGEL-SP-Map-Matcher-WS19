@@ -1,5 +1,7 @@
 from src.models.tile import Tile
+from math import radians, degrees, sin, cos, asin, acos, sqrt
 
+import src.models.bounding_box
 
 def print_pretty(tile: Tile):
     """"""
@@ -56,3 +58,25 @@ def first_interval_contains_second_interval(first_interval: tuple, second_interv
 
     return number_is_in_interval(a2, first_interval, overflow_mark) and \
         number_is_in_interval(b2, first_interval, overflow_mark)
+
+
+def get_bbox_from_point(pos, radius=1):
+    """
+    nimmt den punkt als mitte einer Bounding Box mit dem gegebenen "radius"
+    :param pos:
+    :param radius:
+    :return:
+    """
+    BoundingBox = src.models.bounding_box.BoundingBox
+    lat, lon = pos
+    return BoundingBox(lat - radius, lon-radius, lat+radius, lon+radius)
+
+
+def great_circle(point1, point2):
+    """"""
+    lat1, lon1 = point1
+    lat2, lon2 = point2
+
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    return 6371 * (acos(sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lon1 - lon2)))
+

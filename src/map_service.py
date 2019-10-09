@@ -2,7 +2,6 @@
 """
 
 from src.geo_hash_wrapper import GeoHashWrapper
-
 from src.models.bounding_box import BoundingBox
 from src.models.link_id import LinkId
 from src.models.node import NodeId
@@ -36,7 +35,16 @@ class MapService:
         return ret
 
     def get_links_in_bounding_box(self, bbox):
-        pass
+
+        ret = []
+
+        for geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
+            tile = self.get_tile(geoHash)
+            for link in tile.get_links():
+                if link in bbox:
+                    ret.append(link)
+
+        return ret
 
     def get_tile(self, geohash_str):
 

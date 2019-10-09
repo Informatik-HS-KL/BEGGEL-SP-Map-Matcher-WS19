@@ -1,7 +1,12 @@
 from flask import Response, request, render_template, Blueprint
 
-webpage = Blueprint('web', __name__)
+from src.rest import api
+from src.map_service import MapService
 
-@webpage.route('/')
+bp_webpage = Blueprint('web', __name__)
+
+
+@bp_webpage.route('/')
 def root_page():
     return render_template('anzeige.html')
+

@@ -1,8 +1,18 @@
+from src.geo_utils import great_circle, get_bbox_from_point
+from src.map_service import MapService
+from src.models.bounding_box import BoundingBox
+from src.geo_hash_wrapper import GeoHashWrapper
+
+
 class LinkDistance:
+
+    _map_service = MapService()
+
     def __init__(self, pos: tuple):
         # (lat, lon) beschreibt den Punkt, in dessen Umkreis Links gesucht werden.
         # Dabei werden die Abstände von (lat, lon) zu den jeweiligen Links mittels
         # Ortogonalprojektion bestimmt.
+        self._pos = pos
         self._lat = pos[0]
         self._lon = pos[1]
         # Ortogonalprojektion von Punkt auf Link
@@ -21,3 +31,12 @@ class LinkDistance:
         # Das dazugehörige Link-Objekt
         self.Link = None
 
+    def get_matched(self):
+        """
+        :return:
+        """
+        bbox = get_bbox_from_point(self._pos)
+        nodes = self._map_service.get_nodes_in_bounding_box(bbox)
+        for n in nodes:
+
+        return
