@@ -60,18 +60,6 @@ def first_interval_contains_second_interval(first_interval: tuple, second_interv
         number_is_in_interval(b2, first_interval, overflow_mark)
 
 
-def get_bbox_from_point(pos, radius=1):
-    """
-    nimmt den punkt als mitte einer Bounding Box mit dem gegebenen "radius"
-    :param pos:
-    :param radius:
-    :return:
-    """
-    BoundingBox = src.models.bounding_box.BoundingBox
-    lat, lon = pos
-    return BoundingBox(lat - radius, lon-radius, lat+radius, lon+radius)
-
-
 def great_circle(point1, point2):
     """"""
     lat1, lon1 = point1

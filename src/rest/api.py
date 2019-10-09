@@ -8,6 +8,8 @@ from src.models.link import Link
 
 from src.map_service import MapService
 
+map_service = MapService()
+
 api = Blueprint('api', __name__)
 
 def documentation():

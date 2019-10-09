@@ -6,6 +6,7 @@ from src.models.bounding_box import BoundingBox
 from src.models.link_id import LinkId
 from src.models.node import NodeId
 from src.models.tile import Tile
+from src.models.link_distance import LinkDistance
 
 class MapService:
     """"""
@@ -100,17 +101,27 @@ class MapService:
                 if linksid.osm_way_id == way_id:
                     result.append(link)
 
-        print(result)
         return result
 
+    def get_linkdistances_in_radius(self, pos, max_distance):
+        """ Pseudo Match: Links deren knoten nicht in der BoundingBox liegt, die von der gegebenen Position ausgeht,
+            können nicht erreicht werden.
+        :param pos:
+        :param max_distance:
+        :return:
+        """
 
-    def get_links_in_radius(self, pos, max_distance):
-        pass
-
+        bbox = BoundingBox.get_bbox_from_point(self._pos, max_distance)
+        links = self._map_service.get_links_in_bounding_box(bbox)
+        for link in links:
+            LinkDistance(pos, link)
+        return links
 
     def get_node(self, nodeid: NodeId):
-        """"""
+        """
+        :param nodeid:
+        :return:
+        """
 
         tile = self.get_tile(nodeid.geohash[:self._geoHashLevel])
         return tile.get_node(nodeid)
-

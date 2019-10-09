@@ -45,7 +45,7 @@ class Tile:
 
     def get_links(self):
         """"""
-        return self.__links
+        return self.__links.values()
 
     def get_link(self, link_id: LinkId):
         """

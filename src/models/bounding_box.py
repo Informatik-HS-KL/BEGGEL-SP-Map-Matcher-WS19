@@ -89,6 +89,18 @@ class BoundingBox:
         return True
 
     @staticmethod
+    def get_bbox_from_point(pos, radius=0.001):
+        """
+        nimmt den punkt als mitte einer Bounding Box mit dem gegebenen "radius"
+        :param pos:
+        :param radius:
+        :return:
+        """
+
+        lat, lon = pos
+        return BoundingBox(lat - radius, lon - radius, lat + radius, lon + radius)
+
+    @staticmethod
     def from_geohash(geohash):
         bbox = Geohash.decode_exactly(geohash)
         return BoundingBox(bbox[0] - bbox[2], bbox[1] - bbox[3], bbox[0] + bbox[2], bbox[1] + bbox[3])
