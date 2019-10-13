@@ -2,7 +2,6 @@
 Node is a Point on the Map with a geo Position lat/lon
 """
 
-
 class NodeId:
     def __init__(self, osm_node_id, geohash):
         """:param geohash: geohash wird in voller Länge (als String) angegeben."""

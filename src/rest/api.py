@@ -4,6 +4,7 @@ from flask import Response, request, Blueprint
 from src.map_service import MapService
 from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
+from src.models.link import Link
 
 map_service = MapService()
 api = Blueprint('api', __name__)
@@ -155,10 +156,13 @@ def get_links(geohash):
     tile = map_service.get_tile(geohash)
 
     data = []
-    for link in tile.get_links():
+
+    for linkid, link in tile.get_links().items():
+        print(linkid, link)
         linestr = {
             "type": "LineString",
-            "coordinates": [list(link.get_start_node().get_latlon()), list(link.get_end_node().get_latlon())]
+            "coordinates": [list(link.get_start_node().get_latlon()), list(link.get_end_node().get_latlon())],
+            "way_id": linkid.osm_way_id
         }
         data.append(linestr)
 
@@ -184,6 +188,21 @@ def get_crossroads(geohash):
                 "coordinates": list(node.get_latlon())
             }
             data.append(point)
+
+    return _resp(data)
+
+
+@api.route('/ways/<int:way_id>/links', methods=["GET"])
+def get_way_links(way_id):
+    """Links eines Ways"""
+
+    data = []
+    for link in map_service.get_links(way_id):
+        linestr = {
+            "type": "LineString",
+            "coordinates": [list(link.get_start_node().get_latlon()), list(link.get_end_node().get_latlon())]
+        }
+        data.append(linestr)
 
     return _resp(data)
 

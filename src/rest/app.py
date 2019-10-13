@@ -11,3 +11,4 @@ app.register_blueprint(webpage, url_prefix="/")
 
 if __name__ == '__main__':
     app.run(host="localhost", port=5000)
+

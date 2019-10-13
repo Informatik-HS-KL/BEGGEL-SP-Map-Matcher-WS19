@@ -4,10 +4,11 @@ Läd daten von der OVerpass schnittstelle in eine Kachel
 import requests
 from .geo_hash_wrapper import GeoHashWrapper
 
-from src.models import Tile
-from src.models import Node, NodeId
-from src.models import Link, LinkId
-from src.models import BoundingBox
+from src.models.tile import Tile
+from src.models.node import Node, NodeId
+from src.models.link_id import LinkId
+from src.models.link import Link
+from src.models.bounding_box import BoundingBox
 
 
 class OverpassWrapper:
@@ -15,7 +16,8 @@ class OverpassWrapper:
     full_geohash_level = 12
     counter = 0
 
-    def load_tile(self, geo_hash):
+    @staticmethod
+    def load_tile(geo_hash):
         """ Daten von der Overpass api laden
             from geohash to Boundingbox
         """
@@ -25,10 +27,10 @@ class OverpassWrapper:
         # ---------------------------
 
         bbox_str = "%s" % BoundingBox.from_geohash(geo_hash)
-        q_filter = '(if: ' + self.car_filter() + ')'
+        q_filter = '(if: ' + OverpassWrapper.car_filter() + ')'
 
         query = '[out:json];way%s%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out geom;' % (bbox_str, q_filter)
-        url = "%s?data=%s" % (self.OVERPASS_URL, query)
+        url = "%s?data=%s" % (OverpassWrapper.OVERPASS_URL, query)
         print(query)
 
         resp = requests.get(url)
@@ -43,7 +45,7 @@ class OverpassWrapper:
             if element["type"] == "node":
                 # kapl: TODO: wir müssen über die erstellung von NodeId reden
                 # NodeId direkt über Node Klasse erstellen?
-                node = self.__create_node(element["id"], (element["lat"], element["lon"]), element.get("tags"))
+                node = OverpassWrapper.__create_node(element["id"], (element["lat"], element["lon"]), element.get("tags"))
                 nodes[node.get_id()] = node
 
             elif element["type"] == "way":
@@ -62,9 +64,9 @@ class OverpassWrapper:
                     end_node_pos = (way_nodes_positions[i+1]["lat"], way_nodes_positions[i+1]["lon"])
 
                     start_node_id = NodeId(way_nodes_ids[i], ghw.get_geohash(start_node_pos,
-                                                                             level=self.full_geohash_level))
+                                                                             level= OverpassWrapper.full_geohash_level))
                     end_node_id = NodeId(way_nodes_ids[i+1], ghw.get_geohash(end_node_pos,
-                                                                             level=self.full_geohash_level))
+                                                                             level=OverpassWrapper.full_geohash_level))
 
                     link_id = LinkId(element["id"], start_node_id)
                     link = Link(link_id, start_node_id, end_node_id)
@@ -75,7 +77,8 @@ class OverpassWrapper:
 
         return Tile(geo_hash, nodes, links)
 
-    def car_filter(self):
+    @staticmethod
+    def car_filter():
         return ('   t["highway"] == "motorway" || t["highway"] == "trunk" '
                 '|| t["highway"] == "primary" || t["highway"] == "secondary" '
                 '|| t["highway"] == "tertiary" || t["highway"] == "unclassified" '
@@ -86,21 +89,14 @@ class OverpassWrapper:
                 '|| t["highway"] == "service"'  # service ways
                 '|| t["highway"] == "road"')  # Unknown street type
 
-    def footway_filter(self):
+    @staticmethod
+    def footway_filter():
         return ('t["highway"] == "footway" || t["highway"] == "steps"'
                 '|| t["highway"] == "path" || t["sidewalk"]')
 
-    def load_links(self):
-        pass
-
-    def load_link(self):
-        pass
-
-    def load_node(self):
-        pass
-
-    def __create_node(self, osm_id, pos: tuple, tags=None):
-        node_id = NodeId(osm_id, GeoHashWrapper().get_geohash(pos, level=self.full_geohash_level))
+    @staticmethod
+    def __create_node(osm_id, pos: tuple, tags=None):
+        node_id = NodeId(osm_id, GeoHashWrapper().get_geohash(pos, level=OverpassWrapper.full_geohash_level))
         node = Node(node_id, pos)
         node.set_tags(tags)
         return node
