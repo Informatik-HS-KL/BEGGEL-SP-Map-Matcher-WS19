@@ -8,9 +8,7 @@ from src.models.bounding_box import BoundingBox
 map_service = MapService()
 api = Blueprint('api', __name__)
 
-
 def documentation():
-
 
     data = [
         { "url": "/api/tiles/","description":"Get all cached tiles infos"},
@@ -22,9 +20,8 @@ def documentation():
     ]
     return data
 
-
 def _resp(data):
-    """
+    """ Response Wrapper
     :param data:
     :return:
     """
@@ -189,23 +186,6 @@ def get_crossroads(geohash):
             data.append(point)
 
     return _resp(data)
-
-
-@api.route('/tiles/sum', methods=["GET"])
-def sum_tiles():
-    """ Fasst mehrere Tiles in get zusammen
-        ?hashes=1,2,3
-    """
-    # TODO HIER KÖNNTE UNS DER HAUPSPEICHER VOLL LAUFEN
-
-    hashes_s = request.args.get("hashed", "")
-    hashes_list = hashes_s.split(",")
-    nodes = {}
-    for hash in hashes_list:
-        tile = map_service.get_tile(hash)
-        nodes.update(tile.get_nodes())
-
-    return _resp(nodes)
 
 
 @api.route('/samples', methods=["GET"])
