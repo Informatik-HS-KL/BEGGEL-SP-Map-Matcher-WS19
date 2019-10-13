@@ -30,14 +30,17 @@ function renderNodes(map, nodes){
 
 
 function renderLinks(map, links){
-    nodes.forEach(function (link) {
-        var circle = L.circle(link["coordinates"], {
-            color: 'red',
-            fillColor: '#ff0911',
-            fillOpacity: 0.5,
-            radius: 8
-        }).addTo(map);
+    var style = {
+        "color": "#ff7800",
+        "weight": 5,
+        "opacity": 0.65
+    };
+
+    links.forEach(function (link) {
+        L.polyline(link.geometry.coordinates, {"style": style}).addTo(map);
     });
+    console.log("Ok")
+
 }
 
 
@@ -88,7 +91,12 @@ var app = new Vue({
                 if (xhr.status === 200) {
                     geoData = JSON.parse(xhr.responseText);
                     that.message = geoData
-                    renderNodes(that.map, geoData)
+                    if(that.cmd == "nodes"){
+                        renderNodes(that.map, geoData)
+                    }
+                    if(that.cmd == "links"){
+                        renderLinks(that.map, geoData)
+                    }
                     that.tiles.push({text: that.geohash, count: geoData.length, id: that.geohash})
                 }
             };
@@ -97,5 +105,6 @@ var app = new Vue({
         }
     }
 });
+
 
 }

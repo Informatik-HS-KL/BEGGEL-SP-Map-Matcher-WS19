@@ -101,6 +101,7 @@ class Node:
 
     def to_wkt(self):
         """:return: Gibt den Knoten im WKT-Format (als String) zurück."""
+        return "POINT(%s %s)" % (self.get_lat(), self.get_lon())
 
     def __repr__(self):
         return "<Node: %s>" % self.__id

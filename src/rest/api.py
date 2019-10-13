@@ -153,18 +153,12 @@ def get_links(geohash):
     if len(geohash) < 4:
         return jsonify({"Error": "Level have to be >= 4"})
 
-    tile = map_service.get_tile(geohash)
-
     data = []
+    tile = map_service.get_tile(geohash)
 
     for linkid, link in tile.get_links().items():
         print(linkid, link)
-        linestr = {
-            "type": "LineString",
-            "coordinates": [list(link.get_start_node().get_latlon()), list(link.get_end_node().get_latlon())],
-            "way_id": linkid.osm_way_id
-        }
-        data.append(linestr)
+        data.append(link.to_geojson())
 
     return _resp(data)
 
