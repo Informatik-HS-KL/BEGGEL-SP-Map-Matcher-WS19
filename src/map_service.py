@@ -6,7 +6,7 @@ from src.models.bounding_box import BoundingBox
 from src.models.link_id import LinkId
 from src.models.node import NodeId
 from src.models.tile import Tile
-from src.models.link_distance import LinkDistance
+from src.link_distance import LinkDistance
 
 class MapService:
     """"""
