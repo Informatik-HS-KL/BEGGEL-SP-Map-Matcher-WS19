@@ -1,6 +1,6 @@
 from math import sqrt
 from src.models.node import Node, NodeId
-from math import acos, sin, cos
+from math import acos, sin, cos, radians
 
 
 class LinkDistance:
@@ -36,10 +36,11 @@ def distance_node_link(node, link):
 def distance_between_nodes(node_a: Node, node_b: Node):
     # TODO aus Internet Kopierter Code kenntlich machen ??
     #  von: https://blog.petehouston.com/calculate-distance-of-two-locations-on-earth/
-    return 6371 * (
-        acos(sin(node_a.get_lat()) * sin(node_b.get_lat()) +
-             cos(node_a.get_lat()) * cos(node_b.get_lat()) * cos(node_a.get_lon() - node_b.get_lon()))
-        )
+
+    lon1, lat1, lon2, lat2 = map(radians, [node_a.get_lon(), node_a.get_lat(), node_b.get_lon(), node_b.get_lat()])
+    return  6371 * (
+        acos(sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lon1 - lon2))
+    )
 
 
 def __get_nearest_point_on_link_to_point(link, node: Node):
