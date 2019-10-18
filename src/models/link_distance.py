@@ -25,7 +25,7 @@ class LinkDistance:
 
         self.init = False
 
-    def lazy_load(self):
+    def _lazy_load(self):
         self.init = True
         link_vector = vector_subtraction(self.Link.get_end_node().get_latlon(), self.Link.get_start_node().get_latlon())
         point_vector = vector_subtraction(self._lat_lon, self.Link.get_start_node().get_latlon())
@@ -37,10 +37,10 @@ class LinkDistance:
 
     def get_distance(self):
         if not self.init:
-            self.lazy_load()
+            self._lazy_load()
         return self.distance
 
     def get_fraction(self):
         if not self.init:
-            self.lazy_load()
+            self._lazy_load()
         return self.fraction

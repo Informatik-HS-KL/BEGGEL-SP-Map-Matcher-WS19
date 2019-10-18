@@ -69,16 +69,26 @@ def great_circle(point1, point2):
 
 
 def dot_product(a: tuple, b: tuple):
+    if not len(a) == len(b):
+        raise Exception('The Vectors have not the same length')
+    if len(a) == 0:
+        raise Exception('The Vectors have no items')
     """Bildet das Skalarprodukt von zwei Vectoren"""
     return sum([x * y for x, y in zip(a, b)])
 
 
 def vector_addition(a: tuple, b: tuple):
+    if not len(a) == len(b):
+        raise Exception('The Vectors have not the same length')
+    if len(a) == 0:
+        raise Exception('The Vectors have no items')
     """Addiert zwei Vectoren"""
     return tuple([x + y for x, y in zip(a, b)])
 
 
 def scalar_multiplication(scalar, vec):
+    if len(vec) == 0:
+        raise Exception('The Vectors have no items')
     """Skalarmultiplikation"""
     return tuple([scalar * y for y in vec])
 
@@ -88,4 +98,8 @@ def orthogonal_projection(vec_from, vec_to):
 
 
 def vector_subtraction(vector_a, vector_b):
+    if not len(vector_a) == len(vector_b):
+        raise Exception('The Vectors have not the same length')
+    if len(vector_a) == 0:
+        raise Exception('The Vectors have no items')
     return tuple([x - y for x, y in zip(vector_a, vector_b)])

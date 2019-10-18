@@ -87,8 +87,7 @@ class Link:
 
 
     def get_length(self):
-        great_circle(self.get_start_node().get_latlon(), self.get_end_node().get_latlon())
-        pass
+        return great_circle(self.get_start_node().get_latlon(), self.get_end_node().get_latlon())
 
     def is_from_start(self):
         pass
