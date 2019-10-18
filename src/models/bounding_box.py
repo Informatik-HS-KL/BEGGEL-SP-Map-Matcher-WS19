@@ -1,4 +1,5 @@
 from src.models.node import Node
+from src.models.link import Link
 import src.geo_utils as ut
 import geohash2 as Geohash
 
@@ -16,8 +17,19 @@ class BoundingBox:
             return self.contains_node(item)
         elif isinstance(item, BoundingBox):
             return self.contains_bbox(item)
+        elif isinstance(item, Link):
+            return self.contains_link(item)
+
         else:
             raise TypeError("{} is not supported by this method.".format(type(item)))
+
+    def contains_link(self, link: Link):
+        """
+        :param link:
+        :return:
+        """
+
+        return link.get_start_node() in self or link.get_end_node() in self
 
     def contains_node(self, node: Node):
         return (ut.number_is_in_interval(node.get_lat(), (self.south, self.north), 90) and
@@ -75,6 +87,18 @@ class BoundingBox:
             return False
 
         return True
+
+    @staticmethod
+    def get_bbox_from_point(pos, radius=0.001):
+        """
+        nimmt den punkt als mitte einer Bounding Box mit dem gegebenen "radius"
+        :param pos:
+        :param radius:
+        :return:
+        """
+
+        lat, lon = pos
+        return BoundingBox(lat - radius, lon - radius, lat + radius, lon + radius)
 
     @staticmethod
     def from_geohash(geohash):
