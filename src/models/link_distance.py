@@ -1,6 +1,4 @@
-from src.geo_utils import great_circle
-from src.models.bounding_box import BoundingBox
-from src.geo_hash_wrapper import GeoHashWrapper
+from src.geo_utils import orthogonal_projection, vector_subtraction, vector_addition, great_circle
 
 
 class LinkDistance:
@@ -9,13 +7,10 @@ class LinkDistance:
         # (lat, lon) beschreibt den Punkt, in dessen Umkreis Links gesucht werden.
         # Dabei werden die Abstände von (lat, lon) zu den jeweiligen Links mittels
         # Ortogonalprojektion bestimmt.
-        self._pos = pos
-        self._lat = pos[0]
-        self._lon = pos[1]
+        self._lat_lon = pos  # Koordinaten in deren Umkreis links gesucht wurden
         # Ortogonalprojektion von Punkt auf Link
-        self._latMatched = None
+        self._matched_point: tuple = None
         # Ortogonalprojektion von Punkt auf Link
-        self._lonMatched = None
 
         # distance zw. punkt und ortogonalprojekton von Punkt auf Link
         self.distance = None
@@ -26,11 +21,26 @@ class LinkDistance:
         self.fraction = None
 
         # Das dazugehörige Link-Objekt
-        self.Link = None
+        self.Link = link
 
-    def _get_matched_point(self):
-        """
-        Rückgabe des errechneten matched points.
-        :return:
-        """
-        pass
+        self.init = False
+
+    def lazy_load(self):
+        self.init = True
+        link_vector = vector_subtraction(self.Link.get_end_node().get_latlon(), self.Link.get_start_node().get_latlon())
+        point_vector = vector_subtraction(self._lat_lon, self.Link.get_start_node().get_latlon())
+        self._matched_point = vector_addition(
+            orthogonal_projection(point_vector, link_vector), self.Link.get_start_node().get_latlon())
+        self.distance = great_circle(self._matched_point, self._lat_lon)
+        distance = great_circle(self.Link.get_start_node().get_latlon(), self._matched_point)
+        self.fraction = self.Link.get_length() / distance
+
+    def get_distance(self):
+        if not self.init:
+            self.lazy_load()
+        return self.distance
+
+    def get_fraction(self):
+        if not self.init:
+            self.lazy_load()
+        return self.fraction

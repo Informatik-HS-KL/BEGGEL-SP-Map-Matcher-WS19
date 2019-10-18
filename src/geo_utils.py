@@ -1,14 +1,14 @@
-from src.models.tile import Tile
+# from src.models.tile import Tile
 from math import radians, degrees, sin, cos, asin, acos, sqrt
 
 
-def print_pretty(tile: Tile):
-    """"""
-
-    for n in tile.get_nodes():
-        print("-" * 20)
-        print("Node:", n.get_id())
-        print("Links", [(l.get_start_node(), l.get_end_node()) for l in n.get_links()])
+# def print_pretty(tile: Tile):
+#     """"""
+#
+#     for n in tile.get_nodes():
+#         print("-" * 20)
+#         print("Node:", n.get_id())
+#         print("Links", [(l.get_start_node(), l.get_end_node()) for l in n.get_links()])
 
 
 def number_is_in_interval(number, interval, overflow_mark, excluding_endpoints=False):
@@ -85,3 +85,7 @@ def scalar_multiplication(scalar, vec):
 
 def orthogonal_projection(vec_from, vec_to):
     return scalar_multiplication(dot_product(vec_from, vec_to) / dot_product(vec_to, vec_to), vec_to)
+
+
+def vector_subtraction(vector_a, vector_b):
+    return tuple([x - y for x, y in zip(vector_a, vector_b)])

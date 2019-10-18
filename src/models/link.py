@@ -9,6 +9,7 @@ from .node import NodeId
 
 from .link_id import LinkId
 import src.map_service
+from src.geo_utils import great_circle
 
 class Link:
     # Links sollen nur noch Referenzen auf die Knoten (also die nodeIds) enthalten.
@@ -86,6 +87,7 @@ class Link:
 
 
     def get_length(self):
+        great_circle(self.get_start_node().get_latlon(), self.get_end_node().get_latlon())
         pass
 
     def is_from_start(self):
