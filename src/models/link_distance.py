@@ -7,10 +7,12 @@ class LinkDistance:
         # (lat, lon) beschreibt den Punkt, in dessen Umkreis Links gesucht werden.
         # Dabei werden die Abstände von (lat, lon) zu den jeweiligen Links mittels
         # Ortogonalprojektion bestimmt.
-        self._lat_lon = pos  # Koordinaten in deren Umkreis links gesucht wurden
+
+        # Koordinaten in deren Umkreis links gesucht wurden
+        self._lat_lon = pos
+
         # Ortogonalprojektion von Punkt auf Link
         self._matched_point: tuple = None
-        # Ortogonalprojektion von Punkt auf Link
 
         # distance zw. punkt und ortogonalprojekton von Punkt auf Link
         self.distance = None
@@ -21,19 +23,38 @@ class LinkDistance:
         self.fraction = None
 
         # Das dazugehörige Link-Objekt
-        self.Link = link
+        self.link = link
 
+        # Gibt an, ob self schon vollständig initialisiert wurde (für weitere Details siehe _lazy_load(self))
         self.init = False
 
     def _lazy_load(self):
-        self.init = True
-        link_vector = vector_subtraction(self.Link.get_end_node().get_latlon(), self.Link.get_start_node().get_latlon())
-        point_vector = vector_subtraction(self._lat_lon, self.Link.get_start_node().get_latlon())
-        self._matched_point = vector_addition(
-            orthogonal_projection(point_vector, link_vector), self.Link.get_start_node().get_latlon())
+        """
+        Diese Methode lädt bzw. berechnet die Attribute self._matched_point, self.distance, self.fraction und
+        self.Link = link. Hierfür wird im Wesentlichen eine Orthogonalprojektion durchgeführt.
+        :return: void
+        """
+
+        self.init = True  # _lazy_load schließt die Initialisierung des Objektes ab.
+
+        # Darstellung des Links als Vektor vom Start- zum Endknoten
+        link_vector = vector_subtraction(self.link.get_end_node().get_latlon(), self.link.get_start_node().get_latlon())
+
+        # Vektor vom Startknoten des Links zu dem Punkt, in dessen Umkreis nach Links gesucht wurde.
+        point_vector = vector_subtraction(self._lat_lon, self.link.get_start_node().get_latlon())
+
+        # Die Komponente von point_vector die parallel zu link_vector verläuft.
+        parallel_component = orthogonal_projection(point_vector, link_vector)
+
+
+        # Todo: Fallunterscheidung, ob Orthogonalprojektion auf Link landet oder nicht.
+
+
+        self._matched_point = vector_addition(self.link.get_start_node().get_latlon(), parallel_component)
         self.distance = great_circle(self._matched_point, self._lat_lon)
-        distance = great_circle(self.Link.get_start_node().get_latlon(), self._matched_point)
-        self.fraction = self.Link.get_length() / distance
+
+        distance_from_start_node_to_matched_point = great_circle(self.link.get_start_node().get_latlon(), self._matched_point)
+        self.fraction = self.link.get_length() / distance_from_start_node_to_matched_point
 
     def get_distance(self):
         if not self.init:

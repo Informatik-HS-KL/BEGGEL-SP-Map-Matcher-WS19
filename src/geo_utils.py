@@ -1,5 +1,5 @@
 # from src.models.tile import Tile
-from math import radians, degrees, sin, cos, asin, acos, sqrt
+from math import radians, degrees, sin, cos, asin, acos, sqrt, isclose
 
 
 # def print_pretty(tile: Tile):
@@ -103,3 +103,46 @@ def vector_subtraction(vector_a, vector_b):
     if len(vector_a) == 0:
         raise Exception('The Vectors have no items')
     return tuple([x - y for x, y in zip(vector_a, vector_b)])
+
+
+def vector_norm(v: tuple):
+    if len(v) == 0:
+        raise Exception('The Vector has no items')
+
+    return sqrt(dot_product(v, v))
+
+
+def vectors_are_parallel(a: tuple, b: tuple) -> bool:
+    """Überprüft, ob zwei Vektoren (gleicher Dimension) parallel zueinander sind.
+    :return: boolean"""
+    if not len(a) == len(b):
+        raise Exception('The Vectors have not the same length')
+    if len(a) == 0:
+        raise Exception('The Vectors have no items')
+
+    factor = b[0] / a[0]
+
+    for i in range(0, len(a)):
+        # isclose überprüft hier, ob die ersten zehn Ziffern (nicht Nachkommastellen) übereinstimmen.
+        if not isclose(b[i], a[i] * factor, rel_tol=1e-10):
+            return False
+
+    return True
+
+
+def vectors_have_same_direction(a: tuple, b: tuple) -> bool:
+    """Überprüft, ob zwei Vektoren (gleicher Dimension) in die gleiche Richtung zeigen.
+    :return: boolean
+    :raises: wirft Exception, wenn a und b unterschiedliche Dimensionen oder Dimension 0 haben."""
+
+    if not len(a) == len(b):
+        raise Exception('The Vectors have not the same length')
+    if len(a) == 0:
+        raise Exception('The Vectors have no items')
+
+    # Diese Schleife überprüft, ob a und b in jeder Komponente das gleiche Vorzeichen haben.
+    for i in range(0, len(a)):
+        if a[i]/b[i] < 0:
+            return False
+
+    return vectors_are_parallel(a, b)

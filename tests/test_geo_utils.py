@@ -1,6 +1,9 @@
 import unittest
 
-from src.geo_utils import great_circle, dot_product, vector_addition, scalar_multiplication, vector_subtraction, orthogonal_projection
+from src.geo_utils import great_circle, dot_product, vector_addition, scalar_multiplication, vector_subtraction,\
+    orthogonal_projection, vector_norm, vectors_have_same_direction, vectors_are_parallel
+
+from math import sqrt
 
 
 class TestLinkDistance(unittest.TestCase):
@@ -100,3 +103,30 @@ class TestLinkDistance(unittest.TestCase):
         a = ()
         b = ()
         self.assertRaises(Exception, vector_subtraction, a, b)
+
+    def test_vector_norm(self):
+        self.assertEqual(0, vector_norm((0, 0, 0)))
+        self.assertEqual(5, vector_norm((0, -5)))
+        self.assertEqual(4, vector_norm((-2, -2, 2, 2)))
+
+        self.assertAlmostEqual(sqrt(13), vector_norm((-2, 0, 3)), 16)
+
+    def test_vectors_are_parallel(self):
+        self.assertTrue(vectors_are_parallel((2, 2), (2, 2)))
+        self.assertTrue(vectors_are_parallel((1, 1), (-3.7, -3.7)))
+        self.assertTrue(vectors_are_parallel((3, -7), (-1.5, 3.5)))
+        self.assertTrue(vectors_are_parallel((-2, -11), (-2/9, -11/9)))
+
+        self.assertFalse(vectors_are_parallel((1, 1), (2, 2.000000001)))
+        self.assertFalse(vectors_are_parallel((10, - 4), (-19.99999999, 8)))
+        self.assertFalse(vectors_are_parallel((-4, -5), (8, 10.00000001)))
+
+    def test_vectors_have_same_direction(self):
+        self.assertTrue(vectors_have_same_direction((3, 3), (3, 3)))
+        self.assertTrue(vectors_have_same_direction((1, 1), (3.7, 3.7)))
+        self.assertTrue(vectors_have_same_direction((3, -7), (1.5, -3.5)))
+        self.assertTrue(vectors_have_same_direction((-2, -11), (-2/9, -11/9)))
+
+        self.assertFalse(vectors_have_same_direction((1, 1), (-1, -1)))
+        self.assertFalse(vectors_have_same_direction((2, 5), (2, 5.000000001)))
+        self.assertFalse(vectors_have_same_direction((3, 4), (-3, 4)))
