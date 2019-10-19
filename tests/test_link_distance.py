@@ -39,28 +39,26 @@ class TestLinkDistance(unittest.TestCase):
         # Test 3 Point above link
         link = tile_links[0]
         # lat lon liegt immer auf der hälfte der Strecke durch Richtungsvector * 0.5
-        lat_lon = scalar_multiplication(
-            0.5, vector_subtraction(link.get_end_node().get_latlon(), link.get_start_node().get_latlon()))
+        lat_lon = vector_addition(link.get_end_node().get_latlon(),
+                                  scalar_multiplication(0.5,
+                                                        vector_subtraction(link.get_end_node().get_latlon(),
+                                                                           link.get_start_node().get_latlon())))
         dist = LinkDistance(lat_lon, link)
         self.assertEqual(0.5, dist.get_fraction())
         self.assertEqual(0, dist.get_distance())
 
 
-        # # Test 3 Abstandsberechnung über Orthogonal proj.
-        # link = tile_links[0]
-        # # lat lon liegt immer auf der hälfte der Strecke + 0.5 lat durch Richtungsvector * 0.5 + (1,0)
-        # lat_lon = scalar_multiplication(
-        #     0.5,
-        #     vector_addition(
-        #         (1, 0),
-        #         vector_subtraction(link.get_end_node().get_latlon(), link.get_start_node().get_latlon())
-        #     )
-        # )
-        # dist = LinkDistance(lat_lon, link)
-        # self.assertEqual(x, dist.get_fraction())
-        # self.assertEqual(x, dist.get_distance())
-        # print(dist.get_fraction())
-        # print(dist.get_distance())
+        # Test 3 Abstandsberechnung über Orthogonal proj.
+        link = tile_links[0]
+        # lat lon liegt immer auf der hälfte der Strecke + 0.5 lat durch Richtungsvector * 0.5 + (1,0)
+        richt_vect = scalar_multiplication(0.5,
+                                        vector_subtraction(link.get_end_node().get_latlon(),
+                                                           link.get_start_node().get_latlon()))
+        # Richtungsvector um 90 Grad drehen
+        lat_lon = vector_addition(richt_vect, (richt_vect[1], richt_vect[0] * (-1)))
+        dist = LinkDistance(lat_lon, link)
+        self.assertEqual(0.5, dist.get_fraction())
+        self.assertEqual(link.get_length()/2, dist.get_distance())
 
         # Test 3 Point auserhalb der Strecke ohne Orthogonal proj.
         link = tile_links[0]
@@ -69,5 +67,3 @@ class TestLinkDistance(unittest.TestCase):
 
         self.assertEqual(1, dist.get_fraction())
         self.assertEqual(link.get_length(), dist.get_distance())
-        print(dist.get_fraction())
-        print(dist.get_distance())
