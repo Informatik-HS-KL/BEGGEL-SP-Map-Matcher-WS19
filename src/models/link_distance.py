@@ -1,4 +1,4 @@
-from src.geo_utils import orthogonal_projection, vector_subtraction, vector_addition, great_circle
+from src.geo_utils import orthogonal_projection, vector_subtraction, vector_addition, great_circle, vectors_have_same_direction, vector_norm
 
 
 class LinkDistance:
@@ -35,7 +35,8 @@ class LinkDistance:
         :return: void
         """
 
-        self.init = True  # _lazy_load schließt die Initialisierung des Objektes ab.
+        # _lazy_load schließt die Initialisierung des Objektes ab.
+        self.init = True
 
         # Darstellung des Links als Vektor vom Start- zum Endknoten
         link_vector = vector_subtraction(self.link.get_end_node().get_latlon(), self.link.get_start_node().get_latlon())
@@ -46,11 +47,19 @@ class LinkDistance:
         # Die Komponente von point_vector die parallel zu link_vector verläuft.
         parallel_component = orthogonal_projection(point_vector, link_vector)
 
+        # Ermittlung von self._matched_point
+        if vectors_have_same_direction(parallel_component, link_vector):
 
-        # Todo: Fallunterscheidung, ob Orthogonalprojektion auf Link landet oder nicht.
+            # Wenn Orthogonalprojektion nicht auf dem Link landet und sich self.pos näher am Endknoten befindet.
+            if vector_norm(parallel_component) > vector_norm(link_vector):
+                self._matched_point = self.link.get_end_node.get_latlon()
+            # Wenn die Orthogonalprojektion auf dem Link landet ("Schönwetter-Fall)
+            else:
+                self._matched_point = vector_addition(self.link.get_start_node().get_latlon(), parallel_component)
 
-
-        self._matched_point = vector_addition(self.link.get_start_node().get_latlon(), parallel_component)
+        else:  # Wenn Orthogonalprojektion nicht auf dem Link landet und sich self.pos näher am Startknoten befindet.
+            self._matched_point = self.link.get_start_node.get_latlon()
+            
         self.distance = great_circle(self._matched_point, self._lat_lon)
 
         distance_from_start_node_to_matched_point = great_circle(self.link.get_start_node().get_latlon(), self._matched_point)
