@@ -2,8 +2,6 @@ import unittest
 
 from src.models.link_distance import LinkDistance
 from src.map_service import MapService
-from src.models.link import LinkId
-from src.models.node import Node
 from src.geo_utils import vector_subtraction, scalar_multiplication, vector_addition, great_circle
 
 
@@ -48,7 +46,7 @@ class TestLinkDistance(unittest.TestCase):
         self.assertAlmostEqual(0, dist.get_distance(), 10)
 
 
-        # Test 3 Abstandsberechnung über Orthogonal proj.
+        # Test 4 Abstandsberechnung über Orthogonal proj.
         link = tile_links[0]
         # lat lon liegt immer auf der hälfte der Strecke + 0.5 lat durch Richtungsvector * 0.5 + (1,0)
         richt_vect = scalar_multiplication(0.5,
@@ -61,24 +59,13 @@ class TestLinkDistance(unittest.TestCase):
 
         dist = LinkDistance(lat_lon, link)
         self.assertAlmostEqual(0.5, dist.get_fraction(), 10)
-        # print("richt_vect: {}".format(richt_vect))
-        # print("orto_richt_vect: {}".format((richt_vect[1], richt_vect[0] * (-1))))
+        self.assertAlmostEqual(great_circle(middle_of_link,lat_lon), dist.get_distance(), 10)
 
-        #  Ich kann den Test, der mit dem folgenden Assert beabsichtig ist verstehen. Allerdings verhält sich die spherische Geometrie hier nicht so wie man es erwarten würde.
-        # Todo: Ersatz für diesen Testfall finden.
-        # self.assertAlmostEqual(link.get_length()/2, dist.get_distance(), 10)
-
-        # Test 3 Point auserhalb der Strecke ohne Orthogonal proj.
+        # Test 5 Point auserhalb der Strecke ohne Orthogonal proj.
         link = tile_links[0]
-
-        # von seb...ist glaub falsch
-        # lat_lon = vector_addition(link.get_end_node().get_latlon(), link.get_start_node().get_latlon())
-
-        lat_lon = vector_subtraction(scalar_multiplication(2, link.get_end_node().get_latlon()), link.get_start_node().get_latlon()) # mein Vorschlag stattdessen
+        lat_lon = vector_subtraction(scalar_multiplication(2, link.get_end_node().get_latlon()),
+                                     link.get_start_node().get_latlon())
         dist = LinkDistance(lat_lon, link)
 
         self.assertAlmostEqual(1, dist.get_fraction(), 10)
-
-        # Ich kann den Test, der mit dem folgenden Assert beabsichtig ist verstehen. Allerdings verhält sich die spherische Geometrie hier nicht so wie man es erwarten würde.
-        # Todo: Ersatz für diesen Testfall finden.
-        # self.assertAlmostEqual(link.get_length(), dist.get_distance(), 10)
+        self.assertEqual(great_circle(lat_lon, link.get_end_node().get_latlon()), dist.get_distance())
