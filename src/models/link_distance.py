@@ -52,18 +52,32 @@ class LinkDistance:
 
             # Wenn Orthogonalprojektion nicht auf dem Link landet und sich self.pos näher am Endknoten befindet.
             if vector_norm(parallel_component) > vector_norm(link_vector):
-                self._matched_point = self.link.get_end_node.get_latlon()
+                self._matched_point = self.link.get_end_node().get_latlon()
             # Wenn die Orthogonalprojektion auf dem Link landet ("Schönwetter-Fall)
             else:
+                # print("bin auf dem link gelandet")
                 self._matched_point = vector_addition(self.link.get_start_node().get_latlon(), parallel_component)
 
         else:  # Wenn Orthogonalprojektion nicht auf dem Link landet und sich self.pos näher am Startknoten befindet.
-            self._matched_point = self.link.get_start_node.get_latlon()
-            
+            self._matched_point = self.link.get_start_node().get_latlon()
+
         self.distance = great_circle(self._matched_point, self._lat_lon)
 
         distance_from_start_node_to_matched_point = great_circle(self.link.get_start_node().get_latlon(), self._matched_point)
-        self.fraction = self.link.get_length() / distance_from_start_node_to_matched_point
+
+        if distance_from_start_node_to_matched_point == 0:
+            self.fraction = 0
+        else:
+            self.fraction = distance_from_start_node_to_matched_point / self.link.get_length()
+
+        # print("latlon: {}".format(self._lat_lon))
+        # print("_matched_point: {}".format(self._matched_point))
+        # print("self.fraction: {}".format(self.fraction))
+        # print("self.distance: {}".format(self.distance))
+        # print("self.link.get_start_node().get_latlon(): {}".format(self.link.get_start_node().get_latlon()))
+        # print("self.link.get_end_node().get_latlon(): {}".format(self.link.get_end_node().get_latlon()))
+        # print("link.length: {}".format(self.link.get_length()))
+        # print("link.length/2: {}".format(self.link.get_length()/2))
 
     def get_distance(self):
         if not self.init:
@@ -73,4 +87,5 @@ class LinkDistance:
     def get_fraction(self):
         if not self.init:
             self._lazy_load()
+
         return self.fraction

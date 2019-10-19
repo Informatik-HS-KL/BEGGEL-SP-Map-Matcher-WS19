@@ -112,6 +112,16 @@ def vector_norm(v: tuple):
     return sqrt(dot_product(v, v))
 
 
+def is_nullvector(v:tuple) -> bool:
+    """Überprüft, ob v der Nullvektor ist.
+    :return: bool"""
+    for i in range(0, len(v)):
+        if i != 0:
+            return False
+
+    return True
+
+
 def vectors_are_parallel(a: tuple, b: tuple) -> bool:
     """Überprüft, ob zwei Vektoren (gleicher Dimension) parallel zueinander sind.
     :return: boolean"""
@@ -120,7 +130,17 @@ def vectors_are_parallel(a: tuple, b: tuple) -> bool:
     if len(a) == 0:
         raise Exception('The Vectors have no items')
 
-    factor = b[0] / a[0]
+    if is_nullvector(a) or is_nullvector(b):  # Der Nullvektor ist zu jedem anderen Vektor parallel.
+        return True
+
+    factor = None
+
+    for i in range(0, len(a)):
+        if a[i] != 0 and b[i] != 0:
+            factor = b[0] / a[0]
+
+    if factor is None:
+        return False
 
     for i in range(0, len(a)):
         # isclose überprüft hier, ob die ersten zehn Ziffern (nicht Nachkommastellen) übereinstimmen.
@@ -140,9 +160,24 @@ def vectors_have_same_direction(a: tuple, b: tuple) -> bool:
     if len(a) == 0:
         raise Exception('The Vectors have no items')
 
+    if is_nullvector(a) or is_nullvector(b):
+        return True
+
     # Diese Schleife überprüft, ob a und b in jeder Komponente das gleiche Vorzeichen haben.
     for i in range(0, len(a)):
-        if a[i]/b[i] < 0:
-            return False
+        if b[i] != 0:
+            if a[i]/b[i] < 0:
+                return False
 
     return vectors_are_parallel(a, b)
+
+
+# Dieser Codesnipsel veranschaulicht, dass sich die spherische Geometrie nicht immer so verhält, wie man es erwartet.
+# sn = (49.4217069, 7.5606304)
+# mpoint = (49.421703949999994, 7.56109395)
+# pos = (49.42216749999999, 7.561096899999999)
+# print(great_circle(sn, mpoint))
+# print(great_circle(mpoint, pos))
+#
+# print(vector_norm(vector_subtraction(mpoint, sn)))
+# print(vector_norm(vector_subtraction(pos, mpoint)))
