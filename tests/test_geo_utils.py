@@ -111,22 +111,30 @@ class TestLinkDistance(unittest.TestCase):
 
         self.assertAlmostEqual(sqrt(13), vector_norm((-2, 0, 3)), 16)
 
+        self.assertRaises(Exception, vector_norm, ())
+
     def test_vectors_are_parallel(self):
         self.assertTrue(vectors_are_parallel((2, 2), (2, 2)))
         self.assertTrue(vectors_are_parallel((1, 1), (-3.7, -3.7)))
-        self.assertTrue(vectors_are_parallel((3, -7), (-1.5, 3.5)))
+        self.assertTrue(vectors_are_parallel((3, -7, 2), (-1.5, 3.5, -1)))
         self.assertTrue(vectors_are_parallel((-2, -11), (-2/9, -11/9)))
 
         self.assertFalse(vectors_are_parallel((1, 1), (2, 2.000000001)))
-        self.assertFalse(vectors_are_parallel((10, - 4), (-19.99999999, 8)))
+        self.assertFalse(vectors_are_parallel((10, -4, 5), (-19.99999999, 8, -10)))
         self.assertFalse(vectors_are_parallel((-4, -5), (8, 10.00000001)))
+
+        self.assertRaises(Exception, vectors_are_parallel, (), ())
+        self.assertRaises(Exception, vectors_are_parallel, (1, 2), (1, 2, 0))
 
     def test_vectors_have_same_direction(self):
         self.assertTrue(vectors_have_same_direction((3, 3), (3, 3)))
         self.assertTrue(vectors_have_same_direction((1, 1), (3.7, 3.7)))
-        self.assertTrue(vectors_have_same_direction((3, -7), (1.5, -3.5)))
+        self.assertTrue(vectors_have_same_direction((3, -7, 2), (1.5, -3.5, 1)))
         self.assertTrue(vectors_have_same_direction((-2, -11), (-2/9, -11/9)))
 
         self.assertFalse(vectors_have_same_direction((1, 1), (-1, -1)))
-        self.assertFalse(vectors_have_same_direction((2, 5), (2, 5.000000001)))
+        self.assertFalse(vectors_have_same_direction((2, 5, 7), (2, 5.000000001, 7)))
         self.assertFalse(vectors_have_same_direction((3, 4), (-3, 4)))
+
+        self.assertRaises(Exception, vectors_have_same_direction, (), ())
+        self.assertRaises(Exception, vectors_have_same_direction, (1, 2), (1, 2, 0))
