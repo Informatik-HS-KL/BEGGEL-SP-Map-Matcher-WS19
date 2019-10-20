@@ -8,11 +8,13 @@ from src.models.node import NodeId
 from src.models.tile import Tile
 from src.models.link_distance import LinkDistance
 
+from . import CONFIG
+
 class MapService:
     """"""
     # maps geohash --> Tile class
     _tileCache = {}
-    _geoHashLevel = 5
+    _geoHashLevel = CONFIG.getint("DEFAULT","geohashlevel")
 
     def __init__(self):
         """"""

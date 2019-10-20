@@ -10,10 +10,11 @@ from src.models.link_id import LinkId
 from src.models.link import Link
 from src.models.bounding_box import BoundingBox
 
+from . import CONFIG
 
 class OverpassWrapper:
-    OVERPASS_URL = "http://lz4.overpass-api.de/api/interpreter"
-    full_geohash_level = 12
+    OVERPASS_URL = CONFIG.get("DEFAULT", "overpass_url")
+    full_geohash_level = CONFIG.getint("DEFAULT", "full_geohash_level")
     counter = 0
 
     @staticmethod
@@ -27,8 +28,7 @@ class OverpassWrapper:
         # ---------------------------
 
         bbox_str = "%s" % BoundingBox.from_geohash(geo_hash)
-        q_filter = '(if: ' + OverpassWrapper.car_filter() + ')'
-
+        q_filter = '(if: ' + OverpassWrapper.buildQuery(CONFIG) + ')'
         query = '[out:json];way%s%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out geom;' % (bbox_str, q_filter)
         url = "%s?data=%s" % (OverpassWrapper.OVERPASS_URL, query)
         print(query)
@@ -77,22 +77,32 @@ class OverpassWrapper:
 
         return Tile(geo_hash, nodes, links)
 
-    @staticmethod
-    def car_filter():
-        return ('   t["highway"] == "motorway" || t["highway"] == "trunk" '
-                '|| t["highway"] == "primary" || t["highway"] == "secondary" '
-                '|| t["highway"] == "tertiary" || t["highway"] == "unclassified" '
-                '|| t["highway"] == "residential" || t["highway"] == "motorway_link" '
-                '|| t["highway"] == "trunk_link" || t["highway"] == "primary_link" '
-                '|| t["highway"] == "secondary_link" || t["highway"] == "tertiary_link" '
-                '|| t["highway"] == "living_street" '
-                '|| t["highway"] == "service"'  # service ways
-                '|| t["highway"] == "road"')  # Unknown street type
+    # KP 20.10.2019: Ersetzt durch buildQuery
+    # @staticmethod
+    # def car_filter():
+    #     return ('   t["highway"] == "motorway" || t["highway"] == "trunk" '
+    #             '|| t["highway"] == "primary" || t["highway"] == "secondary" '
+    #             '|| t["highway"] == "tertiary" || t["highway"] == "unclassified" '
+    #             '|| t["highway"] == "residential" || t["highway"] == "motorway_link" '
+    #             '|| t["highway"] == "trunk_link" || t["highway"] == "primary_link" '
+    #             '|| t["highway"] == "secondary_link" || t["highway"] == "tertiary_link" '
+    #             '|| t["highway"] == "living_street" '
+    #             '|| t["highway"] == "service"'  # service ways
+    #             '|| t["highway"] == "road"')  # Unknown street type
 
     @staticmethod
-    def footway_filter():
-        return ('t["highway"] == "footway" || t["highway"] == "steps"'
-                '|| t["highway"] == "path" || t["sidewalk"]')
+    def buildQuery(config, conf_section="HIGHWAY_CARS"):
+        """Erstellt Query aus gegebenen Highways aus der Config
+           conf_section: Section in der config.ini die zur Erstellung der Query herangezogen werden soll
+        """
+
+        query = ""
+        options = config.options(conf_section, no_defaults=True)
+        for option in options:
+            if config.getboolean(conf_section, option):
+                query += 't["highway"] == "%s" ||' % option
+
+        return query[:-2]
 
     @staticmethod
     def __create_node(osm_id, pos: tuple, tags=None):

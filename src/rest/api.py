@@ -159,8 +159,7 @@ def get_links(geohash):
     data = []
     tile = map_service.get_tile(geohash)
 
-    for linkid, link in tile.get_links().items():
-        print(linkid, link)
+    for link in tile.get_links():
         data.append(link.to_geojson())
 
     return _resp(data)

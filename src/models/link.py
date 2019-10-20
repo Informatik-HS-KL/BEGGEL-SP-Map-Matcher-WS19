@@ -5,8 +5,8 @@ for WKT see:
 https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
 
 """
-from .node import NodeId
 
+from .node import NodeId
 from .link_id import LinkId
 import src.map_service
 from src.geo_utils import great_circle
