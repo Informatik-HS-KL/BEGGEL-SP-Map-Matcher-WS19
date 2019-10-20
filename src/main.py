@@ -66,12 +66,13 @@ def main():
 def main2():
 
     ms = MapService()
+    bbox = BoundingBox.from_geohash("u0v3h")
+    nodes = ms.get_nodes_in_bounding_box(bbox)
+    links = ms.get_links_in_bounding_box(bbox)
 
-    nodes = ms.get_nodes_in_bounding_box(BoundingBox.from_geohash("u0v3h"))
-    print([n.get_latlon() for n in nodes])
-    # print(ms.get_nodes_in_bounding_box(BoundingBox.from_geohash("u0v3h")))
-
-    print(ms.get_tile("u0v3h"))
+    for l in links:
+        print(l.get_links_at_start_node())
+        print(l.get_links_at_end_node())
 
     # print(LinkDistance((49.4035415, 7.5638974)).get_matched())
 

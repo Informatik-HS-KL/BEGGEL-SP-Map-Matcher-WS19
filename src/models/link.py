@@ -49,14 +49,19 @@ class Link:
         Gibt alle vom Startknoten ausgehende Links zurück (exclusive self).
         :return: Liste von Link-Objekten
         """
-        pass
+        nodelinks = self.get_start_node().get_links()
+        links = filter(lambda l: l != self, nodelinks)
+        return list(links)
 
     def get_links_at_end_node(self):
         """
         Gibt alle vom Endknoten ausgehende Links zurück (exclusive self).
         :return: Liste von Link-Objekten
         """
-        pass
+
+        nodelinks = self.get_end_node().get_links()
+        links = filter(lambda l: l != self, nodelinks)
+        return list(links)
 
     def get_tags(self):
         """

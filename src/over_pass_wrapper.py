@@ -13,6 +13,7 @@ from src.models.bounding_box import BoundingBox
 from . import CONFIG
 
 class OverpassWrapper:
+
     OVERPASS_URL = CONFIG.get("DEFAULT", "overpass_url")
     full_geohash_level = CONFIG.getint("DEFAULT", "full_geohash_level")
     counter = 0
@@ -26,15 +27,12 @@ class OverpassWrapper:
         OverpassWrapper.counter += 1
         print(OverpassWrapper.counter)
         # ---------------------------
+        ghw = GeoHashWrapper()
 
-        bbox_str = "%s" % BoundingBox.from_geohash(geo_hash)
-        q_filter = '(if: ' + OverpassWrapper.buildQuery(CONFIG) + ')'
-        query = '[out:json];way%s%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out geom;' % (bbox_str, q_filter)
-        url = "%s?data=%s" % (OverpassWrapper.OVERPASS_URL, query)
-        print(query)
-
+        q_filter = OverpassWrapper._filterQuery(CONFIG)
+        url = OverpassWrapper._buildQuery(geo_hash, q_filter)
+        print(url)
         resp = requests.get(url)
-        print(resp.content)
         elements = resp.json().get("elements")
 
         nodes = {}  # Initalize
@@ -43,8 +41,7 @@ class OverpassWrapper:
 
         for element in elements:
             if element["type"] == "node":
-                # kapl: TODO: wir müssen über die erstellung von NodeId reden
-                # NodeId direkt über Node Klasse erstellen?
+
                 node = OverpassWrapper.__create_node(element["id"], (element["lat"], element["lon"]), element.get("tags"))
                 nodes[node.get_id()] = node
 
@@ -53,18 +50,11 @@ class OverpassWrapper:
                 way_nodes_positions = element["geometry"]
                 for i in range(0, len(way_nodes_ids) - 1):
 
-                    # kapl TODO: Schaut ich die folgende recherche in unserem Dictonary nodes an:
-                    # Wir müssen bevor wir in einem nodes oder link dict recherieren erst mal die geohashes des Nodes
-                    # rausfinden.
-                    # Dann ein Objekt NodeId erstellen und mit diesem als Key suchen
-                    # Vielleicht in NodeId eine Funktion get_node_id schreiben, die zu einer osm_node_id die NodeId
-                    # liefert.
-                    ghw = GeoHashWrapper()
                     start_node_pos = (way_nodes_positions[i]["lat"], way_nodes_positions[i]["lon"])
                     end_node_pos = (way_nodes_positions[i+1]["lat"], way_nodes_positions[i+1]["lon"])
 
                     start_node_id = NodeId(way_nodes_ids[i], ghw.get_geohash(start_node_pos,
-                                                                             level= OverpassWrapper.full_geohash_level))
+                                                                             level=OverpassWrapper.full_geohash_level))
                     end_node_id = NodeId(way_nodes_ids[i+1], ghw.get_geohash(end_node_pos,
                                                                              level=OverpassWrapper.full_geohash_level))
 
@@ -76,6 +66,39 @@ class OverpassWrapper:
                     links.update({link_id:link})
 
         return Tile(geo_hash, nodes, links)
+
+    @staticmethod
+    def _buildQuery(geohash, q_filter: str):
+        """Return Url to Download Tile"""
+
+        bbox_str = "%s" % BoundingBox.from_geohash(geohash)
+        query = '[out:json];way%s%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out geom;' % (bbox_str, q_filter)
+        url = "%s?data=%s" % (OverpassWrapper.OVERPASS_URL, query)
+        return url
+
+    @staticmethod
+    def _filterQuery(config, conf_section="HIGHWAY_CARS"):
+        """Erstellt Query aus gegebenen Highways aus der Config
+           conf_section: Section in der config.ini die zur Erstellung der Query herangezogen werden soll
+        """
+
+        query = "(if: "
+        options = config.options(conf_section, no_defaults=True)
+        for option in options:
+            if config.getboolean(conf_section, option):
+                query += 't["highway"] == "%s" ||' % option
+
+        return query[:-2] + ")"
+
+
+
+    @staticmethod
+    def __create_node(osm_id, pos: tuple, tags=None):
+        node_id = NodeId(osm_id, GeoHashWrapper().get_geohash(pos, level=OverpassWrapper.full_geohash_level))
+        node = Node(node_id, pos)
+        node.set_tags(tags)
+        return node
+
 
     # KP 20.10.2019: Ersetzt durch buildQuery
     # @staticmethod
@@ -89,24 +112,3 @@ class OverpassWrapper:
     #             '|| t["highway"] == "living_street" '
     #             '|| t["highway"] == "service"'  # service ways
     #             '|| t["highway"] == "road"')  # Unknown street type
-
-    @staticmethod
-    def buildQuery(config, conf_section="HIGHWAY_CARS"):
-        """Erstellt Query aus gegebenen Highways aus der Config
-           conf_section: Section in der config.ini die zur Erstellung der Query herangezogen werden soll
-        """
-
-        query = ""
-        options = config.options(conf_section, no_defaults=True)
-        for option in options:
-            if config.getboolean(conf_section, option):
-                query += 't["highway"] == "%s" ||' % option
-
-        return query[:-2]
-
-    @staticmethod
-    def __create_node(osm_id, pos: tuple, tags=None):
-        node_id = NodeId(osm_id, GeoHashWrapper().get_geohash(pos, level=OverpassWrapper.full_geohash_level))
-        node = Node(node_id, pos)
-        node.set_tags(tags)
-        return node
