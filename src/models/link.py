@@ -73,18 +73,28 @@ class Link:
         return "<Link start_node_id:%s end_node_id:%s>" % (self.__start_node_id, self.__end_node_id)
 
     def to_geojson(self):
-        """"""
-        data = {"type": "LineString",
+        """returns link as geojson feature"""
+
+        data = {
+            "type": "Feature",
+            "geometry": {
+                "type": "LineString",
                 "coordinates": [
                     [self.get_start_node().get_lat(), self.get_start_node().get_lon()],
                     [self.get_end_node().get_lat(), self.get_end_node().get_lon()]
                 ]
-                }
+            },
+            "properties": {}
+        }
         return data
 
     def to_wkt(self):
-        pass
-
+        """
+        return WKT String from self
+        :return:
+        """
+        return "LINESTRING (%s %s, %s %s)" % (self.get_start_node().get_lat(), self.get_start_node().get_lon(), \
+                                                     self.get_end_node().get_lat(), self.get_end_node().get_lon())
 
     def get_length(self):
         return great_circle(self.get_start_node().get_latlon(), self.get_end_node().get_latlon())

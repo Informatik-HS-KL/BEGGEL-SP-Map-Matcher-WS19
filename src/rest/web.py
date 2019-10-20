@@ -8,5 +8,5 @@ bp_webpage = Blueprint('web', __name__)
 
 @bp_webpage.route('/')
 def root_page():
-    return render_template('anzeige.html')
 
+    return render_template('anzeige.html')

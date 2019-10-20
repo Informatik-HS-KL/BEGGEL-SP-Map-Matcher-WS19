@@ -11,10 +11,13 @@
     margin-top: 10px;
 }
 
-.tileinfo{
+.tile{
     padding: 5px;
     margin: 5px;
   -moz-box-shadow:    1px 1px 2px 4px #ccc;
   -webkit-box-shadow: 1px 1px 2px 4px #ccc;
   box-shadow:         1px 1px 2px 4px #ccc;
 }
+
+.tile-text{}
+.tile-nodecount{}
