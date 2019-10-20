@@ -1,5 +1,6 @@
 from configparser import ConfigParser, NoSectionError
 
+
 class MapServiceConfig(ConfigParser):
 
     def options(self, section, no_defaults=False, **kwargs):
@@ -16,6 +17,4 @@ class MapServiceConfig(ConfigParser):
             return super().options(section, **kwargs)
 
 
-
-CONFIG = MapServiceConfig()
-CONFIG.read("config.ini")
+print("config.py loaded")

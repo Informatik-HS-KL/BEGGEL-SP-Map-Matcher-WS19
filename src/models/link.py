@@ -50,7 +50,7 @@ class Link:
         :return: Liste von Link-Objekten
         """
         nodelinks = self.get_start_node().get_links()
-        links = filter(lambda l: l != self, nodelinks)
+        links = filter(lambda l: l!=self, nodelinks)
         return list(links)
 
     def get_links_at_end_node(self):

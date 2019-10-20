@@ -1,16 +1,13 @@
-import requests
+
 from flask import jsonify
 from flask import Response, request, Blueprint
 from src.map_service import MapService
 from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
-from src.models.link import Link
-
-from src.map_service import MapService
 
 map_service = MapService()
-
 api = Blueprint('api', __name__)
+
 
 def documentation():
 
@@ -140,6 +137,7 @@ def get_node(geohash, osmid):
     node = tile.get_node(osmid)
     if not node:
         return _resp({"error": "No Node with osm id:" + str(osmid)})
+
     point = {
         "type": "Point",
         "coordinates": list(node.get_latlon()),

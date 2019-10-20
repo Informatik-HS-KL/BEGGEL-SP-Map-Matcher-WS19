@@ -1,2 +1,5 @@
-#Config ist eine Globale Variable im Code
-from .config import CONFIG
+from src.config import MapServiceConfig
+
+CONFIG = MapServiceConfig()
+CONFIG.read("config.ini")
+

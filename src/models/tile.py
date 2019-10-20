@@ -4,7 +4,12 @@ class Tile:
     ## maps nodeId --> Node object
 
     def __init__(self, geohash, nodes: dict, links: dict):
-        """"""
+        """
+
+        :param geohash: str
+        :param nodes: dict {nodeid: node}
+        :param links: dict {linkid:link}
+        """
 
         self.__nodes = nodes
         self.__links = links
@@ -21,7 +26,7 @@ class Tile:
         :param link:
         :return:
         """
-        self.__links.update(link, link)
+        self.__links.update(link.get_link_id(), link)
 
     def get_node(self, nodeid):
         """
@@ -33,53 +38,68 @@ class Tile:
 
     def get_nodes(self):
         """
-        :return:
+        :return: list [node,..]
         """
         return self.__nodes.values()
 
     def get_nodes_with_keys(self):
         """
-        :return:
+        :return: dict {nodeid: node}
         """
         return self.__nodes
 
     def get_links(self):
-        """"""
+        """
+        :return: list [link, ..]
+        """
         return self.__links.values()
+
+
+    def get_links_with_keys(self):
+        """
+        :return: dict {linkid: link}
+        """
+        return self.__links
 
     def get_link(self, link_id: LinkId):
         """
-        :return:
+        :return: Link
         """
         return self.__links[link_id]
 
 
     def get_geohash(self):
+        """
+        Geohash from self
+        :return: str
+        """
         return self.__geohash
 
-    def get_nachbar(self):
-        nachbar = Tile[8]
-        nachbar[0] = get_right(get_top(self))
-        nachbar[1] = get_top(self)
-        nachbar[2] = get_left(get_top(self))
-        nachbar[3] = get_right(self)
-        nachbar[4] = get_left(self)
-        nachbar[5] = get_right(get_below(self))
-        nachbar[6] = get_below(self)
-        nachbar[7] = get_left(get_below(self))
+    # def get_nachbar(self):
+    #
+    #     nachbar = Tile[8]
+    #     nachbar[0] = get_right(get_top(self))
+    #     nachbar[1] = get_top(self)
+    #     nachbar[2] = get_left(get_top(self))
+    #     nachbar[3] = get_right(self)
+    #     nachbar[4] = get_left(self)
+    #     nachbar[5] = get_right(get_below(self))
+    #     nachbar[6] = get_below(self)
+    #     nachbar[7] = get_left(get_below(self))
 
-
-def get_top(other):
-    return other.get_geohash()
-
-
-def get_below(other):
-    return other.get_geohash()
-
-
-def get_left(other):
-    return other.get_geohash()
-
-
-def get_right(other):
-    return other.get_geohash()
+#
+# def get_top(other):
+#
+#     return other.get_geohash()
+#
+#
+# def get_below(other):
+#     return other.get_geohash()
+#
+#
+# def get_left(other):
+#     return other.get_geohash()
+#
+#
+# def get_right(other):
+#     return other.get_geohash()

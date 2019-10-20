@@ -8,13 +8,13 @@ from src.models.node import NodeId
 from src.models.tile import Tile
 from src.models.link_distance import LinkDistance
 
-from . import CONFIG
+from src import CONFIG
 
 class MapService:
     """"""
     # maps geohash --> Tile class
     _tileCache = {}
-    _geoHashLevel = CONFIG.getint("DEFAULT","geohashlevel")
+    _geoHashLevel = CONFIG.getint("DEFAULT", "geohashlevel")
 
     def __init__(self):
         """"""
@@ -50,8 +50,8 @@ class MapService:
         return ret
 
     def get_tile(self, geohash_str):
-
         """Stellt sicher das immer nur Tile's mit dem vorgegebenen Level geladen werden """
+
         if len(geohash_str) >= self._geoHashLevel:
             # TODO kleinerer Geohash zurückgeben
             return self.__get_tile(geohash_str[:self._geoHashLevel])
@@ -60,12 +60,14 @@ class MapService:
         bbox = BoundingBox.from_geohash(geohash_str)
         for tile_geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
             nodes.update(self.__get_tile(tile_geoHash).get_nodes_with_keys())
-            links.update(self.__get_tile(tile_geoHash).get_links())
+            links.update(self.__get_tile(tile_geoHash).get_links_with_keys())
+
         return Tile(geohash_str, nodes, links)
 
     def __get_tile(self, geohash_str):
         """Gibt das entprechende Tile zurück. Liegt es noch nicht im Tile-Cache,
         so wird es erst noch geladen und im Cache gespeichert."""
+
         from src.over_pass_wrapper import OverpassWrapper
         if geohash_str not in self._tileCache:
             self._tileCache[geohash_str] = OverpassWrapper.load_tile(geohash_str)
@@ -99,7 +101,7 @@ class MapService:
         result = []
         for geohash, tile in self._tileCache.items():
             print(geohash)
-            for linksid, link in tile.get_links().items():
+            for linksid, link in tile.get_links_with_keys().items():
                 if linksid.osm_way_id == way_id:
                     result.append(link)
 
@@ -115,14 +117,16 @@ class MapService:
 
         bbox = BoundingBox.get_bbox_from_point(self._pos, max_distance)
         links = self._map_service.get_links_in_bounding_box(bbox)
+        linkdists = []
         for link in links:
-            LinkDistance(pos, link)
-        return links
+            linkdists.append(LinkDistance(pos, link))
+
+        return linkdists
 
     def get_node(self, nodeid: NodeId):
         """
         :param nodeid:
-        :return:
+        :return: Node-Object
         """
 
         tile = self.get_tile(nodeid.geohash[:self._geoHashLevel])

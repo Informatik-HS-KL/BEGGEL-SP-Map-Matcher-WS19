@@ -25,9 +25,10 @@ class OverpassWrapper:
         """
         # ---------------------
         OverpassWrapper.counter += 1
-        print(OverpassWrapper.counter)
+        print(OverpassWrapper.counter, __name__, geo_hash)
         # ---------------------------
         ghw = GeoHashWrapper()
+
 
         q_filter = OverpassWrapper._filterQuery(CONFIG)
         url = OverpassWrapper._buildQuery(geo_hash, q_filter)

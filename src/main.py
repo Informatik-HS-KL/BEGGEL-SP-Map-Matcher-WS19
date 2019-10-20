@@ -77,6 +77,12 @@ def main2():
     # print(LinkDistance((49.4035415, 7.5638974)).get_matched())
 
 
+from src.rest.app import app
+def start_server():
 
-main2()
+    if __name__ == '__main__':
+        app.run(host="0.0.0.0", port=5000)
+
+start_server()
+#main2()
 #main()

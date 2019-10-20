@@ -85,13 +85,10 @@ class Node:
 
     def get_distance(self, other):
         """
-
         :param other: Node
         :return:
         """
-
         # TODO Berechne Distanz zu anderem Knoten
-
 
     def to_geo_json(self):
         """
