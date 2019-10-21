@@ -65,14 +65,31 @@ def main():
 
 def main2():
 
-    ms = MapService()
-    bbox = BoundingBox.from_geohash("u0v3h")
-    nodes = ms.get_nodes_in_bounding_box(bbox)
-    links = ms.get_links_in_bounding_box(bbox)
+    service = MapService()
 
-    for l in links:
-        print(l.get_links_at_start_node())
-        print(l.get_links_at_end_node())
+    nid = NodeId(290512608, "u0v978d9vsmj")
+    link = service.get_link(263081703, nid)
+
+    sn_links = link.get_links_at_start_node()
+    for i in sn_links: print(i.get_start_node().get_id())
+
+    print(NodeId(240764576, "u0v978d9vsmj"))
+
+    sn_links_test = [
+        service.get_link(263081703, NodeId(240764576, "u0v978eeuc0x")),
+        service.get_link(263081704, NodeId(240764576, "u0v978d9vsmj")),
+        service.get_link(263081704, NodeId(240764576, "u0v978d9vsmj")),
+    ]
+
+
+    print()
+    print(sn_links_test)
+
+    en_links_test = [
+        service.get_link(263081703, NodeId(1, "u0v978eeuc0x")),
+        service.get_link(263081704, NodeId(1, "u0v978d9vsmj")),
+    ]
+    en_links = link.get_links_at_end_node()
 
     # print(LinkDistance((49.4035415, 7.5638974)).get_matched())
 
@@ -84,5 +101,5 @@ def start_server():
         app.run(host="0.0.0.0", port=5000)
 
 start_server()
-#main2()
+main2()
 #main()

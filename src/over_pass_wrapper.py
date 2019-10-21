@@ -29,7 +29,6 @@ class OverpassWrapper:
         # ---------------------------
         ghw = GeoHashWrapper()
 
-
         q_filter = OverpassWrapper._filterQuery(CONFIG)
         url = OverpassWrapper._buildQuery(geo_hash, q_filter)
         print(url)

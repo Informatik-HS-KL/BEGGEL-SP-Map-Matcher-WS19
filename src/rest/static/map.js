@@ -23,8 +23,10 @@ function renderNodes(map, nodes){
             color: 'red',
             fillColor: '#ff0911',
             fillOpacity: 0.5,
-            radius: 8
-        }).addTo(map);
+            radius: 5
+        })
+        circle.bindPopup(node["info"]["geohash"]+ " OSM:"+ node["info"]["osmid"])
+        circle.addTo(map);
     });
 }
 
@@ -37,7 +39,14 @@ function renderLinks(map, links){
     };
 
     links.forEach(function (link) {
-        L.polyline(link.geometry.coordinates, {"style": style}).addTo(map);
+        var leaflet_link = L.polyline(link.geometry.coordinates, {"style": style});
+        var osmid = link["properties"].start_node.id
+        var nodegeohash = link["properties"].start_node.geohash
+        var wayid = link["properties"].osm_way_id
+
+        leaflet_link.bindPopup(`Way: ${wayid}\nNodehash:${nodegeohash}\nNodeId:${osmid}`)
+        leaflet_link.addTo(map);
+
     });
     console.log("Ok")
 

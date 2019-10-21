@@ -22,6 +22,7 @@ class NodeId:
         # ToDo: Muss überarbeitet werden. Hashes sind derzeit noch eindeutig. Vielleicht einfach self.osm_node_id % p (wobei p eine ausreichend große Primzahl ist).
         return self.osm_node_id
 
+
 class Node:
 
     def __init__(self, node_id: NodeId, lat_lon: tuple):

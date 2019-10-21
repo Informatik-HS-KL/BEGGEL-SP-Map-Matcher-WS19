@@ -3,6 +3,10 @@ from configparser import ConfigParser, NoSectionError
 
 class MapServiceConfig(ConfigParser):
 
+    def __call__(self):
+        super()
+        print("Config Class call")
+
     def options(self, section, no_defaults=False, **kwargs):
         """
         Options gibt alle einträge einer Section zurück.

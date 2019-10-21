@@ -8,7 +8,7 @@ from src.models.node import NodeId
 from src.models.tile import Tile
 from src.models.link_distance import LinkDistance
 
-from src import CONFIG
+from . import CONFIG
 
 class MapService:
     """"""

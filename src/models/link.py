@@ -15,7 +15,7 @@ class Link:
     # Links sollen nur noch Referenzen auf die Knoten (also die nodeIds) enthalten.
     # In get_start_node bzw. get_end_node wird dann über mapService der entsprechende Knoten geladen.
 
-    def __init__(self, osm_way_id, start_node_id: NodeId, end_node_id: NodeId):
+    def __init__(self, link_id, start_node_id: NodeId, end_node_id: NodeId):
         """
         :param startNode: Node Start of this Link
         :param endNode: Node End of this Link
@@ -23,7 +23,7 @@ class Link:
         self.__start_node_id = start_node_id
         self.__end_node_id = end_node_id
         self.__outs = []
-        self.__link_id = LinkId(osm_way_id, start_node_id)
+        self.__link_id = link_id
 
         self._map_service = src.map_service.MapService()
 
@@ -74,6 +74,10 @@ class Link:
     def get_link_id(self):
         return self.__link_id
 
+    def get_way_osm_id(self):
+        return self.__link_id.osm_way_id
+
+
     def __repr__(self):
         return "<Link start_node_id:%s end_node_id:%s>" % (self.__start_node_id, self.__end_node_id)
 
@@ -89,7 +93,13 @@ class Link:
                     [self.get_end_node().get_lat(), self.get_end_node().get_lon()]
                 ]
             },
-            "properties": {}
+            "properties": {
+                "osm_way_id": self.get_way_osm_id(),
+                "start_node": {
+                    "geohash": self.get_link_id().get_start_node_id().geohash,
+                    "id": self.get_link_id().get_start_node_id().osm_node_id
+                }
+            }
         }
         return data
 

@@ -20,3 +20,10 @@ class LinkId:
 
     def __hash__(self):
         return hash("%s%s" % (self.osm_way_id, self.geohash))
+
+    def get_start_node_id(self):
+        """Getter Startnode
+        :return: Nodeid
+        """
+
+        return self.start_node_id

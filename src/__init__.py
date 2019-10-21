@@ -1,5 +1,11 @@
 from src.config import MapServiceConfig
+import sys, os
 
-CONFIG = MapServiceConfig()
-CONFIG.read("config.ini")
+def get_config():
 
+    CONFIG = MapServiceConfig()
+    CONFIG.read(os.path.dirname(__file__) + "/config.ini")
+
+    return CONFIG
+
+CONFIG = get_config()

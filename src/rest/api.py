@@ -28,7 +28,15 @@ def _resp(data):
     """
 
     #return Response(response=, status=200, mimetype="text/html")
-    return jsonify(data)
+    jdata = None
+    try:
+        jdata = jsonify(data)
+        return jdata
+
+    except Exception as e:
+        print(data)
+
+    return jdata
 
 
 @api.route('/')
@@ -119,7 +127,8 @@ def get_nodes(geohash):
         point = {
             "type": "Point",
             "coordinates": list(node.get_latlon()),
-            "osmid": str(node.get_id())
+            "info": { "geohash": node.get_id().geohash,
+                      "osmid": node.get_id().osm_node_id}
         }
         data.append(point)
 
