@@ -2,13 +2,48 @@
 from math import radians, degrees, sin, cos, asin, acos, sqrt, isclose
 
 
-# def print_pretty(tile: Tile):
-#     """"""
-#
-#     for n in tile.get_nodes():
-#         print("-" * 20)
-#         print("Node:", n.get_id())
-#         print("Links", [(l.get_start_node(), l.get_end_node()) for l in n.get_links()])
+def great_circle(point1: tuple, point2: tuple):
+    """
+    Angaben in KM
+    :param point1:
+    :param point2:
+    :return:
+    """
+    lat1, lon1 = point1
+    lat2, lon2 = point2
+
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    result = sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lon1 - lon2)
+
+    # Rundungsfehler beseiten
+    if result > 1.0:
+        result = 1
+
+    if result < -1.0:
+        result = -1
+
+    return 6371 * (acos(result))
+
+
+def convert_meter_2_lat(meter):
+    """
+    Convert meter to latitude difference
+    :return: lat-difference in float
+    """
+
+    meter_per_lat = great_circle((0, 0), (1, 0)) * 1000
+    lat_per_meter = 1 / meter_per_lat
+    return meter * lat_per_meter
+
+
+def convert_meter_2_lon(meter):
+    """
+    Convert meter to latitude difference
+    :return: lat-difference in float
+    """
+    meter_per_lon = great_circle((0, 0), (0, 1)) * 1000
+    lon_per_meter = 1 / meter_per_lon
+    return meter * lon_per_meter
 
 
 def number_is_in_interval(number, interval, overflow_mark, excluding_endpoints=False):
@@ -57,15 +92,6 @@ def first_interval_contains_second_interval(first_interval: tuple, second_interv
 
     return number_is_in_interval(a2, first_interval, overflow_mark) and \
            number_is_in_interval(b2, first_interval, overflow_mark)
-
-
-def great_circle(point1, point2):
-    """"""
-    lat1, lon1 = point1
-    lat2, lon2 = point2
-
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-    return 6371 * (acos(sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lon1 - lon2)))
 
 
 def dot_product(a: tuple, b: tuple):

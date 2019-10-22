@@ -63,6 +63,7 @@ class LinkDistance:
 
         self.distance = great_circle(self._matched_point, self._lat_lon)
 
+        print((self.link.get_start_node().get_latlon(), self._matched_point))
         distance_from_start_node_to_matched_point = great_circle(self.link.get_start_node().get_latlon(), self._matched_point)
 
         if distance_from_start_node_to_matched_point == 0:

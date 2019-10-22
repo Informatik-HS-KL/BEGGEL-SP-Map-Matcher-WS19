@@ -115,8 +115,8 @@ class MapService:
         :return:
         """
 
-        bbox = BoundingBox.get_bbox_from_point(self._pos, max_distance)
-        links = self._map_service.get_links_in_bounding_box(bbox)
+        bbox = BoundingBox.get_bbox_from_point(pos, max_distance)
+        links = self.get_links_in_bounding_box(bbox)
         linkdists = []
         for link in links:
             linkdists.append(LinkDistance(pos, link))
