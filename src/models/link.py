@@ -119,3 +119,21 @@ class Link:
 
     def is_to_start(self):
         pass
+
+    def isNavFromStart(self, vehicleType):
+        """
+        Kann der Link vom Startknoten zum Endknoten befahren werden.
+
+        :param _self:
+        :return:
+        """
+        return 0;
+
+    def isNavToStart(self):
+        """
+        Kann der Link vom Endknoten zum StartKnoten befahren werden.
+
+        :param _self:
+        :return:
+        """
+        return 0;

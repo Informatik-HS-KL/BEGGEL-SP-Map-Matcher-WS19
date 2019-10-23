@@ -20,6 +20,9 @@ class MapService:
         """"""
         self.name = "A"
 
+
+
+
     def get_nodes_in_bounding_box(self, bbox: BoundingBox):
         """
         Knoten einer Boudingbox zurückgeben.
@@ -107,9 +110,10 @@ class MapService:
 
         return result
 
-    def get_linkdistances_in_radius(self, pos, max_distance):
+    def get_linkdistances_in_radius(self, pos, max_distance, max_nbr = 10):
         """ Pseudo Match: Links deren knoten nicht in der BoundingBox liegt, die von der gegebenen Position ausgeht,
             können nicht erreicht werden.
+            Liste wird nach tatsächer distance sortiert und nur die max_nbr geringen Abstände zurückgegeben.
         :param pos:
         :param max_distance:
         :return:
@@ -120,6 +124,8 @@ class MapService:
         linkdists = []
         for link in links:
             linkdists.append(LinkDistance(pos, link))
+
+        ## sortieren und filtern
 
         return linkdists
 

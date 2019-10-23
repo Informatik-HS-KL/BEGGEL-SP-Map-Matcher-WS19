@@ -13,7 +13,7 @@ def main():
 
     # mapservice.set_config("cachelevel",5)
 
-    bbox = BoundingBox.from_geohash("u0v9700")
+    bbox = BoundingBox.from_geohash("u0v970")
     nodes = mapService.get_nodes_in_bounding_box(bbox)
 
     for node in nodes:
@@ -50,6 +50,7 @@ def main():
 
     for ld in listDistanceData:
         print("Ld", ld.link.get_link_id(), "Distance:", ld.get_distance())
+        #print("linkID: " + ld.link.get_link_id().geohash)
 
     # Jeder Link soll die Information enthalten, von wem er benutzt werden kann (also z.B. Radfahrer, Fußgänger, Autos)
     # link.navigatable # car, bike, pedestrial
