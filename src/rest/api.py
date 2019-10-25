@@ -1,3 +1,9 @@
+"""
+Description: This file defines the endpoints of the REST-API.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
+
 
 from flask import jsonify
 from flask import Response, request, Blueprint

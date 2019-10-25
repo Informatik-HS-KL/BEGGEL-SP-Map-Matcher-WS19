@@ -1,3 +1,9 @@
+"""
+Description: This file contains util methods for the REST-API.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
+
 
 def createGeoJson(geotype, coords, data=None):
     """
