@@ -110,7 +110,9 @@ class MapService:
 
         return result
 
-    def get_linkdistances_in_radius(self, pos, max_distance, max_nbr = 10):
+    # beggel-changes
+    # def get_linkdistances_in_radius(self, pos, max_distance, max_nbr=10):
+    def get_linkdistances_in_radius(self, pos, max_distance):
         """ Pseudo Match: Links deren knoten nicht in der BoundingBox liegt, die von der gegebenen Position ausgeht,
             können nicht erreicht werden.
             Liste wird nach tatsächer distance sortiert und nur die max_nbr geringen Abstände zurückgegeben.
