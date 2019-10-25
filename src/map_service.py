@@ -1,5 +1,11 @@
 """
+Description: The MapService is the center of this whole API. That means that the whole functionality this API should
+offer is located in the MapService, e.g. getting nodes and links that satisfy certain criteria. Therefore the MapService
+is managing the obtainment and caching of Tiles, the latter for improving the performance.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
+
 
 from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
@@ -9,6 +15,7 @@ from src.models.tile import Tile
 from src.models.link_distance import LinkDistance
 
 from . import CONFIG
+
 
 class MapService:
     """"""

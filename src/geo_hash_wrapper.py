@@ -1,7 +1,15 @@
 """
+Description: The GeohashWrapper encapsulates the functionality of the following geohash-library:
 https://github.com/vinsci/geohash/
-
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
+
+
+# """
+# https://github.com/vinsci/geohash/
+#
+# """
 import geohash2 as geohash
 from src.models.bounding_box import BoundingBox
 

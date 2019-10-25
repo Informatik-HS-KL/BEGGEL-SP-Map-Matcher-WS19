@@ -1,3 +1,10 @@
+"""
+Description: This files offers some mathematical and geographic-related methods.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
+
+
 # from src.models.tile import Tile
 from math import radians, degrees, sin, cos, asin, acos, sqrt, isclose
 
