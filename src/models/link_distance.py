@@ -1,3 +1,11 @@
+"""
+Description: Sometimes you want to find links within a certain radius around a certain position. In this context it is usually
+interesting to get further information about a link that was found. A LinkDistance-Object encapsulates all these
+information, e.g. the shortest distance between the point and the link or the nearest position on the link.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz"""
+
+
 from src.geo_utils import orthogonal_projection, vector_subtraction, vector_addition, great_circle, vectors_have_same_direction, vector_norm
 
 
