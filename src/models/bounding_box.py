@@ -103,7 +103,7 @@ class BoundingBox:
 
         return BoundingBox(lat - radius_as_lat, lon - radius_as_lon, lat + radius_as_lat, lon + radius_as_lon)
 
-
+    def get_bbox_from_points(self, min):
     @staticmethod
     def from_geohash(geohash):
         bbox = Geohash.decode_exactly(geohash)

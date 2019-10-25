@@ -27,6 +27,10 @@ class Link:
 
         self._map_service = src.map_service.MapService()
 
+    def get_bbox(self):
+        """"""
+       # BoundingBox.get_bbox_from_points(self.__start_node_id)
+
     def get_start_node(self):
         """
         :return Gibt den Startknoten (als Node) zurück.
