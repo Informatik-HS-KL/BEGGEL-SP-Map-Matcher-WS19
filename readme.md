@@ -1,39 +1,53 @@
-Fragen
---
-- Karten nachladen 
-    - Wie finden wir Überschneidungen mit den anderen Kacheln?
-    - Wie berücksichtigen wir diese Überschneidungen in unserem Datenmodell?
- - Sollen wir neben base32 auch andere Geocode-Systeme im GeohashWrapper unterstützen?
- - Wie können wir unsere Performance testen?
- - Wie bauen wir unsere Konfiguration auf?
-    - API Key
- - Wie können wir den Cache entlasten:
-    - Welche Informationen sind nicht essentiell?
-    
- - OSM-Ids können sich mit der Zeit ändern. Wir das für uns zu einem Problem?
+[Picture 1]: doc/images/webPage.jpg  "Visualisation of Links and Nodes"
+# Map Service
+## Overview
 
-TODO
---
--  Bugfix und Refactor von loadTile():
-    - Performance
-    - Einbahnstraßen
-    - Abbiegeverbote    
-- Refactor GeohashWrapper
-- Links um folgenden Informationen ergänzen:
-    - vom wem darf ein Link verwendet werden (Radfahrer, Autos, Fußgänger, ...)?
-    - in welcher Richtung darf ein Link verwendet werden?
-        - auch wieder in Abhängigkeit von der Rolle (Radfahrer, ...)
+### Functions
 
+#### Get Link(s)
+Links in BBox
+Return a Dictionary with Links:
 
-Ideen
---
-- Die Logik aus der REST-API in eine extra API schreiben, sodass die REST-API lesbarer wird.
-- Datenmodell um zusätzliche Informationen ergänzen, sodass Ergebnisse im FrontEnd leichter zu verstehen sind:
-    - Angeben in welchem Land ein Tile bzw. eine Bounding Box liegt
-- FrontEnd ergänzen um:
-    - nur die Grenzen eines Tiles anzeigen
- - von einem Tile, die benachbarten Tiles erhalten
- - eine Methode mit der beliebige Polygone geladen werden können
- - mehrere Threads um parallel mehrere Tiles zu laden
- - schauen, ob man auch Wanderwege ausfindig machen kann
+    mapService.get_links_in_bounding_box(BoundingBox(south: float, 
+                                                     west:  float, 
+                                                     north: float, 
+                                                     east:  float))
+   
 
+Links with osm way id:
+Return a Dictionary with Links:
+
+    mapService.get_links(38936691)
+
+Links around a Point
+
+#### Get Node(s)
+Node by Id
+
+Nodes in BBox
+
+#### Get Tile(s)
+Tile with geohash
+
+All Cached Tiles
+
+### GUI
+After the start you have the opportunity to Visual your Links and Nodes. 
+We implement a test web page under [localhost](http://http://localhost:5000/). 
+![Picture 1]
+
+In the Visualisation you can choose if you want to see all Nodes or Links in a Geohash.
+Set Nodes and Links are preserved.
+
+### Requirements
+
+1. Python: 3.7
+2. ...
+
+### Installation
+Actual:
+1. Copy/download code
+2. run man
+
+## Support
+xxx
