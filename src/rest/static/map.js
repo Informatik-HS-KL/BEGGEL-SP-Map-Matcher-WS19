@@ -1,5 +1,6 @@
 /*
-Description: Todo
+Description: vue.js components for map an GUI Items to controll
+
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 */
