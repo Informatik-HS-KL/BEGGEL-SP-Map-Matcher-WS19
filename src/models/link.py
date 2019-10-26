@@ -26,15 +26,17 @@ class Link:
     # Links sollen nur noch Referenzen auf die Knoten (also die nodeIds) enthalten.
     # In get_start_node bzw. get_end_node wird dann über mapService der entsprechende Knoten geladen.
 
-    def __init__(self, link_id, start_node_id: NodeId, end_node_id: NodeId):
+    def __init__(self, link_id, geometry: list, node_ids: list):
         """
         :param startNode: Node Start of this Link
         :param endNode: Node End of this Link
         """
-        self.__start_node_id = start_node_id
-        self.__end_node_id = end_node_id
+        self.__start_node_id = node_ids[0]
+        self.__end_node_id = node_ids[len(node_ids)-1]
         self.__outs = []
         self.__link_id = link_id
+        self.__geometry = geometry  # contains the (lat, lon)-tupel of all nodes of the link
+        self.__node_ids = node_ids
 
         self._map_service = src.map_service.MapService()
 
