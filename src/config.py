@@ -1,5 +1,6 @@
 """
-Description: Todo
+Description: Creates special Config Class for parsing and getting configurations
+see __init__.py für instanceiating during runtime
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """

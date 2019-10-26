@@ -1,5 +1,6 @@
 """
 Description: This file contains util methods for the REST-API.
+WARNING: depreciated
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
