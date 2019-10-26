@@ -1,6 +1,10 @@
 """
-
+Description: This is a testfile for node.py
+@date: 11/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
+
+
 import unittest
 from src.models import Node
 from src.models import Link
