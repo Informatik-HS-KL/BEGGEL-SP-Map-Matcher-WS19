@@ -1,6 +1,14 @@
 """
-Läd daten von der OVerpass schnittstelle in eine Kachel
+Description: The OverpassWrapper is not only used to obtain OpenStreetMap-Data via the Overpass-API, but also to parse
+the obtained data into the convenient model-objects.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
+
+
+# """
+# Läd daten von der OVerpass schnittstelle in eine Kachel
+# """
 import requests
 from .geo_hash_wrapper import GeoHashWrapper
 

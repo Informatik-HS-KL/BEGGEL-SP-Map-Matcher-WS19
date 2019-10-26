@@ -1,3 +1,9 @@
+"""
+Description: Cretes Flask Application and register api and web entdpoint to this.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
+
 from flask import Flask, Response, render_template, request, Blueprint
 import src.rest.api
 import src.rest.web

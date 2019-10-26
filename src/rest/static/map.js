@@ -1,4 +1,9 @@
+/*
+Description: vue.js components for map an GUI Items to controll
 
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+*/
 
 accesstoken = "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw";
 providerurl = "https://api.tiles.mapbox.com/";

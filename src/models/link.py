@@ -1,10 +1,21 @@
 """
-Part of street where there is no intersection and that has a fixed set of properties.
-A link might have a non-linear geometry. Geometry of a link is a LINESTRING!
-for WKT see:
-https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
-
+Description: A Link is a part of a street which if at all has only intersections at the beginning and/or the end. A Link might
+have a non-linear geometry. The geometry of a link is a LINESTRING.
+For WKT see: (https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry)
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
+
+
+
+
+# """
+# Part of street where there is no intersection and that has a fixed set of properties.
+# A link might have a non-linear geometry. Geometry of a link is a LINESTRING!
+# for WKT see:
+# https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
+#
+# """
 
 from .node import NodeId
 from .link_id import LinkId

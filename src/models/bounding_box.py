@@ -1,3 +1,10 @@
+"""
+Description: This class represents the geometry of a bounding box. It also offers some methods especially for
+determining the (geometric) relation of  a BoundingBox to a node/link/other BoundingBox.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz"""
+
+
 from src.models.node import Node
 from src.models.link import Link
 import src.geo_utils as ut

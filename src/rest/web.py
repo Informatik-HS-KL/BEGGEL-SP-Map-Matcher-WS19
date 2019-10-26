@@ -1,3 +1,10 @@
+"""
+Description: Main Entdpoints for HTML Delivery an web Frontend
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
+
+
 from flask import Response, request, render_template, Blueprint
 
 from src.rest import api
