@@ -5,6 +5,7 @@ for example to convert the geometry of a Node-Object into several geo-formats, a
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
+
 class NodeId:
     def __init__(self, osm_node_id, geohash):
         """:param geohash: geohash wird in voller Länge (als String) angegeben."""
@@ -21,8 +22,12 @@ class NodeId:
     def __ne__(self, other):
         return not (self is other)
 
+    def __repr__(self):
+        return "NodeId: <osm_node_id: %s> <geohash: %s>" % (self.osm_node_id, self.geohash)
+
     def __hash__(self):
-        # ToDo: Muss überarbeitet werden. Hashes sind derzeit noch eindeutig. Vielleicht einfach self.osm_node_id % p (wobei p eine ausreichend große Primzahl ist).
+        # ToDo: Muss überarbeitet werden. Hashes sind derzeit noch eindeutig. Vielleicht einfach self.osm_node_id % p
+        #  (wobei p eine ausreichend große Primzahl ist).
         return self.osm_node_id
 
 
@@ -105,4 +110,4 @@ class Node:
         return "POINT(%s %s)" % (self.get_lat(), self.get_lon())
 
     def __repr__(self):
-        return "<Node: %s>" % self.__id
+        return "Node: <id: %s> <latLon: %s>" % (self.__id, self.__latLon)

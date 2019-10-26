@@ -94,9 +94,11 @@ class Link:
     def get_way_osm_id(self):
         return self.__link_id.osm_way_id
 
-
     def __repr__(self):
-        return "<Link start_node_id:%s end_node_id:%s>" % (self.__start_node_id, self.__end_node_id)
+        return "Link: <link_id: %s> <geometry: %s> <node_ids: %s>" % (self.__link_id, self.__geometry, self.__node_ids)
+
+    def __str__(self):
+        return "Link: <start_node_id: %s> <end_node_id: %s>" % (self.__start_node_id, self.__end_node_id)
 
     def to_geojson(self):
         """returns link as geojson feature"""
