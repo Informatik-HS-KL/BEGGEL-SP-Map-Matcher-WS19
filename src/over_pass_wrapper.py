@@ -40,7 +40,10 @@ class OverpassWrapper:
         url = OverpassWrapper._buildQuery(geo_hash, q_filter)
         print(url)
         resp = requests.get(url)
-        elements = resp.json().get("elements")
+        try:
+            elements = resp.json().get("elements")
+        except Exception as e:
+            print(resp.text)
 
         nodes = {}  # Initalize
         intersections = set()
