@@ -36,21 +36,22 @@ def main():
     print(endlinks)
 
     # Link Distance
-    link = mapService.get_link(38936694, NodeId(462739567, "u0v97b9yr5gy"))
-    pos = (49.4419412, 7.9026608)
-    ld = LinkDistance(pos, link)
-    print("Link Distance: ", ld.get_distance(),"Link Fraction:", ld.get_fraction())
+    # Das Beispiel passt nicht mehr, da Links jetzt anders aufgebaut sind und infolgedessen der Knoten
+    # mit der Id 462739562 kein Startknoten mehr ist.
+    # link = mapService.get_link(38936694, NodeId(462739567,
+    # "u0v97b9yr5gy")) pos = (49.4419412, 7.9026608) ld = LinkDistance(pos, link) print("Link Distance: ",
+    # ld.get_distance(),"Link Fraction:", ld.get_fraction())
 
-    waylinks = mapService.get_links(38936691)
-    print(waylinks)
-    l = mapService.get_link(38936691, NodeId(1784694212, "u0v97b8pkp3w"))
-    print(l)
-
-    listDistanceData = mapService.get_linkdistances_in_radius(pos, 50)
-
-    for ld in listDistanceData:
-        print("Ld", ld.link.get_link_id(), "Distance:", ld.get_distance())
-        #print("linkID: " + ld.link.get_link_id().geohash)
+    # waylinks = mapService.get_links(38936691)
+    # print(waylinks)
+    # l = mapService.get_link(38936691, NodeId(1784694212, "u0v97b8pkp3w"))
+    # print(l)
+    #
+    # listDistanceData = mapService.get_linkdistances_in_radius(pos, 50)
+    #
+    # for ld in listDistanceData:
+    #     print("Ld", ld.link.get_link_id(), "Distance:", ld.get_distance())
+    #     #print("linkID: " + ld.link.get_link_id().geohash)
 
     # Jeder Link soll die Information enthalten, von wem er benutzt werden kann (also z.B. Radfahrer, Fußgänger, Autos)
     # link.navigatable # car, bike, pedestrial

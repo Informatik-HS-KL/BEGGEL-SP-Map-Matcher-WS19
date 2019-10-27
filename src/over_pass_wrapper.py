@@ -44,7 +44,6 @@ class OverpassWrapper:
 
         nodes = {}  # Initalize
         intersections = set()
-        ways = []  # Initalize
         links = {}  # Initalize
 
         number_of_intersections = int(elements[0]["tags"]["nodes"])
@@ -90,21 +89,6 @@ class OverpassWrapper:
                                                                            level=OverpassWrapper.full_geohash_level))
                         link_geometry.append(node_pos)
                         link_node_ids.append(node_id)
-
-                    # start_node_pos = (way_nodes_positions[i]["lat"], way_nodes_positions[i]["lon"])
-                    # end_node_pos = (way_nodes_positions[i+1]["lat"], way_nodes_positions[i+1]["lon"])
-                    #
-                    # start_node_id = NodeId(way_nodes_ids[i], ghw.get_geohash(start_node_pos,
-                    #                                                          level=OverpassWrapper.full_geohash_level))
-                    # end_node_id = NodeId(way_nodes_ids[i+1], ghw.get_geohash(end_node_pos,
-                    #                                                          level=OverpassWrapper.full_geohash_level))
-                    #
-                    # link_id = LinkId(element["id"], start_node_id)
-                    # link = Link(link_id, start_node_id, end_node_id)
-                    # nodes[start_node_id].add_link(link)
-                    # nodes[end_node_id].add_link(link)
-                    #
-                    # links.update({link_id: link})
 
         return Tile(geo_hash, nodes, links)
 
