@@ -9,7 +9,7 @@ accesstoken = "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ
 providerurl = "https://api.tiles.mapbox.com/";
 
 function buildMap(startLocation){
-    var mymap = L.map('mapid').setView(startLocation, 10);
+    var mymap = L.map('mapid').setView(startLocation, 14);
 
     L.tileLayer(providerurl+'v4/{id}/{z}/{x}/{y}.png?access_token='+accesstoken, {
         maxZoom: 18,
@@ -22,11 +22,19 @@ function buildMap(startLocation){
     return mymap;
 }
 
-function renderNodes(map, nodes){
+VIEW_SET = 0;
+
+function setView(map, coords) {
+    if(VIEW_SET === 0){
+        map.setView(coords, 12)
+        VIEW_SET = 1;
+    }
+}
+function renderNodes(map, nodes, color){
     nodes.forEach(function (node) {
         var circle = L.circle(node["coordinates"], {
-            color: 'red',
-            fillColor: '#ff0911',
+            color: color,
+            fillColor: color,
             fillOpacity: 0.5,
             radius: 5
         })
@@ -92,6 +100,7 @@ var app = new Vue({
         loaddata: function(resource) {
             that = this;
             cmds = {
+               crossings: "/api/tiles/" + that.geohash + "/nodes/crossroads",
                nodes: "/api/tiles/" + that.geohash + "/nodes",
                links: "/api/tiles/" + that.geohash + "/links",
             }
@@ -106,12 +115,22 @@ var app = new Vue({
                     geoData = JSON.parse(xhr.responseText);
                     that.message = geoData
                     if(that.cmd == "nodes"){
-                        renderNodes(that.map, geoData)
+                        setView(that.map, geoData[0].coordinates)
+                        renderNodes(that.map, geoData, '#ff0911')
+                        that.tiles.push({text: that.cmd + ": "+ that.geohash, count: geoData.length, id: that.geohash + that.cmd})
                     }
+                    if(that.cmd == "crossings"){
+                        setView(that.map, geoData[0].coordinates)
+                        renderNodes(that.map, geoData, '#1109ff')
+                        that.tiles.push({text: that.cmd + ": "+ that.geohash, count: geoData.length, id: that.geohash + that.cmd})
+                    }
+
                     if(that.cmd == "links"){
+
                         renderLinks(that.map, geoData)
+                        that.tiles.push({text: that.geohash, count: geoData.length, id: that.geohash})
                     }
-                    that.tiles.push({text: that.geohash, count: geoData.length, id: that.geohash})
+
                 }
             };
             xhr.send();

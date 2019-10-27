@@ -84,6 +84,9 @@ class Tile:
         """
         return self.__geohash
 
+    def set_crossings(self, crossings: dict):
+        self.crossings = crossings
+
     # def get_nachbar(self):
     #
     #     nachbar = Tile[8]

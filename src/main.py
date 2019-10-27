@@ -32,12 +32,13 @@ def main():
     endlinks = link.get_links_at_end_node()
     print(endlinks)
 
-    # # Link Distance
-    # link = mapService.get_link(38936694, NodeId(462739567, "u0v97b9yr5gy"))
-    # pos = (49.4419412, 7.9026608)
-    # ld = LinkDistance(pos, link)
-    # print("Link Distance: ", ld.get_distance(),"Link Fraction:", ld.get_fraction())
-    #
+    # Link Distance
+    # Das Beispiel passt nicht mehr, da Links jetzt anders aufgebaut sind und infolgedessen der Knoten
+    # mit der Id 462739562 kein Startknoten mehr ist.
+    # link = mapService.get_link(38936694, NodeId(462739567,
+    # "u0v97b9yr5gy")) pos = (49.4419412, 7.9026608) ld = LinkDistance(pos, link) print("Link Distance: ",
+    # ld.get_distance(),"Link Fraction:", ld.get_fraction())
+
     # waylinks = mapService.get_links(38936691)
     # print(waylinks)
     # l = mapService.get_link(38936691, NodeId(1784694212, "u0v97b8pkp3w"))
@@ -69,6 +70,6 @@ def start_server():
         print("localhost:5000/api")
         app.run(host="localhost", port=5000)
 
-main()
+#main()
 
 start_server()
