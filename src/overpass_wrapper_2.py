@@ -107,31 +107,20 @@ class OverpassWrapper:
             link_geometry = []
             link_node_ids = []
 
-            for i in range(len(way_nodes_ids) - 1):
+            for i in range(len(way_nodes_ids)):
                 node_pos = (way_nodes_positions[i]["lat"], way_nodes_positions[i]["lon"])
                 node_id = NodeId(way_nodes_ids[i], self.ghw.get_geohash(node_pos, level=self.full_geohash_level))
-
-                next_node_pos = (way_nodes_positions[i + 1]["lat"], way_nodes_positions[i + 1]["lon"])
-                next_node_id = NodeId(way_nodes_ids[i + 1], self.ghw.get_geohash(next_node_pos,
-                                                                                 level=self.full_geohash_level))
-
-                #nodeids[node_id].append(next_node_id)
-                #nodeids[next_node_id].append(node_id)
 
                 link_geometry.append(node_pos)
                 link_node_ids.append(node_id)
 
-                if node_id in crossings and i != 0 or i == len(way_nodes_ids)-1:
-
-                    link_geometry.append(next_node_pos)
-                    link_node_ids.append(next_node_id)
+                if node_id in crossings:
 
                     link_id = LinkId(way["id"], link_node_ids[0])
                     link = Link(link_id, link_geometry, link_node_ids)
                     links[link_id] = link
 
                     #  Re-Initialization for the next link
-
                     link_geometry = [node_pos]
                     link_node_ids = [node_id]
 
