@@ -1,3 +1,10 @@
+"""
+Description: This class represents the geometry of a bounding box. It also offers some methods especially for
+determining the (geometric) relation of  a BoundingBox to a node/link/other BoundingBox.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz"""
+
+
 from src.models.node import Node
 from src.models.link import Link
 import src.geo_utils as ut
@@ -89,16 +96,22 @@ class BoundingBox:
         return True
 
     @staticmethod
-    def get_bbox_from_point(pos, radius=0.001):
+    def get_bbox_from_point(pos, radius=1):
         """
-        nimmt den punkt als mitte einer Bounding Box mit dem gegebenen "radius"
+        nimmt den punkt als mitte einer Bounding Box mit dem gegebenen "radius" in meter
         :param pos:
         :param radius:
         :return:
         """
 
         lat, lon = pos
-        return BoundingBox(lat - radius, lon - radius, lat + radius, lon + radius)
+        radius_as_lat = ut.convert_meter_2_lat(radius)
+        radius_as_lon = ut.convert_meter_2_lon(radius)
+
+        return BoundingBox(lat - radius_as_lat, lon - radius_as_lon, lat + radius_as_lat, lon + radius_as_lon)
+
+    def get_bbox_from_points(self, min):
+        pass
 
     @staticmethod
     def from_geohash(geohash):

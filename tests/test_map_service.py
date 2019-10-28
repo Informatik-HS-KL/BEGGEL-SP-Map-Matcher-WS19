@@ -1,3 +1,10 @@
+"""
+Description: This is a testfile for map_service.py
+@date: 11/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
+
+
 import unittest
 
 

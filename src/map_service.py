@@ -1,5 +1,11 @@
 """
+Description: The MapService is the center of this whole API. That means that the whole functionality this API should
+offer is located in the MapService, e.g. getting nodes and links that satisfy certain criteria. Therefore the MapService
+is managing the obtainment and caching of Tiles, the latter for improving the performance.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
+
 
 from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
@@ -10,6 +16,7 @@ from src.models.link_distance import LinkDistance
 
 from . import CONFIG
 
+
 class MapService:
     """"""
     # maps geohash --> Tile class
@@ -19,6 +26,9 @@ class MapService:
     def __init__(self):
         """"""
         self.name = "A"
+
+
+
 
     def get_nodes_in_bounding_box(self, bbox: BoundingBox):
         """
@@ -68,9 +78,10 @@ class MapService:
         """Gibt das entprechende Tile zurück. Liegt es noch nicht im Tile-Cache,
         so wird es erst noch geladen und im Cache gespeichert."""
 
-        from src.over_pass_wrapper import OverpassWrapper
+        from src.overpass_wrapper_2 import OverpassWrapper
+        self.opw = OverpassWrapper()
         if geohash_str not in self._tileCache:
-            self._tileCache[geohash_str] = OverpassWrapper.load_tile(geohash_str)
+            self._tileCache[geohash_str] = self.opw.load_tile(geohash_str)
 
         return self._tileCache[geohash_str]
 
@@ -107,19 +118,24 @@ class MapService:
 
         return result
 
+    # beggel-changes
+    # def get_linkdistances_in_radius(self, pos, max_distance, max_nbr=10):
     def get_linkdistances_in_radius(self, pos, max_distance):
         """ Pseudo Match: Links deren knoten nicht in der BoundingBox liegt, die von der gegebenen Position ausgeht,
             können nicht erreicht werden.
+            Liste wird nach tatsächer distance sortiert und nur die max_nbr geringen Abstände zurückgegeben.
         :param pos:
         :param max_distance:
         :return:
         """
 
-        bbox = BoundingBox.get_bbox_from_point(self._pos, max_distance)
-        links = self._map_service.get_links_in_bounding_box(bbox)
+        bbox = BoundingBox.get_bbox_from_point(pos, max_distance)
+        links = self.get_links_in_bounding_box(bbox)
         linkdists = []
         for link in links:
             linkdists.append(LinkDistance(pos, link))
+
+        ## sortieren und filtern
 
         return linkdists
 

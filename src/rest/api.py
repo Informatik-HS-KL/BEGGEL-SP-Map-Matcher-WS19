@@ -1,3 +1,9 @@
+"""
+Description: This file defines the endpoints of the REST-API.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
+
 
 from flask import jsonify
 from flask import Response, request, Blueprint
@@ -175,7 +181,7 @@ def get_links(geohash):
     return _resp(data)
 
 
-@api.route('/tiles/<string:geohash>/crossroads')
+@api.route('/tiles/<string:geohash>/nodes/crossroads')
 def get_crossroads(geohash):
     """
     Nodes wich represents a Crossing
@@ -187,13 +193,16 @@ def get_crossroads(geohash):
 
     tile = map_service.get_tile(geohash)
     data = []
-    for node in tile.get_nodes():
-        if len(node.get_links()) > 2:
-            point = {
-                "type": "Point",
-                "coordinates": list(node.get_latlon())
-            }
-            data.append(point)
+    for node_id in tile.crossings:
+
+        node = map_service.get_node(node_id)
+        point = {
+            "type": "Point",
+            "coordinates": list(node.get_latlon()),
+            "info": { "geohash": node.get_id().geohash,
+                  "osmid": node.get_id().osm_node_id}
+        }
+        data.append(point)
 
     return _resp(data)
 

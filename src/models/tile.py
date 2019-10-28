@@ -1,3 +1,12 @@
+"""
+Description: One way to encode a geographic coordinate, rather an area, is to use a geohash
+(https://en.wikipedia.org/wiki/Geohash). In doing so, the earth is split into tiles and each tile can be split into
+further tiles, depending on how accurate the encoding should be. Now a Tile-Object represents not only the geographic
+dimensions of such a tile, but also the Node- and Link-Objects which are located within this tile.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
+
 from src.models.link_id import LinkId
 
 class Tile:
@@ -74,6 +83,9 @@ class Tile:
         :return: str
         """
         return self.__geohash
+
+    def set_crossings(self, crossings: dict):
+        self.crossings = crossings
 
     # def get_nachbar(self):
     #

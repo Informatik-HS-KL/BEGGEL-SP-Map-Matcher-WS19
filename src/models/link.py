@@ -1,10 +1,21 @@
 """
-Part of street where there is no intersection and that has a fixed set of properties.
-A link might have a non-linear geometry. Geometry of a link is a LINESTRING!
-for WKT see:
-https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
-
+Description: A Link is a part of a street which if at all has only intersections at the beginning and/or the end. A Link might
+have a non-linear geometry. The geometry of a link is a LINESTRING.
+For WKT see: (https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry)
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
+
+
+
+
+# """
+# Part of street where there is no intersection and that has a fixed set of properties.
+# A link might have a non-linear geometry. Geometry of a link is a LINESTRING!
+# for WKT see:
+# https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
+#
+# """
 
 from .node import NodeId
 from .link_id import LinkId
@@ -15,17 +26,23 @@ class Link:
     # Links sollen nur noch Referenzen auf die Knoten (also die nodeIds) enthalten.
     # In get_start_node bzw. get_end_node wird dann über mapService der entsprechende Knoten geladen.
 
-    def __init__(self, link_id, start_node_id: NodeId, end_node_id: NodeId):
+    def __init__(self, link_id, geometry: list, node_ids: list):
         """
         :param startNode: Node Start of this Link
         :param endNode: Node End of this Link
         """
-        self.__start_node_id = start_node_id
-        self.__end_node_id = end_node_id
+        self.__start_node_id = node_ids[0]
+        self.__end_node_id = node_ids[len(node_ids)-1]
         self.__outs = []
         self.__link_id = link_id
+        self.__geometry = geometry  # contains the (lat, lon)-tupel of all nodes of the link
+        self.__node_ids = node_ids
 
         self._map_service = src.map_service.MapService()
+
+    def get_bbox(self):
+        """"""
+       # BoundingBox.get_bbox_from_points(self.__start_node_id)
 
     def get_start_node(self):
         """
@@ -77,9 +94,11 @@ class Link:
     def get_way_osm_id(self):
         return self.__link_id.osm_way_id
 
-
     def __repr__(self):
-        return "<Link start_node_id:%s end_node_id:%s>" % (self.__start_node_id, self.__end_node_id)
+        return "Link: <link_id: %s> <geometry: %s> <node_ids: %s>" % (self.__link_id, self.__geometry, self.__node_ids)
+
+    def __str__(self):
+        return "Link: <start_node_id: %s> <end_node_id: %s>" % (self.__start_node_id, self.__end_node_id)
 
     def to_geojson(self):
         """returns link as geojson feature"""
@@ -119,3 +138,22 @@ class Link:
 
     def is_to_start(self):
         pass
+
+    # beggel-changes
+    # def isNavFromStart(self, vehicleType):
+    #     """
+    #     Kann der Link vom Startknoten zum Endknoten befahren werden.
+    #
+    #     :param _self:
+    #     :return:
+    #     """
+    #     return 0
+    #
+    # def isNavToStart(self):
+    #     """
+    #     Kann der Link vom Endknoten zum StartKnoten befahren werden.
+    #
+    #     :param _self:
+    #     :return:
+    #     """
+    #     return 0

@@ -1,5 +1,6 @@
 from .node import NodeId
 
+
 class LinkId:
 
     def __init__(self, osm_way_id, start_node_id: NodeId):
@@ -14,6 +15,9 @@ class LinkId:
 
         return other.osm_way_id == self.osm_way_id and self.start_node_id == other.start_node_id and \
             other.geohash == self.geohash
+
+    def __repr__(self):
+        return "LinkId: <osm_way_id: %s> <start_node_id: %s>" % (self.osm_way_id, self.start_node_id)
 
     def __ne__(self, other):
         return not (self is other)

@@ -1,3 +1,11 @@
+"""
+Description: Sometimes you want to find links within a certain radius around a certain position. In this context it is usually
+interesting to get further information about a link that was found. A LinkDistance-Object encapsulates all these
+information, e.g. the shortest distance between the point and the link or the nearest position on the link.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz"""
+
+
 from src.geo_utils import orthogonal_projection, vector_subtraction, vector_addition, great_circle, vectors_have_same_direction, vector_norm
 
 
@@ -63,6 +71,7 @@ class LinkDistance:
 
         self.distance = great_circle(self._matched_point, self._lat_lon)
 
+        print((self.link.get_start_node().get_latlon(), self._matched_point))
         distance_from_start_node_to_matched_point = great_circle(self.link.get_start_node().get_latlon(), self._matched_point)
 
         if distance_from_start_node_to_matched_point == 0:

@@ -9,97 +9,67 @@ from src.over_pass_wrapper import OverpassWrapper
 def main():
     """
     """
-
     mapService = MapService()
-    # mapService.setConfig1()
-    # mapService.setConfig2()
-    # mapService.setConfig3()
-    # mapService.setApiKey("dsffdsfds")
-    # mapservice.set_config("cachelevel",5)
+    bbox = BoundingBox.from_geohash("u0v970")
+    nodes = mapService.get_nodes_in_bounding_box(bbox)
 
-    #bbox = BoundingBox(49.24742019, 7.27371679, 49.38637445, 7.40483063)
-    #nodes = mapService.get_nodes_in_bounding_box(bbox)
+    for node in nodes:
+        print(node, node.get_lat(), node.get_lon())
 
-    #for node in nodes:
-    #    print(node, node.get_lat(), node.get_lon())
+    links = mapService.get_links_in_bounding_box(bbox)
 
-    ## todo
-    #link = mapService.get_links_in_bounding_box(bbox)
+    for l in links:
+        print(l.to_wkt())
+        print(l.to_geojson())
+        print(l.get_length())
+
+
+    link = links[0]
+    # Ausgehende Links am Start- bzw. Endknoten eines Links sollen geliefert werden können:
+
+    startlinks = link.get_links_at_start_node()
+    print(startlinks)
+    endlinks = link.get_links_at_end_node()
+    print(endlinks)
+
+    # Link Distance
+    # Das Beispiel passt nicht mehr, da Links jetzt anders aufgebaut sind und infolgedessen der Knoten
+    # mit der Id 462739562 kein Startknoten mehr ist.
+    # link = mapService.get_link(38936694, NodeId(462739567,
+    # "u0v97b9yr5gy")) pos = (49.4419412, 7.9026608) ld = LinkDistance(pos, link) print("Link Distance: ",
+    # ld.get_distance(),"Link Fraction:", ld.get_fraction())
+
+    # waylinks = mapService.get_links(38936691)
+    # print(waylinks)
+    # l = mapService.get_link(38936691, NodeId(1784694212, "u0v97b8pkp3w"))
+    # print(l)
+    #
+    # listDistanceData = mapService.get_linkdistances_in_radius(pos, 50)
+    #
+    # for ld in listDistanceData:
+    #     print("Ld", ld.link.get_link_id(), "Distance:", ld.get_distance())
+    #     #print("linkID: " + ld.link.get_link_id().geohash)
 
     # Jeder Link soll die Information enthalten, von wem er benutzt werden kann (also z.B. Radfahrer, Fußgänger, Autos)
     # link.navigatable # car, bike, pedestrial
     # Links sollen in bestimmte nützliche Geoformate umgewandelt werden können (Wkt, geoJson):
-    #link.to_wkt()
-    #link.to_geojson()
-    # Ausgehende Links am Start- bzw. Endknoten eines Links sollen geliefert werden können:
-    #link.get_links_at_startnode()
-    #link.get_links_at_endnode()
-
-    # Länge des links in metern
-    # Haversine formula
-    # https://medium.com/@petehouston/calculate-distance-of-two-locations-on-earth-using-python-1501b1944d97
-    # link.get_length()
 
     # Es muss klar, in welcher Richtung der Link befahren werden kann.
     # Kann der link vom Startknoten zum Endknoten befahren werden.
-    #link.is_from_start()
+    # link.is_from_start()
     # Kann der link vom Endknoten zum Startknoten befahren werden.
-    #link.is_to_start()
+    # link.is_to_start()
 
     # Auch Links sollen eine Id haben die sich wie folgt zusammensetzt: (wayId , startNoteId, geoHash[volle Länge])
-    # link.id
-
-    # Es soll möglich sein einen Link anhand seiner Id zu "laden" (wir "laden" aber immer noch das ganze Tile):
-    #mapService.load_link(link.id)
-    # Es soll möglich sein einen Link anhand von wayId und StartknotenId zu "laden" (wir "laden" aber immer noch das ganze Tile):
-    #mapService.load_link(link.id.way_id,link.id.start_node)
-
-    # Es soll möglich sein, alle zu Links, aus denen sich ein Way zusammensetzt, zu "laden" (wir "laden" aber immer noch das ganze Tile):
-    #listLink = mapService.load_links(link.id.way_id)
-
-    # Nodes bekommen eine Id in der folgenden Form: (nodeId, geoHash [volle länge])
-    # node.id
-
-    # Es werden alle Links im Umkreis einer Koordinate zurückgegeben (Radius=maxDistance).
-    listDistanceData = mapService.get_links_in_radius((1.0, 2.0), 50)
-
-def main2():
-
-    service = MapService()
-
-    nid = NodeId(290512608, "u0v978d9vsmj")
-    link = service.get_link(263081703, nid)
-
-    sn_links = link.get_links_at_start_node()
-    for i in sn_links: print(i.get_start_node().get_id())
-
-    print(NodeId(240764576, "u0v978d9vsmj"))
-
-    sn_links_test = [
-        service.get_link(263081703, NodeId(240764576, "u0v978eeuc0x")),
-        service.get_link(263081704, NodeId(240764576, "u0v978d9vsmj")),
-        service.get_link(263081704, NodeId(240764576, "u0v978d9vsmj")),
-    ]
-
-
-    print()
-    print(sn_links_test)
-
-    en_links_test = [
-        service.get_link(263081703, NodeId(1, "u0v978eeuc0x")),
-        service.get_link(263081704, NodeId(1, "u0v978d9vsmj")),
-    ]
-    en_links = link.get_links_at_end_node()
-
-    # print(LinkDistance((49.4035415, 7.5638974)).get_matched())
 
 
 from src.rest.app import app
 def start_server():
 
     if __name__ == '__main__':
-        app.run(host="0.0.0.0", port=5000)
+        print("localhost:5000/api")
+        app.run(host="localhost", port=5000)
+
+#main()
 
 start_server()
-main2()
-#main()
