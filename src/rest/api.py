@@ -4,6 +4,9 @@ from flask import Response, request, Blueprint
 from src.map_service import MapService
 from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
+from src.models.node import NodeId, Node
+from src.models.link import Link
+from src.geo_utils import dijsktra
 
 map_service = MapService()
 api = Blueprint('api', __name__)
@@ -191,6 +194,45 @@ def get_crossroads(geohash):
                 "coordinates": list(node.get_latlon())
             }
             data.append(point)
+
+    return _resp(data)
+
+
+@api.route('/route')
+def route():
+    """ ?geofrom=geohash&geoto=geohash&osmfrom=osmid&osmto=osmid
+
+    u0v90hsp01h2 OSM:1298232519
+
+    u0v90jk7p21y OSM:266528360
+
+    ?geofrom=u0v90hsp01h2&geoto=u0v90jk7p21y&osmfrom=1298232519&osmto=266528360
+    """
+
+    full_geohash_from = request.args.get("geofrom")
+    full_geohash_to = request.args.get("geoto")
+
+    osmid_from = request.args.get("osmfrom")
+    osmid_to = request.args.get("osmto")
+
+    node_id_from = NodeId(int(osmid_from), full_geohash_from)
+    node_id_to = NodeId(int(osmid_to), full_geohash_to)
+
+    node_from = map_service.get_node(node_id_from)
+    node_to = map_service.get_node(node_id_to)
+
+    data = []
+    result_nodes = []
+
+    result_nodes = dijsktra(node_from, node_to)
+
+    for node in result_nodes:
+        print(node)
+        point = {
+            "type": "Point",
+            "coordinates": list(node.get_latlon())
+        }
+        data.append(point)
 
     return _resp(data)
 

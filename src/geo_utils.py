@@ -1,6 +1,7 @@
 # from src.models.tile import Tile
 from math import radians, degrees, sin, cos, asin, acos, sqrt, isclose
-
+from src.models.tile import Tile
+from src.models.node import Node
 
 # def print_pretty(tile: Tile):
 #     """"""
@@ -181,3 +182,46 @@ def vectors_have_same_direction(a: tuple, b: tuple) -> bool:
 #
 # print(vector_norm(vector_subtraction(mpoint, sn)))
 # print(vector_norm(vector_subtraction(pos, mpoint)))
+
+def dijsktra(initial, end):
+    # shortest paths is a dict of nodes
+    # whose value is a tuple of (previous node, weight)
+    shortest_paths = {initial: (None, 0)}
+    current_node = initial
+    visited = set()
+
+    while current_node != end:
+        print(current_node.get_id().geohash)
+        visited.add(current_node)
+        destinations = [link.get_end_node() for link in current_node.get_links()] + [link.get_start_node() for link in current_node.get_links()]
+        destinations = list(filter(lambda n: n != current_node, destinations))
+
+        weight_to_current_node = shortest_paths[current_node][1]
+        for next_node in destinations:
+            weight = 1 + weight_to_current_node # graph.get[(current_node, next_node)] + weight_to_current_node
+            if next_node not in shortest_paths:
+                shortest_paths[next_node] = (current_node, weight)
+            else:
+                current_shortest_weight = shortest_paths[next_node][1]
+                if current_shortest_weight > weight:
+                    shortest_paths[next_node] = (current_node, weight)
+
+        next_destinations = {node: shortest_paths[node] for node in shortest_paths if node not in visited}
+
+        if not next_destinations:
+            return "Route Not Possible"
+        # next node is the destination with the lowest weight
+        current_node = min(next_destinations, key=lambda k: next_destinations[k][1])
+
+    # Work back through destinations in shortest path
+    path = []
+    while current_node is not None:
+        path.append(current_node)
+        next_node = shortest_paths[current_node][0]
+        current_node = next_node
+        print(current_node)
+    # Reverse path
+    path = path[::-1]
+
+    return path
+
