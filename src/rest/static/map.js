@@ -38,7 +38,9 @@ function renderNodes(map, nodes, color){
             fillOpacity: 0.5,
             radius: 5
         })
-        circle.bindPopup(node["info"]["geohash"]+ " OSM:"+ node["info"]["osmid"])
+        if(node["info"] != undefined) {
+            circle.bindPopup(node["info"]["geohash"] + " OSM:" + node["info"]["osmid"]);
+        }
         circle.addTo(map);
     });
 }
@@ -89,7 +91,7 @@ var app = new Vue({
         tiles:[],
         rootUrl: "/api/tiles/",
         currentUrl: "/nodes",
-        geohash: "u0v97",
+        geohash: "u0v90",
         message: "",
         map: map,
         cmd: "nodes",
@@ -103,6 +105,7 @@ var app = new Vue({
                crossings: "/api/tiles/" + that.geohash + "/nodes/crossroads",
                nodes: "/api/tiles/" + that.geohash + "/nodes",
                links: "/api/tiles/" + that.geohash + "/links",
+               route:  "/api/route?geofrom=u0v90h8zqvv8&geoto=u0v90jhn09uc&osmfrom=364896317&osmto=3737443428",
             }
             url = cmds[that.cmd]
             console.log(url)
@@ -130,7 +133,10 @@ var app = new Vue({
                         renderLinks(that.map, geoData)
                         that.tiles.push({text: that.geohash, count: geoData.length, id: that.geohash})
                     }
-
+                    if(that.cmd == "route"){
+                        renderNodes(that.map, geoData, "#11ff06")
+                        that.tiles.push({text: "Route", count: geoData.length, id: geoData.length})
+                    }
                 }
             };
             xhr.send();

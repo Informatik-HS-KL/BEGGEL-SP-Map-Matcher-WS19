@@ -219,6 +219,9 @@ def vectors_have_same_direction(a: tuple, b: tuple) -> bool:
 def dijsktra(initial, end):
     # shortest paths is a dict of nodes
     # whose value is a tuple of (previous node, weight)
+    initial = initial.get_parent_link().get_start_node()
+    end = end.get_parent_link().get_end_node()
+
     shortest_paths = {initial: (None, 0)}
     current_node = initial
     visited = set()
@@ -227,8 +230,8 @@ def dijsktra(initial, end):
         print(current_node.get_id().geohash)
         visited.add(current_node)
         destinations = [link.get_end_node() for link in current_node.get_links()] + [link.get_start_node() for link in current_node.get_links()]
-        destinations = list(filter(lambda n: n != current_node, destinations))
-
+        destinations = list(filter(lambda n: n != current_node, list(destinations)))
+        print(destinations)
         weight_to_current_node = shortest_paths[current_node][1]
         for next_node in destinations:
             weight = 1 + weight_to_current_node # graph.get[(current_node, next_node)] + weight_to_current_node

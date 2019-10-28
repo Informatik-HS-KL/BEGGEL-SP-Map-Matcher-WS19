@@ -99,7 +99,7 @@ class OverpassWrapper:
         crossings = self._crossings(nodes_osm, ways_osm)
 
         print(len(crossings))
-
+        nodes = dict(map(lambda n: (n.get_id(), n), node_list))
         for way in ways_osm:
             way_nodes_ids = way["nodes"]
             way_nodes_positions = way["geometry"]
@@ -115,16 +115,19 @@ class OverpassWrapper:
                 link_node_ids.append(node_id)
 
                 if node_id in crossings:
-
                     link_id = LinkId(way["id"], link_node_ids[0])
                     link = Link(link_id, link_geometry, link_node_ids)
                     links[link_id] = link
+                    for nid in link_node_ids: nodes[nid].set_parent_link(link)
+                    nodes[link_node_ids[0]].add_link(link)
+                    nodes[link_node_ids[-1]].add_link(link)
 
                     #  Re-Initialization for the next link
                     link_geometry = [node_pos]
                     link_node_ids = [node_id]
 
-        nodes = dict(map(lambda n: (n.get_id(), n), node_list))
+        print("Nodes:", len(nodes))
+        print("without parent:", len(list(filter(lambda n: n.get_parent_link() == None, nodes.values()))))
 
         t = Tile(geo_hash, nodes, links)
         t.set_crossings(crossings)

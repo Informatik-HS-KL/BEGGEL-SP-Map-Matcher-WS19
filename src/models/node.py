@@ -43,6 +43,13 @@ class Node:
         self.__latLon = lat_lon
         self.__tags = {}
         self.__links = []
+        self.__parent_link = None
+
+    def set_parent_link(self, link):
+        self.__parent_link = link
+
+    def get_parent_link(self):
+        return self.__parent_link
 
     def get_links(self):
         """
