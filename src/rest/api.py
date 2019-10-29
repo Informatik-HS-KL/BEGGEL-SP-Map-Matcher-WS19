@@ -4,7 +4,6 @@ Description: This file defines the endpoints of the REST-API.
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-
 from flask import jsonify
 from flask import Response, request, Blueprint
 from src.map_service import MapService
@@ -12,7 +11,7 @@ from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
 from src.models.node import NodeId, Node
 from src.models.link import Link
-from src.geo_utils import dijsktra
+from src.router import RouterDijkstra
 
 map_service = MapService()
 api = Blueprint('api', __name__)
@@ -233,7 +232,10 @@ def route():
     data = []
     result_nodes = []
 
-    result_nodes = dijsktra(node_from, node_to)
+    router = RouterDijkstra()
+    router.set_start_link(node_from.get_parent_link())
+    router.set_end_link(node_to.get_parent_link())
+    result_nodes = router.compute()
 
     for node in result_nodes:
         print(node)
