@@ -41,7 +41,10 @@ class Link:
         self._map_service = src.map_service.MapService()
 
     def get_bbox(self):
-        """"""
+        """
+        Todo: lässt sich mit shapely einfach lösen (wenn wir shapely verwenden!!!!)
+        :return:
+        """
        # BoundingBox.get_bbox_from_points(self.__start_node_id)
 
     def get_start_node(self):
@@ -101,16 +104,20 @@ class Link:
         return "Link: <start_node_id: %s> <end_node_id: %s>" % (self.__start_node_id, self.__end_node_id)
 
     def to_geojson(self):
-        """returns link as geojson feature"""
+        """
+        Todo: Wenn wir shapely verwenden, dann geht das hier komfortabler!!!
+        returns link as geojson feature
+        """
+
+        line_string_coordinates = []
+        for p in self.__geometry:
+            line_string_coordinates.append([p[0], p[1]])
 
         data = {
             "type": "Feature",
             "geometry": {
                 "type": "LineString",
-                "coordinates": [
-                    [self.get_start_node().get_lat(), self.get_start_node().get_lon()],
-                    [self.get_end_node().get_lat(), self.get_end_node().get_lon()]
-                ]
+                "coordinates": line_string_coordinates
             },
             "properties": {
                 "osm_way_id": self.get_way_osm_id(),
@@ -124,6 +131,7 @@ class Link:
 
     def to_wkt(self):
         """
+        Todo: An neue Linkstruktur anpassen (verwenden wir hier shapely oder nicht?)!!!
         return WKT String from self
         :return:
         """
@@ -131,6 +139,9 @@ class Link:
                                                      self.get_end_node().get_lat(), self.get_end_node().get_lon())
 
     def get_length(self):
+        """
+        Todo: An neue Linkstruktur anpassen (verwenden wir hier shapely oder nicht?)!!!
+        """
         return great_circle(self.get_start_node().get_latlon(), self.get_end_node().get_latlon())
 
     def is_from_start(self):
