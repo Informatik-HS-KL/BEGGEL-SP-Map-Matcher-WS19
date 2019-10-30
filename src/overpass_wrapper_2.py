@@ -20,7 +20,8 @@ from src.models.bounding_box import BoundingBox
 
 from . import CONFIG
 
-class OverpassWrapper:
+
+class OverpassWrapperClientSide:
 
     def __init__(self):
         """"""
@@ -35,13 +36,14 @@ class OverpassWrapper:
         """
 
         q_filter = self._filterQuery(CONFIG)
-        elements = self._download(self.OVERPASS_URL,geo_hash,q_filter)
+        elements = self._download(self.OVERPASS_URL, geo_hash, q_filter)
 
         return self._create_tile(geo_hash, elements)
 
     def _download(self, host_endpoint, geo_hash, q_filter):
         """
-        :return:
+        Downloading data from Overpass-Server and parsing response to list.
+        :return: list containing osm-elements
         """
 
         # ---------------------
@@ -60,7 +62,6 @@ class OverpassWrapper:
 
         except Exception as e:
             raise Exception("Download Tile Failed %s" % resp.text)
-
 
     def _crossings(self, nodes_osm, ways_osm):
 
@@ -115,7 +116,6 @@ class OverpassWrapper:
                 link_node_ids.append(node_id)
 
                 if node_id in crossings:
-
                     link_id = LinkId(way["id"], link_node_ids[0])
                     link = Link(link_id, link_geometry, link_node_ids)
                     links[link_id] = link
@@ -130,14 +130,13 @@ class OverpassWrapper:
         t.set_crossings(crossings)
         return t
 
-
     def _buildQuery(self, geohash, q_filter: str):
         """Return Url to Download Tile"""
 
         bbox_str = "%s" % BoundingBox.from_geohash(geohash)
-        query = '?data=[out:json];way%s%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out geom;' % (bbox_str, q_filter)
+        query = '?data=[out:json];way%s%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out geom;' % (
+        bbox_str, q_filter)
         return query
-
 
     def _filterQuery(self, config, conf_section="HIGHWAY_CARS"):
         """Erstellt Query aus gegebenen Highways aus der Config
@@ -151,7 +150,6 @@ class OverpassWrapper:
                 query += 't["highway"] == "%s" ||' % option
 
         return query[:-2] + ")"
-
 
     def __create_node(self, osm_id, pos: tuple, tags=None):
         node_id = NodeId(osm_id, GeoHashWrapper().get_geohash(pos, level=self.full_geohash_level))
