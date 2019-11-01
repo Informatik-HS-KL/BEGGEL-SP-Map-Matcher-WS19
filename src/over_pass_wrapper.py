@@ -222,12 +222,12 @@ class OverpassWrapperClientSide(OverpassWrapper):
         except Exception as e:
             raise Exception("Download Tile Failed %s" % resp.text)
 
-    def _crossings(self, nodes_osm, ways_osm):
+    def _crossings(self, osm_nodes, osm_ways):
 
-        nodes_dict = dict(map(lambda node: (node["id"], node), nodes_osm))
+        nodes_dict = dict(map(lambda node: (node["id"], node), osm_nodes))
 
         all = []
-        for way in ways_osm:
+        for way in osm_ways:
             all.extend(way["nodes"])
 
         crossing_ids = filter(lambda i: i[1] > 1, collections.Counter(all).items())
@@ -240,23 +240,15 @@ class OverpassWrapperClientSide(OverpassWrapper):
 
         return node_ids
 
-    def _create_tile(self, geo_hash, elements: dict):
+    def _build_node_dictionary(self, osm_nodes: list):
+        node_list = list(map(lambda n: self.__create_node(n["id"], (n["lat"], n["lon"]), n.get("tags")), osm_nodes))
 
-        print("Build Datamodel ...")
+        return dict(map(lambda n: (n.get_id(), n), node_list))
 
+    def _build_link_dictionary(self, osm_ways: list, crossings: list):
         links = {}
-        nodes_osm = list(filter(lambda e: e["type"] == "node", elements))
-        ways_osm = list(filter(lambda e: e["type"] == "way", elements))
 
-        node_list = list(map(lambda n: self.__create_node(n["id"], (n["lat"], n["lon"]), n.get("tags")), nodes_osm))
-
-        # nodeids = {}  # {nodeids: [linked_node_ids]}
-
-        crossings = self._crossings(nodes_osm, ways_osm)
-
-        print(len(crossings))
-
-        for way in ways_osm:
+        for way in osm_ways:
             way_nodes_ids = way["nodes"]
             way_nodes_positions = way["geometry"]
 
@@ -270,7 +262,8 @@ class OverpassWrapperClientSide(OverpassWrapper):
                 link_geometry.append(node_pos)
                 link_node_ids.append(node_id)
 
-                if node_id in crossings:
+                if (node_id in crossings or way_nodes_ids[-1] == node_id.osm_node_id) and i != 0:  # Wenn Kreuzung oder Ende des
+                    # Ways erreicht. Ausnahme: wir befinden uns noch am Anfang des Links (closed link)!!!
                     link_id = LinkId(way["id"], link_node_ids[0])
                     link = Link(link_id, link_geometry, link_node_ids)
                     links[link_id] = link
@@ -279,7 +272,20 @@ class OverpassWrapperClientSide(OverpassWrapper):
                     link_geometry = [node_pos]
                     link_node_ids = [node_id]
 
-        nodes = dict(map(lambda n: (n.get_id(), n), node_list))
+        return links
+
+    def _create_tile(self, geo_hash, elements: dict):
+
+        print("Build Datamodel ...")
+
+        osm_nodes = list(filter(lambda e: e["type"] == "node", elements))
+        nodes = self._build_node_dictionary(osm_nodes)
+
+        osm_ways = list(filter(lambda e: e["type"] == "way", elements))
+        crossings = self._crossings(osm_nodes, osm_ways)
+        links = self._build_link_dictionary(osm_ways, crossings)
+
+        print(len(crossings))
 
         t = Tile(geo_hash, nodes, links)
         t.set_crossings(crossings)
