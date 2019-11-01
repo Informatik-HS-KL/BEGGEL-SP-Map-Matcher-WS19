@@ -84,6 +84,7 @@ class OverpassWrapperServerSide(OverpassWrapper):
     def _build_link_dictionary(self, osm_ways: list, intersections: set, geohash_wrapper):
         links = {}
 
+        print("length of osm_ways: {}".format(len(osm_ways)))
         for way in osm_ways:
             way_nodes_ids = way["nodes"]
             way_nodes_positions = way["geometry"]
@@ -117,7 +118,7 @@ class OverpassWrapperServerSide(OverpassWrapper):
                     link_geometry.append(node_pos)
                     link_node_ids.append(node_id)
 
-            return links
+        return links
 
     def _download(self, host_endpoint, geo_hash, q_filter):
         """
