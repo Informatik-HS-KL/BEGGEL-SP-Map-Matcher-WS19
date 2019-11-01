@@ -78,8 +78,15 @@ class MapService:
         """Gibt das entprechende Tile zurück. Liegt es noch nicht im Tile-Cache,
         so wird es erst noch geladen und im Cache gespeichert."""
 
-        from src.over_pass_wrapper import OverpassWrapperClientSide
-        self.opw = OverpassWrapperClientSide()
+        from src.over_pass_wrapper import OverpassWrapperServerSide
+        # from src.over_pass_wrapper import OverpassWrapperClientSide
+
+        full_geohash_level = CONFIG.getint("DEFAULT", "full_geohash_level")
+        OVERPASS_URL = CONFIG.get("DEFAULT", "overpass_url")
+
+        self.opw = OverpassWrapperServerSide(full_geohash_level, OVERPASS_URL)
+        # self.opw = OverpassWrapperClientSide(full_geohash_level, OVERPASS_URL)
+
         if geohash_str not in self._tileCache:
             self._tileCache[geohash_str] = self.opw.load_tile(geohash_str)
 
