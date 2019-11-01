@@ -5,9 +5,7 @@ the obtained data into the convenient model-objects.
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-# """
-# Läd daten von der OVerpass schnittstelle in eine Kachel
-# """
+
 import collections
 from abc import ABC, abstractmethod
 import requests
@@ -37,6 +35,9 @@ class OverpassWrapper(ABC):
 
     @abstractmethod
     def load_tile(self, geo_hash):
+        """
+        Loads the required data, builds and returns the tile with the specified geohash.
+        """
         pass
 
 
@@ -62,7 +63,7 @@ class OverpassWrapperServerSide(OverpassWrapper):
 
     def _create_tile(self, geohash, elements):
         ghw = GeoHashWrapper()
-        intersections = set()  # Initialize
+        intersections = set()
 
         number_of_intersections = int(elements[0]["tags"]["nodes"])
         for k in range(1, number_of_intersections + 1):
@@ -126,10 +127,8 @@ class OverpassWrapperServerSide(OverpassWrapper):
         :return: list, which contains osm-elements
         """
 
-        # ---------------------
         self.counter += 1
         print(self.counter, geo_hash)
-        # ---------------------
 
         query_str = self._build_query(geo_hash, q_filter)
         url = host_endpoint + query_str
@@ -143,7 +142,8 @@ class OverpassWrapperServerSide(OverpassWrapper):
         except Exception as e:
             raise Exception("Download Tile Failed %s" % resp.text)
 
-    def _build_query(self, geohash, q_filter: str):
+    @staticmethod
+    def _build_query(geohash, q_filter: str):
         """
         Returns the URL to download the data, which is required to build the tile with the specified geohash.
         The intersections of ways are determined on server-side.
@@ -158,10 +158,10 @@ class OverpassWrapperServerSide(OverpassWrapper):
 
         return query
 
-    def _filter_query(self, config, conf_section="HIGHWAY_CARS"):
+    @staticmethod
+    def _filter_query(config, conf_section="HIGHWAY_CARS"):
         """
-        Erstellt Query aus gegebenen Highways aus der Config
-        conf_section: Section in der config.ini die zur Erstellung der Query herangezogen werden soll
+        Builds the query-filter depending on the specified config-section.
         """
 
         query = "(if: "
@@ -177,12 +177,6 @@ class OverpassWrapperServerSide(OverpassWrapper):
         node = Node(node_id, pos)
         node.set_tags(tags)
         return node
-
-
-# ------------------------------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------------------------------
-# ------------------------------------------------------------------------------------------------------
 
 
 class OverpassWrapperClientSide(OverpassWrapper):
@@ -210,13 +204,11 @@ class OverpassWrapperClientSide(OverpassWrapper):
     def _download(self, host_endpoint, geo_hash, q_filter):
         """
         Downloading data from the Overpass-Server and parsing the response to a list.
-        :return: list, which ontains osm-elements
+        :return: list, which contains osm-elements
         """
 
-        # ---------------------
         self.counter += 1
         print(self.counter, geo_hash)
-        # ---------------------
 
         query_str = self._build_query(geo_hash, q_filter)
         url = host_endpoint + query_str
@@ -249,10 +241,6 @@ class OverpassWrapperClientSide(OverpassWrapper):
         return node_ids
 
     def _create_tile(self, geo_hash, elements: dict):
-        """
-        Erstellt eine Kachel.
-        :return: Tile
-        """
 
         print("Build Datamodel ...")
 
@@ -262,7 +250,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
 
         node_list = list(map(lambda n: self.__create_node(n["id"], (n["lat"], n["lon"]), n.get("tags")), nodes_osm))
 
-        nodeids = {}  # {nodeids: [linked_node_ids]}
+        # nodeids = {}  # {nodeids: [linked_node_ids]}
 
         crossings = self._crossings(nodes_osm, ways_osm)
 
@@ -297,7 +285,8 @@ class OverpassWrapperClientSide(OverpassWrapper):
         t.set_crossings(crossings)
         return t
 
-    def _build_query(self, geohash, q_filter: str):
+    @staticmethod
+    def _build_query(geohash, q_filter: str):
         """
         Returns the URL to download the data, which is required to build the tile with the specified geohash.
         The intersections of ways are NOT determined on server-side.
@@ -308,9 +297,10 @@ class OverpassWrapperClientSide(OverpassWrapper):
             bbox_str, q_filter)
         return query
 
-    def _filter_query(self, config, conf_section="HIGHWAY_CARS"):
-        """Erstellt Query aus gegebenen Highways aus der Config
-           conf_section: Section in der config.ini die zur Erstellung der Query herangezogen werden soll
+    @staticmethod
+    def _filter_query(config, conf_section="HIGHWAY_CARS"):
+        """
+        Builds the query-filter depending on the specified config-section.
         """
 
         query = "(if: "
