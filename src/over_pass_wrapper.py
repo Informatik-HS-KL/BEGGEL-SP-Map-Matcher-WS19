@@ -106,6 +106,7 @@ class OverpassWrapperServerSide(OverpassWrapper):
                     link_node_ids.append(end_node_id)
                     link_id = LinkId(way["id"], link_node_ids[0])
                     link = Link(link_id, link_geometry, link_node_ids)
+                    link.set_tags(way.get("tags"))
                     links.update({link_id: link})
 
                     #  Re-Initialization for the next link
@@ -266,6 +267,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
                     # Ways erreicht. Ausnahme: wir befinden uns noch am Anfang des Links (closed link)!!!
                     link_id = LinkId(way["id"], link_node_ids[0])
                     link = Link(link_id, link_geometry, link_node_ids)
+                    link.set_tags(way.get("tags"))
                     links[link_id] = link
 
                     #  Re-Initialization for the next link
