@@ -250,8 +250,24 @@ class Link:
         return False
 
     def is_usable_by_cars(self) -> bool:
-        """Todo"""
-        pass
+        """
+        Checks whether cars are permitted to use the link.
+        """
+        highway_val = self.__tags.get("highway")
+        motor_vehicle_val = self.__tags.get("motor_vehicle")
+        motorcar_val = self.__tags.get("motorcar")
+
+        if highway_val is not None:
+            if highway_val in ["motorway", "trunk", "primary", "secondary", "tertiary", "motorway_link", "trunk_link", "primary_link", "secondary_link", "tertiary_link"]:
+                return True
+            elif highway_val in ["unclassified", "residential", "living_street"] and motor_vehicle_val != "no" and motorcar_val != "no":
+                return True
+
+        if motor_vehicle_val == "yes" or motorcar_val == "yes":
+            return True
+
+        return False
+
 
 
 
