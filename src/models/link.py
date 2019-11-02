@@ -21,6 +21,13 @@ from .node import NodeId
 from .link_id import LinkId
 import src.map_service
 from src.geo_utils import great_circle
+from enum import Enum
+
+class LinkUser(Enum):
+    PEDESTRIAN = 1
+    CYCLIST = 2
+    CAR = 3
+
 
 class Link:
     # Links sollen nur noch Referenzen auf die Knoten (also die nodeIds) enthalten.
@@ -37,6 +44,7 @@ class Link:
         self.__link_id = link_id
         self.__geometry = geometry  # contains the (lat, lon)-tupel of all nodes of the link
         self.__node_ids = node_ids
+        self.__tags = None
 
         self._map_service = src.map_service.MapService()
 
@@ -89,7 +97,10 @@ class Link:
         :return: dict
         """
         # TODO
-        return {}
+        return self.__tags
+
+    def set_tags(self, tags: dict):
+        self.__tags = tags
 
     def get_link_id(self):
         return self.__link_id
@@ -149,6 +160,100 @@ class Link:
 
     def is_to_start(self):
         pass
+
+    def is_usable_by(self) -> list:
+        """
+        Returns a list, which contains all kinds of permitted users for this link
+        :return: list, which contains LinkUser-Objects or is empty
+        """
+        permitted_link_users = list()
+        if self.is_usable_by_pedestrians():
+            permitted_link_users.append(LinkUser.PEDESTRIAN)
+        if self.is_usable_by_cyclists():
+            permitted_link_users.append(LinkUser.CYCLISTI)
+        if self.is_usable_by_cars():
+            permitted_link_users.append(LinkUser.CAR)
+
+    def is_usable_by_pedestrians(self) -> bool:
+        """
+        Checks whether pedestrians are permitted to use the link.
+        """
+        if "highway" in self.__tags:
+            if self.__tags.get("highway") == "residential":
+                if self.__tags.get("foot") is not None and self.__tags.get("foot") != "no":
+                    return True
+
+            elif self.__tags["highway"] == "living_street":
+                if self.__tags.get("foot") is not None and self.__tags.get("foot") != "no":
+                    return True
+
+            elif self.__tags["highway"] == "pedestrian":
+                return True
+
+            elif self.__tags["highway"] == "footway":
+                return True
+
+            elif self.__tags["highway"] == "bridleway":
+                if self.__tags.get("foot") is not None and self.__tags.get("foot") != "no":
+                    return True
+
+            elif self.__tags["highway"] == "path":
+                if self.__tags.get("foot") is not None and self.__tags.get("foot") != "no":
+                    return True
+
+            elif self.__tags["highway"] == "steps":
+                return True
+
+        sidewalk_val = self.__tags.get("sidewalk")
+        if sidewalk_val == "both" or sidewalk_val == "left" or sidewalk_val == "right":
+            if self.__tags.get("foot") is not None and self.__tags.get("foot") != "no":
+                return True
+
+        foot_val = self.__tags.get("foot")
+        if foot_val == "yes" or foot_val == "designated" or foot_val == "permissive":
+            return True
+
+        return False
+
+    def is_usable_by_cyclists(self) -> bool:
+        """
+        Checks whether cyclists are permitted to use the link.
+        """
+        highway_val = self.__tags.get("highway")
+        bicycle_val = self.__tags.get("bicycle")
+
+        if bicycle_val == "no":
+            return False
+
+        if highway_val is not None:
+
+            if highway_val == "residential" or highway_val == "cycleway" or highway_val == "bridleway" or highway_val == "path":
+                return True
+
+            elif highway_val == "steps":
+                if self.__tags.get("ramp:bicycle") == "yes":
+                    return True
+
+        if bicycle_val is not None:
+            if bicycle_val == "yes" or bicycle_val == "designated" or bicycle_val == "use_sidepath" or bicycle_val == "permissive" or bicycle_val == "destination":
+                return True
+
+        if self.__tags.get("cycleway") is not None and self.__tags.get("cycleway") != "no":
+            return True
+
+        if self.__tags.get("bicycle_road") == "yes":
+            return True
+
+        if self.__tags.get("cyclestreet") == "yes":
+            return True
+
+        return False
+
+    def is_usable_by_cars(self) -> bool:
+        """Todo"""
+        pass
+
+
 
     # beggel-changes
     # def isNavFromStart(self, vehicleType):
