@@ -178,39 +178,23 @@ class Link:
         """
         Checks whether pedestrians are permitted to use the link.
         """
-        if "highway" in self.__tags:
-            if self.__tags.get("highway") == "residential":
-                if self.__tags.get("foot") is not None and self.__tags.get("foot") != "no":
+        highway_val = self.__tags.get("highway")
+        foot_val = self.__tags.get("foot")
+
+        if highway_val is not None:
+            if highway_val in {"residential", "living_street", "bridleway", "path"}:
+                if foot_val not in {None, "no"}:
                     return True
 
-            elif self.__tags["highway"] == "living_street":
-                if self.__tags.get("foot") is not None and self.__tags.get("foot") != "no":
-                    return True
-
-            elif self.__tags["highway"] == "pedestrian":
-                return True
-
-            elif self.__tags["highway"] == "footway":
-                return True
-
-            elif self.__tags["highway"] == "bridleway":
-                if self.__tags.get("foot") is not None and self.__tags.get("foot") != "no":
-                    return True
-
-            elif self.__tags["highway"] == "path":
-                if self.__tags.get("foot") is not None and self.__tags.get("foot") != "no":
-                    return True
-
-            elif self.__tags["highway"] == "steps":
+            elif highway_val in {"pedestrian", "footway", "steps"}:
                 return True
 
         sidewalk_val = self.__tags.get("sidewalk")
-        if sidewalk_val == "both" or sidewalk_val == "left" or sidewalk_val == "right":
-            if self.__tags.get("foot") is not None and self.__tags.get("foot") != "no":
+        if sidewalk_val in {"both", "left", "right"}:
+            if foot_val not in {None, "no"}:
                 return True
 
-        foot_val = self.__tags.get("foot")
-        if foot_val == "yes" or foot_val == "designated" or foot_val == "permissive":
+        if foot_val in {"yes", "designated", "permissive"}:
             return True
 
         return False
@@ -227,7 +211,7 @@ class Link:
 
         if highway_val is not None:
 
-            if highway_val == "residential" or highway_val == "cycleway" or highway_val == "bridleway" or highway_val == "path":
+            if highway_val in {"residential", "cycleway", "bridleway", "path"}:
                 return True
 
             elif highway_val == "steps":
@@ -235,10 +219,10 @@ class Link:
                     return True
 
         if bicycle_val is not None:
-            if bicycle_val == "yes" or bicycle_val == "designated" or bicycle_val == "use_sidepath" or bicycle_val == "permissive" or bicycle_val == "destination":
+            if bicycle_val in {"yes", "designated", "use_sidepath", "permissive", "destination"}:
                 return True
 
-        if self.__tags.get("cycleway") is not None and self.__tags.get("cycleway") != "no":
+        if self.__tags.get("cycleway") not in {None, "no"}:
             return True
 
         if self.__tags.get("bicycle_road") == "yes":
@@ -258,9 +242,9 @@ class Link:
         motorcar_val = self.__tags.get("motorcar")
 
         if highway_val is not None:
-            if highway_val in ["motorway", "trunk", "primary", "secondary", "tertiary", "motorway_link", "trunk_link", "primary_link", "secondary_link", "tertiary_link"]:
+            if highway_val in {"motorway", "trunk", "primary", "secondary", "tertiary", "motorway_link", "trunk_link", "primary_link", "secondary_link", "tertiary_link"}:
                 return True
-            elif highway_val in ["unclassified", "residential", "living_street"] and motor_vehicle_val != "no" and motorcar_val != "no":
+            elif highway_val in {"unclassified", "residential", "living_street"} and motor_vehicle_val != "no" and motorcar_val != "no":
                 return True
 
         if motor_vehicle_val == "yes" or motorcar_val == "yes":
