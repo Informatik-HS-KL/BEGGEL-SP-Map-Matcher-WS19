@@ -11,7 +11,7 @@ from math import radians, degrees, sin, cos, asin, acos, sqrt, isclose
 
 def great_circle(point1: tuple, point2: tuple):
     """
-    Angaben in KM
+    Angaben in Meter
     :param point1:
     :param point2:
     :return:
@@ -29,7 +29,7 @@ def great_circle(point1: tuple, point2: tuple):
     if result < -1.0:
         result = -1
 
-    return 6371 * (acos(result))
+    return 6371 * (acos(result)) * 1000
 
 
 def convert_meter_2_lat(meter):
