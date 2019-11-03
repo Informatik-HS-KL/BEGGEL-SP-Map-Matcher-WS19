@@ -107,7 +107,7 @@ class LinkDistance:
     def _initialize_matched_point_and_fraction(self):
 
         link_segments = self._build_link_segments()
-        min_distance = 40075  # Meter
+        min_distance = 20037000  # biggest range of earth: 40074000 Meter
         matched_point = None
         involved_segment = None
         for seg in link_segments:
