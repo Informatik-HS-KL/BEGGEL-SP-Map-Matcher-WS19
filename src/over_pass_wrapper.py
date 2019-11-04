@@ -5,9 +5,9 @@ the obtained data into the convenient model-objects.
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-# """
-# Läd daten von der OVerpass schnittstelle in eine Kachel
-# """
+
+import collections
+from abc import ABC, abstractmethod
 import requests
 from .geo_hash_wrapper import GeoHashWrapper
 
@@ -20,98 +20,149 @@ from src.models.bounding_box import BoundingBox
 from . import CONFIG
 
 
-class OverpassWrapper:
-    OVERPASS_URL = CONFIG.get("DEFAULT", "overpass_url")
-    full_geohash_level = CONFIG.getint("DEFAULT", "full_geohash_level")
-    counter = 0
+# Todo: Testen !!!
 
-    @staticmethod
-    def load_tile(geo_hash):
-        """ Daten von der Overpass api laden
-            from geohash to Boundingbox
+class OverpassWrapper(ABC):
+    """
+    ABSTRACT BASE CLASS
+    """
+
+    def __init__(self, full_geohash_level, OVERPASS_URL):
+        # self.full_geohash_level = CONFIG.getint("DEFAULT", "full_geohash_level")
+        # self.OVERPASS_URL = CONFIG.get("DEFAULT", "overpass_url")
+        self.full_geohash_level = full_geohash_level
+        self.OVERPASS_URL = OVERPASS_URL
+
+    @abstractmethod
+    def load_tile(self, geo_hash):
         """
-        # ---------------------
-        OverpassWrapper.counter += 1
-        print(OverpassWrapper.counter, __name__, geo_hash)
-        # ---------------------------
+        Loads the required data, builds and returns the tile with the specified geohash.
+        """
+        pass
+
+
+class OverpassWrapperServerSide(OverpassWrapper):
+    """
+    Subclass of OverpassWrapper which determines the intersections of ways on the server-side.
+    """
+
+    def __init__(self, full_geohash_level, OVERPASS_URL):
+        super(OverpassWrapperServerSide, self).__init__(full_geohash_level, OVERPASS_URL)
+        self.ghw = GeoHashWrapper()
+        self.counter = 0
+
+    def load_tile(self, geo_hash):
+        """
+        Loads the required data from the Overpass-Server, builds and returns the tile with the specified
+        geohash.
+        """
+
+        q_filter = self._filter_query(CONFIG)
+        elements = self._download(self.OVERPASS_URL, geo_hash, q_filter)
+        return self._create_tile(geo_hash, elements)
+
+    def _create_tile(self, geohash, elements):
         ghw = GeoHashWrapper()
-
-        q_filter = OverpassWrapper._filterQuery(CONFIG)
-        url = OverpassWrapper._buildQuery(geo_hash, q_filter)
-        print(url)
-        resp = requests.get(url)
-        try:
-            elements = resp.json().get("elements")
-        except Exception as e:
-            print(resp.text)
-
-        nodes = {}  # Initalize
         intersections = set()
-        links = {}  # Initalize
 
         number_of_intersections = int(elements[0]["tags"]["nodes"])
         for k in range(1, number_of_intersections + 1):
             intersections.add(elements[k]["id"])
 
-        for k in range(number_of_intersections + 1, len(elements)):
-            element = elements[k]
-            if element["type"] == "node":
+        osm_nodes = list(filter(lambda e: e["type"] == "node", elements[number_of_intersections + 1:]))
+        nodes = self._build_node_dictionary(osm_nodes)
 
-                node = OverpassWrapper.__create_node(element["id"], (element["lat"], element["lon"]),
-                                                     element.get("tags"))
-                nodes[node.get_id()] = node
+        osm_ways = list(filter(lambda e: e["type"] == "way", elements[number_of_intersections + 1:]))
+        links = self._build_link_dictionary(osm_ways, intersections, ghw)
 
-            elif element["type"] == "way":
-                way_nodes_ids = element["nodes"]
-                way_nodes_positions = element["geometry"]
+        return Tile(geohash, nodes, links)
 
-                link_geometry = []
-                link_node_ids = []
+    def _build_node_dictionary(self, osm_nodes: list):
+        node_list = list(map(lambda n: self.__create_node(n["id"], (n["lat"], n["lon"]), n.get("tags")), osm_nodes))
 
-                for i in range(0, len(way_nodes_ids) - 1):  # Building the links that put together the way.
+        return dict(map(lambda n: (n.get_id(), n), node_list))
 
-                    if (way_nodes_ids[i] in intersections and i != 0) or i == len(way_nodes_ids) - 1:  # reached end of link
+    def _build_link_dictionary(self, osm_ways: list, intersections: set, geohash_wrapper):
+        links = {}
 
-                        end_node_pos = (way_nodes_positions[i]["lat"], way_nodes_positions[i]["lon"])
-                        end_node_id = NodeId(way_nodes_ids[i], ghw.get_geohash(end_node_pos,
-                                                                               level=OverpassWrapper.full_geohash_level))
+        print("length of osm_ways: {}".format(len(osm_ways)))
+        for way in osm_ways:
+            way_nodes_ids = way["nodes"]
+            way_nodes_positions = way["geometry"]
 
-                        link_geometry.append(end_node_pos)
-                        link_node_ids.append(end_node_id)
-                        link_id = LinkId(element["id"], link_node_ids[0])
-                        link = Link(link_id, link_geometry, link_node_ids)
-                        links.update({link_id: link})
+            link_geometry = []
+            link_node_ids = []
 
-                        #  Re-Initialization for the next link
-                        link_geometry = [end_node_pos]
-                        link_node_ids = [end_node_id]
+            for i in range(0, len(way_nodes_ids)):  # Building the links that put together the way.
 
-                    else:
-                        node_pos = (way_nodes_positions[i]["lat"], way_nodes_positions[i]["lon"])
-                        node_id = NodeId(way_nodes_ids[i], ghw.get_geohash(node_pos,
-                                                                           level=OverpassWrapper.full_geohash_level))
-                        link_geometry.append(node_pos)
-                        link_node_ids.append(node_id)
+                if (way_nodes_ids[i] in intersections and i != 0) or i == len(
+                        way_nodes_ids) - 1:  # reached end of link
 
-        return Tile(geo_hash, nodes, links)
+                    end_node_pos = (way_nodes_positions[i]["lat"], way_nodes_positions[i]["lon"])
+                    end_node_id = NodeId(way_nodes_ids[i], geohash_wrapper.get_geohash(end_node_pos,
+                                                                                       level=self.full_geohash_level))
+
+                    link_geometry.append(end_node_pos)
+                    link_node_ids.append(end_node_id)
+                    link_id = LinkId(way["id"], link_node_ids[0])
+                    link = Link(link_id, link_geometry, link_node_ids)
+                    link.set_tags(way.get("tags"))
+                    links.update({link_id: link})
+
+                    #  Re-Initialization for the next link
+                    link_geometry = [end_node_pos]
+                    link_node_ids = [end_node_id]
+
+                else:
+                    node_pos = (way_nodes_positions[i]["lat"], way_nodes_positions[i]["lon"])
+                    node_id = NodeId(way_nodes_ids[i], geohash_wrapper.get_geohash(node_pos,
+                                                                                   level=self.full_geohash_level))
+                    link_geometry.append(node_pos)
+                    link_node_ids.append(node_id)
+
+        return links
+
+    def _download(self, host_endpoint, geo_hash, q_filter):
+        """
+        Downloading data from the Overpass-Server and parsing the response to a list.
+        :return: list, which contains osm-elements
+        """
+
+        self.counter += 1
+        print(self.counter, geo_hash)
+
+        query_str = self._build_query(geo_hash, q_filter)
+        url = host_endpoint + query_str
+        print(url)
+
+        resp = requests.get(url)
+        try:
+            elements = resp.json().get("elements")
+            return elements
+
+        except Exception as e:
+            raise Exception("Download Tile Failed %s" % resp.text)
 
     @staticmethod
-    def _buildQuery(geohash, q_filter: str):
-        """Return Url to Download Tile"""
+    def _build_query(geohash, q_filter: str):
+        """
+        Returns the URL to download the data, which is required to build the tile with the specified geohash.
+        The intersections of ways are determined on server-side.
+        """
 
         bbox_str = "%s" % BoundingBox.from_geohash(geohash)
-        query = '[out:json];way%s%s->.ways;node(w.ways)->.nodes;relation.nodes->.intersections;foreach.ways->.w((' \
+        query = '?data=[out:json];way%s%s->.ways;node(w.ways)->.nodes;relation.nodes->.intersections;foreach.ways->.w((' \
                 '.ways; - .w;)->.otherWays;node(w.w)->.currentWayNodes;node(' \
                 'w.otherWays)->.otherWayNodes;node.currentWayNodes.otherWayNodes->.currentIntersections;(' \
                 '.intersections; .currentIntersections;)->.intersections;);.intersections out count;.intersections ' \
                 'out ids;.nodes out body; .ways out geom;' % (bbox_str, q_filter)
-        url = "%s?data=%s" % (OverpassWrapper.OVERPASS_URL, query)
-        return url
+
+        return query
 
     @staticmethod
-    def _filterQuery(config, conf_section="HIGHWAY_CARS"):
-        """Erstellt Query aus gegebenen Highways aus der Config
-           conf_section: Section in der config.ini die zur Erstellung der Query herangezogen werden soll
+    def _filter_query(config, conf_section="HIGHWAY_CARS"):
+        """
+        Builds the query-filter depending on the specified config-section.
         """
 
         query = "(if: "
@@ -122,22 +173,154 @@ class OverpassWrapper:
 
         return query[:-2] + ")"
 
-    @staticmethod
-    def __create_node(osm_id, pos: tuple, tags=None):
-        node_id = NodeId(osm_id, GeoHashWrapper().get_geohash(pos, level=OverpassWrapper.full_geohash_level))
+    def __create_node(self, osm_id, pos: tuple, tags=None):
+        node_id = NodeId(osm_id, GeoHashWrapper().get_geohash(pos, level=self.full_geohash_level))
         node = Node(node_id, pos)
         node.set_tags(tags)
         return node
 
-    # KP 20.10.2019: Ersetzt durch buildQuery
-    # @staticmethod
-    # def car_filter():
-    #     return ('   t["highway"] == "motorway" || t["highway"] == "trunk" '
-    #             '|| t["highway"] == "primary" || t["highway"] == "secondary" '
-    #             '|| t["highway"] == "tertiary" || t["highway"] == "unclassified" '
-    #             '|| t["highway"] == "residential" || t["highway"] == "motorway_link" '
-    #             '|| t["highway"] == "trunk_link" || t["highway"] == "primary_link" '
-    #             '|| t["highway"] == "secondary_link" || t["highway"] == "tertiary_link" '
-    #             '|| t["highway"] == "living_street" '
-    #             '|| t["highway"] == "service"'  # service ways
-    #             '|| t["highway"] == "road"')  # Unknown street type
+
+class OverpassWrapperClientSide(OverpassWrapper):
+    """
+        Subclass of OverpassWrapper which determines the intersections of ways on the client-side.
+    """
+
+    def __init__(self, full_geohash_level, OVERPASS_URL):
+        """"""
+        super(OverpassWrapperClientSide, self).__init__(full_geohash_level, OVERPASS_URL)
+        self.ghw = GeoHashWrapper()
+        self.counter = 0
+
+    def load_tile(self, geo_hash):
+        """
+        Loads the required data from the Overpass-Server, builds and returns the tile with the specified
+        geohash.
+        """
+
+        q_filter = self._filter_query(CONFIG)
+        elements = self._download(self.OVERPASS_URL, geo_hash, q_filter)
+
+        return self._create_tile(geo_hash, elements)
+
+    def _download(self, host_endpoint, geo_hash, q_filter):
+        """
+        Downloading data from the Overpass-Server and parsing the response to a list.
+        :return: list, which contains osm-elements
+        """
+
+        self.counter += 1
+        print(self.counter, geo_hash)
+
+        query_str = self._build_query(geo_hash, q_filter)
+        url = host_endpoint + query_str
+        print(url)
+
+        resp = requests.get(url)
+        try:
+            elements = resp.json().get("elements")
+            return elements
+
+        except Exception as e:
+            raise Exception("Download Tile Failed %s" % resp.text)
+
+    def _crossings(self, osm_nodes, osm_ways):
+
+        nodes_dict = dict(map(lambda node: (node["id"], node), osm_nodes))
+
+        all = []
+        for way in osm_ways:
+            all.extend(way["nodes"])
+
+        crossing_ids = filter(lambda i: i[1] > 1, collections.Counter(all).items())
+
+        node_ids = []
+        for cid in crossing_ids:
+            n = nodes_dict[cid[0]]
+            node_id = NodeId(cid[0], self.ghw.get_geohash((n["lat"], n["lon"]), level=self.full_geohash_level))
+            node_ids.append(node_id)
+
+        return node_ids
+
+    def _build_node_dictionary(self, osm_nodes: list):
+        node_list = list(map(lambda n: self.__create_node(n["id"], (n["lat"], n["lon"]), n.get("tags")), osm_nodes))
+
+        return dict(map(lambda n: (n.get_id(), n), node_list))
+
+    def _build_link_dictionary(self, osm_ways: list, crossings: list):
+        links = {}
+
+        for way in osm_ways:
+            way_nodes_ids = way["nodes"]
+            way_nodes_positions = way["geometry"]
+
+            link_geometry = []
+            link_node_ids = []
+
+            for i in range(len(way_nodes_ids)):
+                node_pos = (way_nodes_positions[i]["lat"], way_nodes_positions[i]["lon"])
+                node_id = NodeId(way_nodes_ids[i], self.ghw.get_geohash(node_pos, level=self.full_geohash_level))
+
+                link_geometry.append(node_pos)
+                link_node_ids.append(node_id)
+
+                if (node_id in crossings or way_nodes_ids[-1] == node_id.osm_node_id) and i != 0:  # Wenn Kreuzung oder Ende des
+                    # Ways erreicht. Ausnahme: wir befinden uns noch am Anfang des Links (closed link)!!!
+                    link_id = LinkId(way["id"], link_node_ids[0])
+                    link = Link(link_id, link_geometry, link_node_ids)
+                    link.set_tags(way.get("tags"))
+                    links[link_id] = link
+
+                    #  Re-Initialization for the next link
+                    link_geometry = [node_pos]
+                    link_node_ids = [node_id]
+
+        return links
+
+    def _create_tile(self, geo_hash, elements: dict):
+
+        print("Build Datamodel ...")
+
+        osm_nodes = list(filter(lambda e: e["type"] == "node", elements))
+        nodes = self._build_node_dictionary(osm_nodes)
+
+        osm_ways = list(filter(lambda e: e["type"] == "way", elements))
+        crossings = self._crossings(osm_nodes, osm_ways)
+        links = self._build_link_dictionary(osm_ways, crossings)
+
+        print(len(crossings))
+
+        t = Tile(geo_hash, nodes, links)
+        t.set_crossings(crossings)
+        return t
+
+    @staticmethod
+    def _build_query(geohash, q_filter: str):
+        """
+        Returns the URL to download the data, which is required to build the tile with the specified geohash.
+        The intersections of ways are NOT determined on server-side.
+        """
+
+        bbox_str = "%s" % BoundingBox.from_geohash(geohash)
+        query = '?data=[out:json];way%s%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out geom;' % (
+            bbox_str, q_filter)
+        return query
+
+    @staticmethod
+    def _filter_query(config, conf_section="HIGHWAY_CARS"):
+        """
+        Builds the query-filter depending on the specified config-section.
+        """
+
+        query = "(if: "
+        options = config.options(conf_section, no_defaults=True)
+        for option in options:
+            if config.getboolean(conf_section, option):
+                query += 't["highway"] == "%s" ||' % option
+
+        return query[:-2] + ")"
+
+    def __create_node(self, osm_id, pos: tuple, tags=None):
+        node_id = NodeId(osm_id, GeoHashWrapper().get_geohash(pos, level=self.full_geohash_level))
+        node = Node(node_id, pos)
+        node.set_tags(tags)
+        return node
