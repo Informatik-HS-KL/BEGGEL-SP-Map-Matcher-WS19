@@ -6,39 +6,57 @@ is managing the obtainment and caching of Tiles, the latter for improving the pe
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-
 from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
 from src.models.link_id import LinkId
 from src.models.node import NodeId
 from src.models.tile import Tile
 from src.models.link_distance import LinkDistance
-from src.geo_utils import great_circle
-
+from math import acos, sin, cos, radians
 from . import CONFIG
 
 
+def great_circle(point1: tuple, point2: tuple):
+    """
+    Angaben in KM
+    :param point1:
+    :param point2:
+    :return:
+    """
+    lat1, lon1 = point1
+    lat2, lon2 = point2
+
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    result = sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lon1 - lon2)
+
+    # Rundungsfehler beseiten
+    if result > 1.0:
+        result = 1
+
+    if result < -1.0:
+        result = -1
+
+    return 6371 * (acos(result))
 
 
-
-def one_point_from_points_in_radius(points, pos, max_distance):
-    for point in points:
-        if great_circle(point, pos) <= max_distance:
+def one_of_the_nodes_in_circle(nodes, circle_center_latlon, circle_radius):
+    for node in nodes:
+        if abs(great_circle(node.get_latlon(), circle_center_latlon)) <= circle_radius:
             return True
     return False
 
 
-def remove_links_not_in_circle(io_links, circle_pos, circle_radius):
+def remove_links_not_in_circle(links, circle_center_latlon, circle_radius):
     link_points = []
-    for link in io_links:
+    links_in_circle = []
+    for link in links:
         link_points.clear()
         link_points.append(link.get_start_node())
-        link_points.append(link.get_start_node())
+        link_points.append(link.get_end_node())
         # link_points.append(link.nodes()) // Sobald link mehrere Knoten bekommt
-        if not one_point_from_points_in_radius(link_points, circle_pos, circle_radius):
-            io_links.remove(link)
-
-    return io_links
+        if one_of_the_nodes_in_circle(link_points, circle_center_latlon, circle_radius):
+            links_in_circle.append(link)
+    return links_in_circle
 
 
 class MapService:
@@ -50,9 +68,6 @@ class MapService:
     def __init__(self):
         """"""
         self.name = "A"
-
-
-
 
     def get_nodes_in_bounding_box(self, bbox: BoundingBox):
         """
