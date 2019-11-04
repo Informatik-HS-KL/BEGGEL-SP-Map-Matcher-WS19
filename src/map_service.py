@@ -13,8 +13,32 @@ from src.models.link_id import LinkId
 from src.models.node import NodeId
 from src.models.tile import Tile
 from src.models.link_distance import LinkDistance
+from src.geo_utils import great_circle
 
 from . import CONFIG
+
+
+
+
+
+def one_point_from_points_in_radius(points, pos, max_distance):
+    for point in points:
+        if great_circle(point, pos) <= max_distance:
+            return True
+    return False
+
+
+def remove_links_not_in_circle(io_links, circle_pos, circle_radius):
+    link_points = []
+    for link in io_links:
+        link_points.clear()
+        link_points.append(link.get_start_node())
+        link_points.append(link.get_start_node())
+        # link_points.append(link.nodes()) // Sobald link mehrere Knoten bekommt
+        if not one_point_from_points_in_radius(link_points, circle_pos, circle_radius):
+            io_links.remove(link)
+
+    return io_links
 
 
 class MapService:
@@ -138,6 +162,7 @@ class MapService:
 
         bbox = BoundingBox.get_bbox_from_point(pos, max_distance)
         links = self.get_links_in_bounding_box(bbox)
+        links = remove_links_not_in_circle(links, pos, max_distance)
         linkdists = []
         for link in links:
             linkdists.append(LinkDistance(pos, link))
