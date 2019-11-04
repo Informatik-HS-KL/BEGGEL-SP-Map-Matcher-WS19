@@ -7,7 +7,6 @@ information, e.g. the shortest distance between the point and the link or the ne
 
 
 from src.geo_utils import great_circle
-from shapely.geometry import Point, LineString
 import numpy.linalg
 import math
 
@@ -66,6 +65,8 @@ class LinkDistance:
         for seg in self._build_link_segments():
             if seg == involved_segment:
                 distance += great_circle(seg[0], self._matched_point)
+                self.fraction = distance/self.link.get_length()
+                return
             else:
                 distance += great_circle(seg[0], seg[1])
 
@@ -122,11 +123,11 @@ class LinkDistance:
         self._matched_point = matched_point
         self._calc_fraction(involved_segment)
 
-    def _build_link_segments(self):
-        segments = set()
+    def _build_link_segments(self) -> list:
+        segments = list()
         for i in range(len(self.link.__geometry) - 1):
             segment = (self.link.__geometry[i], self.link.__geometry[i+1])
-            segments.add(segment)
+            segments.append(segment)
 
         return segments
 
