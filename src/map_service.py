@@ -10,6 +10,7 @@ from src.models.link_distance import LinkDistance
 
 from . import CONFIG
 
+
 class MapService:
     """"""
     # maps geohash --> Tile class
@@ -19,38 +20,6 @@ class MapService:
     def __init__(self):
         """"""
         self.name = "A"
-
-
-
-
-    def get_nodes_in_bounding_box(self, bbox: BoundingBox):
-        """
-        Knoten einer Boudingbox zurückgeben.
-        Knoten werden aus den Tiles geladen
-        :param bbox:
-        :return:
-        """
-        ret = []
-
-        for geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
-            tile = self.get_tile(geoHash)
-            for node in tile.get_nodes():
-                if node in bbox:
-                    ret.append(node)
-
-        return ret
-
-    def get_links_in_bounding_box(self, bbox):
-
-        ret = []
-
-        for geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
-            tile = self.get_tile(geoHash)
-            for link in tile.get_links():
-                if link in bbox:
-                    ret.append(link)
-
-        return ret
 
     def get_tile(self, geohash_str):
         """Stellt sicher das immer nur Tile's mit dem vorgegebenen Level geladen werden """
@@ -110,8 +79,18 @@ class MapService:
 
         return result
 
-    # beggel-changes
-    # def get_linkdistances_in_radius(self, pos, max_distance, max_nbr=10):
+    def get_links_in_bounding_box(self, bbox):
+
+        ret = []
+
+        for geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
+            tile = self.get_tile(geoHash)
+            for link in tile.get_links():
+                if link in bbox:
+                    ret.append(link)
+
+        return ret
+
     def get_linkdistances_in_radius(self, pos, max_distance):
         """ Pseudo Match: Links deren knoten nicht in der BoundingBox liegt, die von der gegebenen Position ausgeht,
             können nicht erreicht werden.
@@ -139,3 +118,20 @@ class MapService:
 
         tile = self.get_tile(nodeid.geohash[:self._geoHashLevel])
         return tile.get_node(nodeid)
+
+    def get_nodes_in_bounding_box(self, bbox: BoundingBox):
+        """
+        Knoten einer Boudingbox zurückgeben.
+        Knoten werden aus den Tiles geladen
+        :param bbox:
+        :return:
+        """
+        ret = []
+
+        for geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
+            tile = self.get_tile(geoHash)
+            for node in tile.get_nodes():
+                if node in bbox:
+                    ret.append(node)
+
+        return ret
