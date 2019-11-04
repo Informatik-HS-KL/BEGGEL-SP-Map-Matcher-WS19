@@ -28,8 +28,6 @@ class MapService:
         self.name = "A"
 
 
-
-
     def get_nodes_in_bounding_box(self, bbox: BoundingBox):
         """
         Knoten einer Boudingbox zurückgeben.

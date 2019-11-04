@@ -5,6 +5,7 @@ Description: vue.js components for map an GUI Items to controll
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 */
 
+VIEW_SET = 0;
 accesstoken = "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw";
 providerurl = "https://api.tiles.mapbox.com/";
 
@@ -22,8 +23,6 @@ function buildMap(startLocation){
     return mymap;
 }
 
-VIEW_SET = 0;
-
 function setView(map, coords) {
     if(VIEW_SET === 0){
         map.setView(coords, 12)
@@ -40,11 +39,28 @@ function renderNodes(map, nodes, color){
         })
         if(node["info"] != undefined) {
             circle.bindPopup(node["info"]["geohash"] + " OSM:" + node["info"]["osmid"]);
+            circle.props = node["info"];
         }
+        start = false;
+
+        circle.on("click", function (e) {
+            var props = e.target.props;
+
+            if(!start){
+                map.app.router.geohashStart = props.geohash;
+                map.app.router.osmStart = props.osmid;
+                start = true;
+            }
+            else{
+                map.app.router.geohashEnd = props.geohash;
+                map.app.router.osmEnd = props.osmid;
+            }
+
+
+        })
         circle.addTo(map);
     });
 }
-
 
 function renderLinks(map, links){
     var style = {
@@ -63,27 +79,22 @@ function renderLinks(map, links){
         leaflet_link.addTo(map);
 
     });
-    console.log("Ok")
-
 }
 
-
 window.onload = function(){
-
 
 // Define a new component called button-counter
 Vue.component('tile', {
     props:["text","id", "count"],
     data: function () { //must be function, because Vue
-        return {
-        }
+        return {}
     },
     template: '<div class="tile"> <span class="tile-text">{{ text }}</span> <span class="tile-nodecount">{{ count }}</span></div>'
-})
-
+});
 
 var loc = [49.46112, 7.76316]
 map = buildMap(loc);
+
 
 var app = new Vue({
     el: '#app',
@@ -95,17 +106,24 @@ var app = new Vue({
         message: "",
         map: map,
         cmd: "nodes",
+        showRouting: false,
+        router: {
+            geohashStart: "",
+            geohashEnd:"",
+            osmStart:"",
+            osmEnd:""
+        }
     },
 
     methods: {
-
         loaddata: function(resource) {
             that = this;
             cmds = {
                crossings: "/api/tiles/" + that.geohash + "/nodes/crossroads",
                nodes: "/api/tiles/" + that.geohash + "/nodes",
                links: "/api/tiles/" + that.geohash + "/links",
-               route:  "/api/route?geofrom=u0v90h8zqvv8&geoto=u0v90jhn09uc&osmfrom=364896317&osmto=3737443428",
+               route:  "/api/route?geofrom="+ that.router.geohashStart+
+                   "&geoto="+ that.router.geohashEnd+"&osmfrom="+ that.router.osmStart+"&osmto="+that.router.osmEnd,
             }
             url = cmds[that.cmd]
             console.log(url)
@@ -140,10 +158,9 @@ var app = new Vue({
                 }
             };
             xhr.send();
-
         }
     }
 });
 
-
+map.app = app;
 }

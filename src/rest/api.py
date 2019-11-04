@@ -231,7 +231,7 @@ def route():
 
     data = []
     result_nodes = []
-
+    print(node_from.get_parent_link(), node_to.get_parent_link())
     router = RouterDijkstra()
     router.set_start_link(node_from.get_parent_link())
     router.set_end_link(node_to.get_parent_link())

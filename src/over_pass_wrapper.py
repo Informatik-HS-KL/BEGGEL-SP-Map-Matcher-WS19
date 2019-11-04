@@ -246,7 +246,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
 
         return dict(map(lambda n: (n.get_id(), n), node_list))
 
-    def _build_link_dictionary(self, osm_ways: list, crossings: list):
+    def _build_link_dictionary(self, osm_ways: list, crossings: list, nodes: dict):
         links = {}
 
         for way in osm_ways:
@@ -270,6 +270,10 @@ class OverpassWrapperClientSide(OverpassWrapper):
                     link.set_tags(way.get("tags"))
                     links[link_id] = link
 
+                    for nid in link_node_ids: nodes[nid].set_parent_link(link)
+                    nodes[link_node_ids[0]].add_link(link)
+                    nodes[link_node_ids[-1]].add_link(link)
+
                     #  Re-Initialization for the next link
                     link_geometry = [node_pos]
                     link_node_ids = [node_id]
@@ -285,7 +289,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
 
         osm_ways = list(filter(lambda e: e["type"] == "way", elements))
         crossings = self._crossings(osm_nodes, osm_ways)
-        links = self._build_link_dictionary(osm_ways, crossings)
+        links = self._build_link_dictionary(osm_ways, crossings, nodes)
 
         print(len(crossings))
 
