@@ -11,14 +11,14 @@ It handles the memory management and provides functions for routing and map matc
 1. Install shapely
 2. in work
 ### Installation Shapely
-1. Install [Miniconda](https://docs.conda.io/en/latest/miniconda.html )
+1. Install [Conda](https://docs.conda.io/en/latest/miniconda.html )
 2. Execute <code>conda install shapely</code> in Anaconda Prompt
 
 ## Configurations
 in work
 
 ## Functions
-
+A list of the base Functions from Map Service
 ### Example
 <!--
 was ist mit den imports 
