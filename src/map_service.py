@@ -12,31 +12,9 @@ from src.models.link_id import LinkId
 from src.models.node import NodeId
 from src.models.tile import Tile
 from src.models.link_distance import LinkDistance
+from src.geo_utils import great_circle
 from math import acos, sin, cos, radians
 from . import CONFIG
-
-
-def great_circle(point1: tuple, point2: tuple):
-    """
-    Angaben in KM
-    :param point1:
-    :param point2:
-    :return:
-    """
-    lat1, lon1 = point1
-    lat2, lon2 = point2
-
-    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
-    result = sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lon1 - lon2)
-
-    # Rundungsfehler beseiten
-    if result > 1.0:
-        result = 1
-
-    if result < -1.0:
-        result = -1
-
-    return 6371 * (acos(result))
 
 
 def one_of_the_nodes_in_circle(nodes, circle_center_latlon, circle_radius):
