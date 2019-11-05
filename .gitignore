@@ -105,3 +105,5 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+.idea/misc.xml
+.idea/BEGGEL-SP-Map-Matcher-WS19.iml
