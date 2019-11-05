@@ -5,7 +5,9 @@ It handles the memory management and provides functions for routing and map matc
 ## Requirements
 
 1. Python: 3.7  
-2. shapely  
+2. shapely 
+3. numpy
+4. flask 
 
 ## Installation
 1. Install shapely
@@ -15,7 +17,18 @@ It handles the memory management and provides functions for routing and map matc
 2. Execute <code>conda install shapely</code> in Anaconda Prompt
 
 ## Configurations
-in work
+The base configurations of the Project are in the src/config.ini file.
+In this configurations are 3 sections.
+1. DEFAULT Selection  
+In this selection are base parameters like overpass_url etc.
+2. HIGHWAY_FOOT Selection  
+In this selection you can choose the loaded street types for pedestrians.
+By Default all street types will loaded
+2. HIGHWAY_CARS Selection  
+In this selection you can choose the loaded street types for vehicles.
+By Default all street types will loaded
+More information over the street types you can find [here](https://wiki.openstreetmap.org/wiki/Key:highway#Special_road_types)  
+
 
 ## Functions
 A list of the base Functions from Map Service
