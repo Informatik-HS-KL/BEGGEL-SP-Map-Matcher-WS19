@@ -33,8 +33,8 @@ was ist mit den imports
         """
         mapService = MapService()
         bbox = BoundingBox.from_geohash("u0v970") # One way to create a BoundingBox
-        nodes = mapService.get_nodes_in_bounding_box(bbox) # all in_bounding_box load the
-                                                           # street data automatically
+        nodes = mapService.get_nodes_in_bounding_box(bbox) # [..]_in_bounding_box functions load the
+                                                           # not yet loaded street data automatically
         for node in nodes:
             print(node, node.get_lat(), node.get_lon())
         
@@ -46,28 +46,27 @@ was ist mit den imports
                                                      west:  float, 
                                                      north: float, 
                                                      east:  float))
-Return a array with Links in the Bounding Box.  
-If BBox outside the already loaded tiles, the required tile's will be loaded
+Returns a array with Links in the Bounding Box.  
+If the Box is span over the already loaded tiles, the required will be loaded
 
 #### Links with osm way id
     mapService.get_links(38936691)
-Return a array with Links that have the given way id.  
+Returns a array with Links that have the given way id.  
 
 #### Link with Link id
-    mapService.get_link(38936691, LinkId(38936691, NodeId(osmId, geoHash)))
-Return a Link with the given Link id and Way id.  
+    mapService.get_link(38936691, NodeId(418726074, "u0v978xvcgrt"))
+Returns a Link with the given Link id and Way id.  
 ### Functions to get Node(s) 
 #### Node by Id
-    mapService.get_node(NodeId(osmId, geoHash))
-Return a Node with the given Node Id.
+    mapService.get_node(NodeId(418726074, "u0v978xvcgrt"))
+Returns a Node with the given Node Id.
 #### Nodes in BBox
     mapService.get_links_in_bounding_box(BoundingBox(south: float, 
                                                      west:  float, 
                                                      north: float, 
                                                      east:  float))
-Return all Nodes as Array in the Bounding box.  
-If BBox outside the already loaded tiles, the required tile's will be loaded
-
+Returns all Nodes as Array in the Bounding box.  
+If the Box is span over the already loaded tiles, the required will be loaded
 
 ### Functions to get Tile(s)
 #### Tile with geohash
@@ -76,7 +75,7 @@ If not loaded the Interface will download the street data
 and return it as a Tile with nodes and Links
 #### All Cached Tiles
     mapService.get_all_cached_tiles()
-Return all already loaded Tiles
+Returns all already loaded Tiles
 ## Data Visualisation (testing)
 After the start you have the opportunity to Visual your Links and Nodes. 
 We implement a test web page under [localhost](http://http://localhost:5000/). 
