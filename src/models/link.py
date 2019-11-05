@@ -252,8 +252,8 @@ class Link:
 
         return False
 
-
-
+    def get_geometry(self):
+        return self.__geometry
 
     # beggel-changes
     # def isNavFromStart(self, vehicleType):

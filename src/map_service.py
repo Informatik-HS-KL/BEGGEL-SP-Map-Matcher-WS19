@@ -17,22 +17,20 @@ from src.geo_utils import great_circle
 from . import CONFIG
 
 
-def __one_of_the_nodes_in_circle(nodes, circle_center_latlon, circle_radius):
-    for node in nodes:
-        if abs(great_circle(node.get_latlon(), circle_center_latlon)) <= circle_radius:
+def __one_of_the_nodes_in_circle(points, circle_center_latlon, circle_radius):
+    """Prüft ob eines der Nodes innerhalb des Zirkels sind"""
+    for point in points:
+        if abs(great_circle(point, circle_center_latlon)) <= circle_radius:
             return True
     return False
 
 
-def _remove_links_not_in_circle(links, circle_center_latlon, circle_radius):
-    link_points = []
+def _get_links_in_circle(links, circle_center_latlon, circle_radius):
+    """ Sortiert Links, die nicht in dem Kreis sind aus"""
     links_in_circle = []
     for link in links:
-        link_points.clear()
-        link_points.append(link.get_start_node())
-        link_points.append(link.get_end_node())
-        # link_points.append(link.nodes()) // Sobald link mehrere Knoten bekommt
-        if __one_of_the_nodes_in_circle(link_points, circle_center_latlon, circle_radius):
+        points = link.get_geometry()
+        if __one_of_the_nodes_in_circle(points, circle_center_latlon, circle_radius):
             links_in_circle.append(link)
     return links_in_circle
 
@@ -155,7 +153,7 @@ class MapService:
 
         bbox = BoundingBox.get_bbox_from_point(pos, max_distance)
         links = self.get_links_in_bounding_box(bbox)
-        links = _remove_links_not_in_circle(links, pos, max_distance)
+        links = _get_links_in_circle(links, pos, max_distance)
         linkdists = []
         for link in links:
             linkdists.append(LinkDistance(pos, link))
