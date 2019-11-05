@@ -89,6 +89,9 @@ class LinkDistance:
         # print("link.length/2: {}".format(self.link.get_length()/2))
 
     def get_distance(self):
+        """
+        :return:
+        """
         if not self.init:
             self._lazy_load()
         return self.distance
