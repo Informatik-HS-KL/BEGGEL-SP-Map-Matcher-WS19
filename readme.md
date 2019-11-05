@@ -1,39 +1,107 @@
-Fragen
---
-- Karten nachladen 
-    - Wie finden wir Überschneidungen mit den anderen Kacheln?
-    - Wie berücksichtigen wir diese Überschneidungen in unserem Datenmodell?
- - Sollen wir neben base32 auch andere Geocode-Systeme im GeohashWrapper unterstützen?
- - Wie können wir unsere Performance testen?
- - Wie bauen wir unsere Konfiguration auf?
-    - API Key
- - Wie können wir den Cache entlasten:
-    - Welche Informationen sind nicht essentiell?
+[Picture 1]: doc/images/webPage.jpg  "Visualisation of Links and Nodes"
+# Map Service
+The Map Service is a tool, that loads data from the OpenStreetMap and prepares it for the user.  
+It handles the memory management and provides functions for routing and map matching.  
+## Requirements
+
+1. Python: 3.7  
+2. shapely 
+3. numpy
+4. flask 
+
+## Installation
+1. Install shapely
+2. in work
+### Installation Shapely
+1. Install [Conda](https://docs.conda.io/en/latest/miniconda.html )
+2. Execute <code>conda install shapely</code> in Anaconda Prompt
+
+## Configurations
+The base configurations of the Project are in the src/config.ini file.
+In this configurations are 3 sections.
+1. DEFAULT Selection  
+In this selection are base parameters like overpass_url etc.
+2. HIGHWAY_FOOT Selection  
+In this selection you can choose the loaded street types for pedestrians.
+By Default all street types will loaded
+2. HIGHWAY_CARS Selection  
+In this selection you can choose the loaded street types for vehicles.
+By Default all street types will loaded
+More information over the street types you can find [here](https://wiki.openstreetmap.org/wiki/Key:highway#Special_road_types)  
+
+
+## Functions
+A list of the base Functions from Map Service
+### Example
+<!--
+was ist mit den imports 
+(muss man wenn man unser programm nutzt immer über src gehen)??
+-->
+    from src.map_service import MapService
+    from src.models.bounding_box import BoundingBox
     
- - OSM-Ids können sich mit der Zeit ändern. Wir das für uns zu einem Problem?
-
-TODO
---
--  Bugfix und Refactor von loadTile():
-    - Performance
-    - Einbahnstraßen
-    - Abbiegeverbote    
-- Refactor GeohashWrapper
-- Links um folgenden Informationen ergänzen:
-    - vom wem darf ein Link verwendet werden (Radfahrer, Autos, Fußgänger, ...)?
-    - in welcher Richtung darf ein Link verwendet werden?
-        - auch wieder in Abhängigkeit von der Rolle (Radfahrer, ...)
+    def test()
+        """
+        Print all nodes in Geohash 'u0v970'
+        """
+        mapService = MapService()
+        bbox = BoundingBox.from_geohash("u0v970") # One way to create a BoundingBox
+        nodes = mapService.get_nodes_in_bounding_box(bbox) # [..]_in_bounding_box functions load the
+                                                           # not yet loaded street data automatically
+        for node in nodes:
+            print(node, node.get_lat(), node.get_lon())
+        
 
 
-Ideen
---
-- Die Logik aus der REST-API in eine extra API schreiben, sodass die REST-API lesbarer wird.
-- Datenmodell um zusätzliche Informationen ergänzen, sodass Ergebnisse im FrontEnd leichter zu verstehen sind:
-    - Angeben in welchem Land ein Tile bzw. eine Bounding Box liegt
-- FrontEnd ergänzen um:
-    - nur die Grenzen eines Tiles anzeigen
- - von einem Tile, die benachbarten Tiles erhalten
- - eine Methode mit der beliebige Polygone geladen werden können
- - mehrere Threads um parallel mehrere Tiles zu laden
- - schauen, ob man auch Wanderwege ausfindig machen kann
+### Functions to get Link(s) 
+#### Links in Bounding Box
+    mapService.get_links_in_bounding_box(BoundingBox(south: float, 
+                                                     west:  float, 
+                                                     north: float, 
+                                                     east:  float))
+Returns a array with Links in the Bounding Box.  
+If the Box is span over the already loaded tiles, the required will be loaded
 
+#### Links with osm way id
+    mapService.get_links(38936691)
+Returns a array with Links that have the given way id.  
+
+#### Link with Link id
+    mapService.get_link(38936691, NodeId(418726074, "u0v978xvcgrt"))
+Returns a Link with the given Link id and Way id.  
+### Functions to get Node(s) 
+#### Node by Id
+    mapService.get_node(NodeId(418726074, "u0v978xvcgrt"))
+Returns a Node with the given Node Id.
+#### Nodes in BBox
+    mapService.get_links_in_bounding_box(BoundingBox(south: float, 
+                                                     west:  float, 
+                                                     north: float, 
+                                                     east:  float))
+Returns all Nodes as Array in the Bounding box.  
+If the Box is span over the already loaded tiles, the required will be loaded
+
+### Functions to get Tile(s)
+#### Tile with geohash
+    mapService.get_links_in_bounding_box("u0v970")
+If not loaded the Interface will download the street data 
+and return it as a Tile with nodes and Links
+#### All Cached Tiles
+    mapService.get_all_cached_tiles()
+Returns all already loaded Tiles
+## Data Visualisation (testing)
+After the start you have the opportunity to Visual your Links and Nodes. 
+We implement a test web page under [localhost](http://http://localhost:5000/). 
+![Picture 1]
+
+In the Visualisation you can choose if you want to see all Nodes or Links in a Geohash.
+Set Nodes and Links are preserved.
+
+## Supported Geo function's
+in work
+
+## Wrongdoer
+  
+Lukas F. , Sebastian L. , Kai P.  
+Supervisor:  
+Prof. Beggel  

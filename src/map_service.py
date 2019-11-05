@@ -1,11 +1,5 @@
 """
-Description: The MapService is the center of this whole API. That means that the whole functionality this API should
-offer is located in the MapService, e.g. getting nodes and links that satisfy certain criteria. Therefore the MapService
-is managing the obtainment and caching of Tiles, the latter for improving the performance.
-@date: 10/25/2019
-@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
-
 
 from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
@@ -27,36 +21,6 @@ class MapService:
         """"""
         self.name = "A"
 
-
-    def get_nodes_in_bounding_box(self, bbox: BoundingBox):
-        """
-        Knoten einer Boudingbox zurückgeben.
-        Knoten werden aus den Tiles geladen
-        :param bbox:
-        :return:
-        """
-        ret = []
-
-        for geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
-            tile = self.get_tile(geoHash)
-            for node in tile.get_nodes():
-                if node in bbox:
-                    ret.append(node)
-
-        return ret
-
-    def get_links_in_bounding_box(self, bbox):
-
-        ret = []
-
-        for geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
-            tile = self.get_tile(geoHash)
-            for link in tile.get_links():
-                if link in bbox:
-                    ret.append(link)
-
-        return ret
-
     def get_tile(self, geohash_str):
         """Stellt sicher das immer nur Tile's mit dem vorgegebenen Level geladen werden """
 
@@ -76,17 +40,9 @@ class MapService:
         """Gibt das entprechende Tile zurück. Liegt es noch nicht im Tile-Cache,
         so wird es erst noch geladen und im Cache gespeichert."""
 
-        # from src.over_pass_wrapper import OverpassWrapperServerSide
-        from src.over_pass_wrapper import OverpassWrapperClientSide
-
-        full_geohash_level = CONFIG.getint("DEFAULT", "full_geohash_level")
-        OVERPASS_URL = CONFIG.get("DEFAULT", "overpass_url")
-
-        # self.opw = OverpassWrapperServerSide(full_geohash_level, OVERPASS_URL)
-        self.opw = OverpassWrapperClientSide(full_geohash_level, OVERPASS_URL)
-
+        from src.over_pass_wrapper import OverpassWrapper
         if geohash_str not in self._tileCache:
-            self._tileCache[geohash_str] = self.opw.load_tile(geohash_str)
+            self._tileCache[geohash_str] = OverpassWrapper.load_tile(geohash_str)
 
         return self._tileCache[geohash_str]
 
@@ -123,8 +79,18 @@ class MapService:
 
         return result
 
-    # beggel-changes
-    # def get_linkdistances_in_radius(self, pos, max_distance, max_nbr=10):
+    def get_links_in_bounding_box(self, bbox):
+
+        ret = []
+
+        for geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
+            tile = self.get_tile(geoHash)
+            for link in tile.get_links():
+                if link in bbox:
+                    ret.append(link)
+
+        return ret
+
     def get_linkdistances_in_radius(self, pos, max_distance):
         """ Pseudo Match: Links deren knoten nicht in der BoundingBox liegt, die von der gegebenen Position ausgeht,
             können nicht erreicht werden.
@@ -152,3 +118,20 @@ class MapService:
 
         tile = self.get_tile(nodeid.geohash[:self._geoHashLevel])
         return tile.get_node(nodeid)
+
+    def get_nodes_in_bounding_box(self, bbox: BoundingBox):
+        """
+        Knoten einer Boudingbox zurückgeben.
+        Knoten werden aus den Tiles geladen
+        :param bbox:
+        :return:
+        """
+        ret = []
+
+        for geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
+            tile = self.get_tile(geoHash)
+            for node in tile.get_nodes():
+                if node in bbox:
+                    ret.append(node)
+
+        return ret
