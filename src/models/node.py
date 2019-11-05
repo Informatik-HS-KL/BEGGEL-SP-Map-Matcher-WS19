@@ -92,13 +92,6 @@ class Node:
         """
         self.__links.append(link)
 
-    def get_distance(self, other):
-        """
-        :param other: Node
-        :return:
-        """
-        # TODO Berechne Distanz zu anderem Knoten
-
     def to_geo_json(self):
         """
         :return: Gibt den Knoten im GeoJson-Format (als String) zurück.

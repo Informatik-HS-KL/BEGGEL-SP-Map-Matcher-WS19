@@ -133,17 +133,15 @@ class MapService:
 
         result = []
         for geohash, tile in self._tileCache.items():
-            print(geohash)
             for linksid, link in tile.get_links_with_keys().items():
                 if linksid.osm_way_id == way_id:
                     result.append(link)
 
         return result
 
-    # beggel-changes
     # def get_linkdistances_in_radius(self, pos, max_distance, max_nbr=10):
     def get_linkdistances_in_radius(self, pos, max_distance):
-        """ Pseudo Match: Links deren knoten nicht in der BoundingBox liegt, die von der gegebenen Position ausgeht,
+        """ Match wenn Link Bbox mit pos und radius überlappt
             können nicht erreicht werden.
             Liste wird nach tatsächer distance sortiert und nur die max_nbr geringen Abstände zurückgegeben.
         :param pos:
@@ -158,8 +156,7 @@ class MapService:
         for link in links:
             linkdists.append(LinkDistance(pos, link))
 
-        ## sortieren und filtern
-
+        linkdists.sort(key= lambda i: i.get_distance())
         return linkdists
 
     def get_node(self, nodeid: NodeId):
