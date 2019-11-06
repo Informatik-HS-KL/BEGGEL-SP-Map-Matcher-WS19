@@ -15,7 +15,7 @@ def main():
 
     linkdists = mapService.get_linkdistances_in_radius(nodes[1].get_latlon(), 150) # meter
     for ld in linkdists:
-        print("LinkDistance: ", ld.get_distance(),"km", "Fraction: ", ld.get_fraction())
+        print("LinkDistance: ", ld.get_distance(),"m", "Fraction: ", ld.get_fraction())
 
 from src.rest.app import app
 def start_server():
