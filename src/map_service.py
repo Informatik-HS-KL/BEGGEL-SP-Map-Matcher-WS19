@@ -37,6 +37,34 @@ def _remove_links_not_in_circle(links, circle_center_latlon, circle_radius):
     return links_in_circle
 
 
+def get_small_tile(tile, geohash_str):
+    print("Small Tile")
+    great_tile_links = tile.get_links()
+    great_tile_nodes = tile.get_nodes()
+    nodes = {}
+    links = {}
+    for node in great_tile_nodes:
+        if node.get_id().geohash[:len(geohash_str)] == geohash_str:
+            nodes[node.get_id()] = node
+    for link in great_tile_links:
+        link_bbox = link.get_bbox()
+
+        s_node_id = link.get_node_ids()[0]
+        e_node_id = link.get_node_ids()[len(link.get_node_ids()) - 1]
+        if (s_node_id.geohash[:len(geohash_str)] == geohash_str or
+                e_node_id.geohash[:len(geohash_str)] == geohash_str):
+            links[link.get_link_id()] = link
+
+    # Wichtig, da Wege, die aus Tile herrausragen mit übergeben werden
+    way_ids = set()
+    for link_id in links:
+        way_ids.add(link_id.osm_way_id)
+    for link in great_tile_links:
+        if link not in links and link.get_way_osm_id in way_ids:
+            links[link.get_link_id()] = link
+
+    return Tile(geohash_str, nodes, links)
+
 class MapService:
     """"""
     # maps geohash --> Tile class
@@ -78,18 +106,28 @@ class MapService:
 
     def get_tile(self, geohash_str):
         """Stellt sicher das immer nur Tile's mit dem vorgegebenen Level geladen werden """
-
+        tiel = self.__get_tile(geohash_str)
         if len(geohash_str) >= self._geoHashLevel:
-            # TODO kleinerer Geohash zurückgeben
-            return self.__get_tile(geohash_str[:self._geoHashLevel])
-        nodes = {}
-        links = {}
-        bbox = BoundingBox.from_geohash(geohash_str)
-        for tile_geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
-            nodes.update(self.__get_tile(tile_geoHash).get_nodes_with_keys())
-            links.update(self.__get_tile(tile_geoHash).get_links_with_keys())
+            tiel = get_small_tile(tiel, geohash_str)
+        print("All Nodes and Links")
+        for link in tiel.get_links():
+            print("Link ID: %d", link.get_way_osm_id())
+        for node in tiel.get_nodes():
+            print("Node ID: %d", node.get_id().osm_node_id)
 
-        return Tile(geohash_str, nodes, links)
+        return tiel
+        # if len(geohash_str) >= self._geoHashLevel:
+        #     return self.__get_tile(geohash_str[:self._geoHashLevel])
+        #     #return get_small_tile(tile, geohash_str)
+        # nodes = {}
+        # links = {}
+        # bbox = BoundingBox.from_geohash(geohash_str)
+        # for tile_geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
+        #     nodes.update(self.__get_tile(tile_geoHash).get_nodes_with_keys())
+        #     links.update(self.__get_tile(tile_geoHash).get_links_with_keys())
+        #
+        # return Tile(geohash_str, nodes, links)
+
 
     def __get_tile(self, geohash_str):
         """Gibt das entprechende Tile zurück. Liegt es noch nicht im Tile-Cache,
