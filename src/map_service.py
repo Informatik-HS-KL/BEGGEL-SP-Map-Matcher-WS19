@@ -206,7 +206,7 @@ class MapService:
             linkdists.append(LinkDistance(pos, link))
 
         ## sortieren und filtern
-
+        linkdists.sort(key=lambda l: l.get_distance())
         return linkdists
 
     def get_node(self, nodeid: NodeId):

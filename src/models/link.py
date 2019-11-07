@@ -6,9 +6,6 @@ For WKT see: (https://en.wikipedia.org/wiki/Well-known_text_representation_of_ge
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-
-
-
 # """
 # Part of street where there is no intersection and that has a fixed set of properties.
 # A link might have a non-linear geometry. Geometry of a link is a LINESTRING!
