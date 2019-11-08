@@ -6,15 +6,33 @@ is managing the obtainment and caching of Tiles, the latter for improving the pe
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-
 from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
 from src.models.link_id import LinkId
 from src.models.node import NodeId
 from src.models.tile import Tile
 from src.models.link_distance import LinkDistance
+from src.geo_utils import great_circle
 
 from . import CONFIG
+
+
+def __one_of_the_nodes_in_circle(points, circle_center_latlon, circle_radius):
+    """Prüft ob eines der Nodes innerhalb des Zirkels sind"""
+    for point in points:
+        if abs(great_circle(point, circle_center_latlon)) <= circle_radius:
+            return True
+    return False
+
+
+def _get_links_in_circle(links, circle_center_latlon, circle_radius):
+    """ Sortiert Links, die nicht in dem Kreis sind aus"""
+    links_in_circle = []
+    for link in links:
+        points = link.get_geometry()
+        if __one_of_the_nodes_in_circle(points, circle_center_latlon, circle_radius):
+            links_in_circle.append(link)
+    return links_in_circle
 
 
 class MapService:
@@ -116,17 +134,15 @@ class MapService:
 
         result = []
         for geohash, tile in self._tileCache.items():
-            print(geohash)
             for linksid, link in tile.get_links_with_keys().items():
                 if linksid.osm_way_id == way_id:
                     result.append(link)
 
         return result
 
-    # beggel-changes
     # def get_linkdistances_in_radius(self, pos, max_distance, max_nbr=10):
     def get_linkdistances_in_radius(self, pos, max_distance):
-        """ Pseudo Match: Links deren knoten nicht in der BoundingBox liegt, die von der gegebenen Position ausgeht,
+        """ Match wenn Link Bbox mit pos und radius überlappt
             können nicht erreicht werden.
             Liste wird nach tatsächer distance sortiert und nur die max_nbr geringen Abstände zurückgegeben.
         :param pos:
@@ -136,6 +152,7 @@ class MapService:
 
         bbox = BoundingBox.get_bbox_from_point(pos, max_distance)
         links = self.get_links_in_bounding_box(bbox)
+        links = _get_links_in_circle(links, pos, max_distance)
         linkdists = []
         for link in links:
             linkdists.append(LinkDistance(pos, link))

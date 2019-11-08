@@ -19,6 +19,9 @@ from .link_id import LinkId
 import src.map_service
 from src.geo_utils import great_circle
 from enum import Enum
+import src.models.bounding_box
+from shapely.geometry import  LineString
+
 
 class LinkUser(Enum):
     PEDESTRIAN = 1
@@ -47,10 +50,11 @@ class Link:
 
     def get_bbox(self):
         """
-        Todo: lässt sich mit shapely einfach lösen (wenn wir shapely verwenden!!!!)
-        :return:
+        bounding box of link resulted from geometry
+        :return: BoundingBox Object
         """
-       # BoundingBox.get_bbox_from_points(self.__start_node_id)
+        s, w, n, e = LineString(self.get_geometry()).bounds
+        return src.models.bounding_box.BoundingBox(s, w, n, e)
 
     def get_start_node(self):
         """
@@ -100,9 +104,15 @@ class Link:
         self.__tags = tags
 
     def get_link_id(self):
+        """
+        :return: LinKId Object
+        """
         return self.__link_id
 
     def get_way_osm_id(self):
+        """
+        :return: Osm Way id of self
+        """
         return self.__link_id.osm_way_id
 
     def __repr__(self):
@@ -153,6 +163,9 @@ class Link:
         return great_circle(self.get_start_node().get_latlon(), self.get_end_node().get_latlon())
 
     def is_from_start(self):
+        """
+        :return:
+        """
         pass
 
     def is_to_start(self):
@@ -249,8 +262,8 @@ class Link:
 
         return False
 
-
-
+    def get_geometry(self):
+        return self.__geometry
 
     # beggel-changes
     # def isNavFromStart(self, vehicleType):
