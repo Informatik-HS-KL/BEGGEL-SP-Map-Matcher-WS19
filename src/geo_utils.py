@@ -216,7 +216,7 @@ def vectors_have_same_direction(a: tuple, b: tuple) -> bool:
 # print(vector_norm(vector_subtraction(mpoint, sn)))
 # print(vector_norm(vector_subtraction(pos, mpoint)))
 
-def dijsktra(initial, end, weight_prop="length"):
+def point_to_point_dijsktra(initial, initial_fraction,  end, end_fraction, weight_prop="length"):
     # shortest paths is a dict of nodes
     # whose value is a tuple of (previous node, weight)
 
