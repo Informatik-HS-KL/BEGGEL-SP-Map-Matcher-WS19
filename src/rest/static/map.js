@@ -10,7 +10,7 @@ accesstoken = "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ
 providerurl = "https://api.tiles.mapbox.com/";
 
 function buildMap(startLocation){
-    var mymap = L.map('mapid').setView(startLocation, 15);
+    var mymap = L.map('mapid').setView(startLocation, 14);
 
     L.tileLayer(providerurl+'v4/{id}/{z}/{x}/{y}.png?access_token='+accesstoken, {
         maxZoom: 18,
@@ -25,7 +25,7 @@ function buildMap(startLocation){
 
 function setView(map, coords) {
     if(VIEW_SET === 0){
-        map.setView(coords, 15)
+        map.setView(coords, 12)
         VIEW_SET = 1;
     }
 }
@@ -55,6 +55,8 @@ function renderNodes(map, nodes, color){
                 map.app.router.geohashEnd = props.geohash;
                 map.app.router.osmEnd = props.osmid;
             }
+
+
         })
         circle.addTo(map);
     });
@@ -75,6 +77,7 @@ function renderLinks(map, links){
 
         leaflet_link.bindPopup(`Way: ${wayid}\nNodehash:${nodegeohash}\nNodeId:${osmid}`)
         leaflet_link.addTo(map);
+
     });
 }
 
@@ -89,29 +92,14 @@ Vue.component('tile', {
     template: '<div class="tile"> <span class="tile-text">{{ text }}</span> <span class="tile-nodecount">{{ count }}</span></div>'
 });
 
-Vue.component('logitem', {
-    props:["line1","line2", "line3", "link"],
-    data: function () { //must be function, because Vue
-        return {}
-    },
-    template: '<div class="logitem"> ' +
-        '<span class="line">{{ line1 }}</span> ' +
-        '<span class="line">{{ line2 }}</span>' +
-        '<span class="line">{{ line3 }}</span>' +
-        '<a v-if="link" href="link"></a>'+
-        '</div>'
-});
+var loc = [49.46112, 7.76316]
+map = buildMap(loc);
 
 
-var map = buildMap([49.46112, 7.76316]);
 var app = new Vue({
     el: '#app',
     data: {
-        logitems:[],
-        linkdistance:{
-            lat: "", // wird zur laufzeit von der Karte von einem klick event gefüllt
-            lon: ""
-        },
+        tiles:[],
         rootUrl: "/api/tiles/",
         currentUrl: "/nodes",
         geohash: "u0v90",
@@ -150,65 +138,29 @@ var app = new Vue({
                     if(that.cmd == "nodes"){
                         setView(that.map, geoData[0].coordinates)
                         renderNodes(that.map, geoData, '#ff0911')
-                        that.logitems.push({line1: that.cmd + ": "+ that.geohash, line2: geoData.length, line3: that.geohash + that.cmd})
+                        that.tiles.push({text: that.cmd + ": "+ that.geohash, count: geoData.length, id: that.geohash + that.cmd})
                     }
                     if(that.cmd == "crossings"){
                         setView(that.map, geoData[0].coordinates)
                         renderNodes(that.map, geoData, '#1109ff')
-                        that.logitems.push({line1: that.cmd + ": "+ that.geohash, line2: geoData.length, line3: that.geohash + that.cmd})
+                        that.tiles.push({text: that.cmd + ": "+ that.geohash, count: geoData.length, id: that.geohash + that.cmd})
                     }
 
                     if(that.cmd == "links"){
 
                         renderLinks(that.map, geoData)
-                        that.logitems.push({line1: that.geohash, line2: geoData.length, line3: that.geohash, link: "#"})
+                        that.tiles.push({text: that.geohash, count: geoData.length, id: that.geohash})
                     }
                     if(that.cmd == "route"){
                         renderNodes(that.map, geoData, "#11ff06")
-                        that.logitems.push({line1: "Route", line2: geoData.length, line3: geoData.length})
+                        that.tiles.push({text: "Route", count: geoData.length, id: geoData.length})
                     }
                 }
             };
-            xhr.send();
-        },
-        calcLinkDist: function (resource) {
-            var that = this;
-            url =  "/api/linkdistance?lat="+ that.linkdistance.lat +"&lon="+ that.linkdistance.lon;
-            console.log(url)
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', url);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    geoData = JSON.parse(xhr.responseText);
-                    links = geoData.map(x => x["link"])
-                    renderLinks(map, links);
-                    for(i = 0 ; i < geoData.length; i++){
-                        l = geoData[i];
-                        that.logitems.push({line1: "Link: "+ l["link"]['properties']["start_node"]["geohash"]+" Distance:"+ l.distance + "  Fraction"+ l.fraction})
-                    }
-
-                    console.log(geoData)
-
-                }
-            }
             xhr.send();
         }
     }
 });
 
 map.app = app;
-map.on("click", function (evt) {
-    console.log(evt.latlng.lng)
-    map.app.linkdistance.lat = evt.latlng.lat;
-    map.app.linkdistance.lon = evt.latlng.lng;
-    var circle = L.circle(evt.latlng, {
-            color: "yellow",
-            fillColor: "yellow",
-            fillOpacity: 0.5,
-            radius: 4
-    })
-    circle.addTo(map);
-})
-
 }

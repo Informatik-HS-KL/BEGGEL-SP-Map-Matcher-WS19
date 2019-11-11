@@ -192,7 +192,6 @@ class MapService:
 
         bbox = BoundingBox.get_bbox_from_point(pos, max_distance)
         links = self.get_links_in_bounding_box(bbox)
-        links = _get_links_in_circle(links, pos, max_distance)
         linkdists = []
         for link in links:
             linkdists.append(LinkDistance(pos, link))
