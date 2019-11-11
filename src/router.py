@@ -1,10 +1,16 @@
-from enum import Enum
 from abc import ABC, abstractmethod
-from src.geo_utils import dijsktra
+from src.geo_utils import point_to_point_dijsktra
+
 
 class RoutingException(Exception):
     """ IF any stuff in Routing goes wrong"""
     pass
+
+
+class ShortestPath:
+    def get_wight(self, link, fraction):
+        return link.get_length * fraction
+
 
 class Router(ABC):
     """
@@ -16,21 +22,34 @@ class Router(ABC):
         """
         self.start_link = None
         self.end_link = None
+        self.s_fraction = None
+        self.e_fraction = None
+        self.s_from_start_to_end = None
+        self.e_from_start_to_end = None
 
-    def set_start_link(self, link):
+    def set_start_link(self, link, fraction=0.0, from_start_to_end: bool = True):
         """
         Setter start link
+        :param link the link from which you want to drive
+        :param fraction the position on the link to go to
+        :param from_start_to_end the direction
         :return:
         """
         self.start_link = link
+        self.s_fraction = fraction
+        self.s_from_start_to_end = from_start_to_end
 
-    def set_end_link(self, link):
+    def set_end_link(self, link, fraction=0.0, from_start_to_end: bool = True):
         """
+        :param link the link to go to
+        :param fraction the position on the link to go to
+        :param from_start_to_end the direction
         setter end link
         :return:
         """
-
         self.end_link = link
+        self.e_fraction = fraction
+        self.e_from_start_to_end = from_start_to_end
 
     def get_start_link(self):
         """
@@ -48,7 +67,7 @@ class Router(ABC):
         return self.end_link
 
     @abstractmethod
-    def compute(self):
+    def compute(self, weight_property=0, wight_function=ShortestPath):
         """
         Computes Route
         :return: [nodes]
@@ -66,7 +85,7 @@ class RouterDijkstra(Router):
     def __init__(self):
         super().__init__()
 
-    def compute(self, weight_property=0):
+    def compute(self, weight_property=0, wight_function=ShortestPath):
         """
         Computes Route with Dijkstra
         :param: weight_property = 0 are lenth as weight factor
@@ -75,5 +94,5 @@ class RouterDijkstra(Router):
 
         super().compute()
         s, n = self.get_start_link(), self.get_end_link()
-        return dijsktra(s, n, "length")
+        return point_to_point_dijsktra(s, self.s_fraction, n, self.e_fraction, "length")
 
