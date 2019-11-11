@@ -17,62 +17,24 @@ from src.geo_utils import great_circle
 from . import CONFIG
 
 
-def __one_of_the_nodes_in_circle(points, circle_center_latlon, circle_radius):
-    """Prüft ob eines der Nodes innerhalb des Zirkels sind"""
-    for point in points:
-        if abs(great_circle(point, circle_center_latlon)) <= circle_radius:
+def __one_of_the_nodes_in_circle(nodes, circle_center_latlon, circle_radius):
+    for node in nodes:
+        if abs(great_circle(node.get_latlon(), circle_center_latlon)) <= circle_radius:
             return True
     return False
 
 
-def _get_links_in_circle(links, circle_center_latlon, circle_radius):
-    """ Sortiert Links, die nicht in dem Kreis sind aus"""
+def _remove_links_not_in_circle(links, circle_center_latlon, circle_radius):
+    link_points = []
     links_in_circle = []
     for link in links:
-        points = link.get_geometry()
-        if __one_of_the_nodes_in_circle(points, circle_center_latlon, circle_radius):
+        link_points.clear()
+        link_points.append(link.get_start_node())
+        link_points.append(link.get_end_node())
+        # link_points.append(link.nodes()) // Sobald link mehrere Knoten bekommt
+        if __one_of_the_nodes_in_circle(link_points, circle_center_latlon, circle_radius):
             links_in_circle.append(link)
     return links_in_circle
-
-
-def get_smaller_tile(tile, smaller_geohash_str):
-    gt_links = tile.get_links()
-    gt_nodes = tile.get_nodes()
-    nodes = {}
-    links = {}
-    way_ids = set()
-    for node in gt_nodes:  # alle Nodes, die direkt im Tile liegen
-        if node.get_id().geohash[:len(smaller_geohash_str)] == smaller_geohash_str:
-            nodes[node.get_id()] = node
-
-    for link in gt_links:  # alle Links, die direkt im Tile liegen
-        # Code funktioniert nicht richtig, da sporadisch Links vergessen werden (Siehe GeoH u0v91),
-        # nicht nachgeprüft warum
-        # if BoundingBox.from_geohash(smaller_geohash_str).overlap(link.get_bbox()):
-        #     links[link.get_link_id()] = link
-        s_node_id = link.get_node_ids()[0]
-        e_node_id = link.get_node_ids()[len(link.get_node_ids()) - 1]
-
-        if (s_node_id.geohash[:len(smaller_geohash_str)] == smaller_geohash_str or
-                e_node_id.geohash[:len(smaller_geohash_str)] == smaller_geohash_str):
-            way_ids.add(link.get_link_id().osm_way_id)
-            links[link.get_link_id()] = link
-        else:
-            for n_id in link.get_node_ids():
-                if n_id in nodes:
-                    links[link.get_link_id()] = link
-                    break
-
-    for link in gt_links:  # alle Links, die auf einem Weg im Tile liegen
-        if link not in links and link.get_way_osm_id() in way_ids:
-            links[link.get_link_id()] = link
-
-    for link in gt_links:  # Alle nodes aus den nachgeladenen Links
-        for node_id in link.get_node_ids():
-            if node_id not in nodes:
-                nodes[node_id] = tile.get_node(node_id)
-
-    return Tile(smaller_geohash_str, nodes, links)
 
 
 class MapService:
@@ -117,14 +79,9 @@ class MapService:
     def get_tile(self, geohash_str):
         """Stellt sicher das immer nur Tile's mit dem vorgegebenen Level geladen werden """
 
-        if len(geohash_str) == self._geoHashLevel:
-            return self.__get_tile(geohash_str)
-
-        if len(geohash_str) > self._geoHashLevel:
-            tile = self.__get_tile(geohash_str[:self._geoHashLevel])
-            small_tile = get_smaller_tile(tile, geohash_str)
-            return small_tile
-
+        if len(geohash_str) >= self._geoHashLevel:
+            # TODO kleinerer Geohash zurückgeben
+            return self.__get_tile(geohash_str[:self._geoHashLevel])
         nodes = {}
         links = {}
         bbox = BoundingBox.from_geohash(geohash_str)
@@ -178,15 +135,17 @@ class MapService:
 
         result = []
         for geohash, tile in self._tileCache.items():
+            print(geohash)
             for linksid, link in tile.get_links_with_keys().items():
                 if linksid.osm_way_id == way_id:
                     result.append(link)
 
         return result
 
+    # beggel-changes
     # def get_linkdistances_in_radius(self, pos, max_distance, max_nbr=10):
     def get_linkdistances_in_radius(self, pos, max_distance):
-        """ Match wenn Link Bbox mit pos und radius überlappt
+        """ Pseudo Match: Links deren knoten nicht in der BoundingBox liegt, die von der gegebenen Position ausgeht,
             können nicht erreicht werden.
             Liste wird nach tatsächer distance sortiert und nur die max_nbr geringen Abstände zurückgegeben.
         :param pos:
@@ -196,13 +155,13 @@ class MapService:
 
         bbox = BoundingBox.get_bbox_from_point(pos, max_distance)
         links = self.get_links_in_bounding_box(bbox)
-        links = _get_links_in_circle(links, pos, max_distance)
+        links = _remove_links_not_in_circle(links, pos, max_distance)
         linkdists = []
         for link in links:
             linkdists.append(LinkDistance(pos, link))
 
         ## sortieren und filtern
-        linkdists.sort(key=lambda l: l.get_distance())
+
         return linkdists
 
     def get_node(self, nodeid: NodeId):
