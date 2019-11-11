@@ -9,7 +9,7 @@ class RoutingException(Exception):
 
 class ShortestPath:
     def get_wight(self, link, fraction):
-        return link.get_length * fraction
+        return link.get_length() * fraction
 
 
 class Router(ABC):

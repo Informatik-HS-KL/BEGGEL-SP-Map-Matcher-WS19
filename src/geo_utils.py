@@ -4,11 +4,11 @@ Description: This files offers some mathematical and geographic-related methods.
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-
 # from src.models.tile import Tile
 from math import radians, degrees, sin, cos, asin, acos, sqrt, isclose
 from src.models.tile import Tile
 from src.models.node import Node
+
 
 def great_circle(point1: tuple, point2: tuple):
     """
@@ -146,7 +146,7 @@ def vector_norm(v: tuple):
     return sqrt(dot_product(v, v))
 
 
-def is_nullvector(v:tuple) -> bool:
+def is_nullvector(v: tuple) -> bool:
     """Überprüft, ob v der Nullvektor ist.
     :return: bool"""
     for i in range(0, len(v)):
@@ -200,7 +200,7 @@ def vectors_have_same_direction(a: tuple, b: tuple) -> bool:
     # Diese Schleife überprüft, ob a und b in jeder Komponente das gleiche Vorzeichen haben.
     for i in range(0, len(a)):
         if b[i] != 0:
-            if a[i]/b[i] < 0:
+            if a[i] / b[i] < 0:
                 return False
 
     return vectors_are_parallel(a, b)
@@ -216,7 +216,7 @@ def vectors_have_same_direction(a: tuple, b: tuple) -> bool:
 # print(vector_norm(vector_subtraction(mpoint, sn)))
 # print(vector_norm(vector_subtraction(pos, mpoint)))
 
-def point_to_point_dijkstra(initial, initial_fraction,  end, end_fraction, weight_prop="length"):
+def point_to_point_dijkstra(initial, initial_fraction, end, end_fraction, weight_prop="length"):
     # shortest paths is a dict of nodes
     # whose value is a tuple of (previous node, weight)
 
@@ -230,13 +230,14 @@ def point_to_point_dijkstra(initial, initial_fraction,  end, end_fraction, weigh
     while current_node != end:
         print(current_node.get_id().geohash)
         visited.add(current_node)
-        destinations = [link.get_end_node() for link in current_node.get_links()] + [link.get_start_node() for link in current_node.get_links()]
+        destinations = [link.get_end_node() for link in current_node.get_links()] + [link.get_start_node() for link in
+                                                                                     current_node.get_links()]
         destinations = list(filter(lambda n: n != current_node, list(destinations)))
         weight_to_current_node = shortest_paths[current_node][1]
 
         for next_node in destinations:
-            #node.get_parent_link().get(weight_prop) # "length" as weigh factor
-            weight = 1 + weight_to_current_node # graph.get[(current_node, next_node)] + weight_to_current_node
+            # node.get_parent_link().get(weight_prop) # "length" as weigh factor
+            weight = 1 + weight_to_current_node  # graph.get[(current_node, next_node)] + weight_to_current_node
             if next_node not in shortest_paths:
                 shortest_paths[next_node] = (current_node, weight)
             else:
@@ -263,3 +264,54 @@ def point_to_point_dijkstra(initial, initial_fraction,  end, end_fraction, weigh
 
     return path
 
+
+def link_to_link_dijkstra(initial, initial_fraction, end_link, end_fraction, weight_function):
+    # shortest paths is a dict of nodes
+    # whose value is a tuple of (previous link, weight)
+
+    shortest_paths = {initial: (None, 0)}
+    current_link = initial
+    visited = set()
+
+    while current_link != end_link:
+        print(current_link.get_link_id().geohash)
+        visited.add(current_link)
+        destinations = [link for link in current_link.get_links_at_start_node()] + \
+                       [link for link in current_link.get_links_at_end_node()]
+        destinations = list(filter(lambda n: n != current_link, list(destinations)))
+        weight_to_current_node = shortest_paths[current_link][1]
+
+        for next_link in destinations:
+            weight = weight_function.get_wight(next_link, 1) + weight_to_current_node
+            if next_link not in shortest_paths:
+                shortest_paths[next_link] = (current_link, weight)
+            else:
+                current_shortest_weight = shortest_paths[next_link][1]
+                if current_shortest_weight > weight:
+                    shortest_paths[next_link] = (current_link, weight)
+
+        next_destinations = {link: shortest_paths[link] for link in shortest_paths if link not in visited}
+
+        if not next_destinations:
+            return "Route Not Possible"
+        # next link is the destination with the lowest weight
+        current_link = min(next_destinations, key=lambda k: next_destinations[k][1])
+
+    # Work back through destinations in shortest path
+    path = []
+    while current_link is not None:
+        path.append(current_link)
+        next_link = shortest_paths[current_link][0]
+        current_link = next_link
+        print(current_link)
+    # Reverse path
+    path = path[::-1]
+
+    return path
+
+def test_dijkstra(initial, initial_fraction, end_link, end_fraction, weight_function, from_start_to_end):
+
+    if from_start_to_end:
+        initial.get_links_at_end_node()
+    else:
+        initial.get_links_at_start_node()
