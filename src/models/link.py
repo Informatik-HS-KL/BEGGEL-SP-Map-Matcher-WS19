@@ -166,14 +166,15 @@ class Link:
         """
         return great_circle(self.get_start_node().get_latlon(), self.get_end_node().get_latlon())
 
-    def is_from_start(self):
-        """
-        :return:
-        """
-        pass
+    # Todo (13.11.2019, Lukas Felzmann): Mit anderen besprechen, ob diese beiden durch die is_navigatable_... -
+    #  Methoden obsolet sind.
 
-    def is_to_start(self):
-        pass
+    #  def is_from_start(self):
+    #  """ :return: """
+    #  pass
+    #
+    # def is_to_start(self):
+    #     pass
 
     def is_usable_by(self) -> list:
         """
@@ -197,7 +198,7 @@ class Link:
 
         if highway_val is not None:
             if highway_val in {"residential", "living_street", "bridleway", "path"}:
-                if foot_val not in {None, "no"}:
+                if foot_val != "no":
                     return True
 
             elif highway_val in {"pedestrian", "footway", "steps"}:
@@ -217,6 +218,7 @@ class Link:
         """
         Checks whether cyclists are permitted to use the link.
         """
+
         highway_val = self.__tags.get("highway")
         bicycle_val = self.__tags.get("bicycle")
 
@@ -243,6 +245,9 @@ class Link:
             return True
 
         if self.__tags.get("cyclestreet") == "yes":
+            return True
+
+        if self.__tags.get("cycleway:right") is not None or self.__tags.get("cycleway:left") is not None or self.__tags.get("cycleway:both") is not None:
             return True
 
         return False
@@ -314,7 +319,7 @@ class Link:
 
             if self.is_usable_by_cars():
                 oneway_val = self.__tags.get("oneway")
-                if oneway_val != -1:
+                if oneway_val != "-1":
                     return True
                 else:
                     return False
@@ -334,8 +339,6 @@ class Link:
         :param link_user:
         :return:
         """
-        # Todo (13.11.2019, Lukas Felzmann): noch implementieren!!!
-
 
         if link_user == LinkUser.PEDESTRIAN:
 
