@@ -38,8 +38,7 @@ class LinkDistance:
         # Gibt an, ob self schon vollständig initialisiert wurde (für weitere Details siehe _lazy_load(self))
         self.init = False
 
-    # Todo: Besprechen, ob lazy_load wirklich Sinn macht. Wann werden wir schon ein LinkDistance-Objekt erzeugen und
-    #  uns nicht für self.fraction, self._matched_point oder self.distance interessieren?
+    # Todo (13.11.2019, Lukas Felzmann): _lazy_load kommt raus. Funktionalität muss in _init_ übernommen werden.
     def _lazy_load(self):
         """
         Diese Methode schließt die Initialisierung ab.
@@ -72,8 +71,8 @@ class LinkDistance:
         for seg in link_segments:
             if seg == involved_segment:
                 distance += great_circle(seg[0], self._matched_point)
-                self.fraction = distance/self.link.get_length()
-                return
+                return distance/self.link.get_length()
+
             else:
                 distance += great_circle(seg[0], seg[1])
 
@@ -106,6 +105,7 @@ class LinkDistance:
 
         shrink_factor = self._calc_shrink_factor(a_lat_deg, b_lat_deg)
 
+        # _lat, _lon sind kartesische Koordinaten
         a_lat = a_lat_deg
         a_lon = a_lon_deg * shrink_factor
 
@@ -119,22 +119,6 @@ class LinkDistance:
         delta_lat = b_lat - a_lat
 
         matched_point = None
-
-
-        # Bin mir noch nicht sicher, ob diese Fallunterscheidung wirklich oft zum Tragen kommt.
-        # Todo: Klären, ob diese Fallunterscheidung rein soll oder nicht.
-        # if delta_lat == 0:
-        #     # special case: horizontal edge
-        #     #return new GHPoint(a_lat_deg, r_lon_deg);
-        #     factor =
-        #
-        # if delta_lon == 0:
-        #     # special case: vertical edge
-        #     # return new GHPoint(r_lat_deg, a_lon_deg);
-        #     factor =
-
-        # ------------------------------------
-
 
         norm = delta_lon * delta_lon + delta_lat * delta_lat
         factor = ((r_lon - a_lon) * delta_lon + (r_lat - a_lat) * delta_lat) / norm
@@ -157,7 +141,7 @@ class LinkDistance:
         :return: None
         """
 
-        link_segments = self._build_link_segments()
+        link_segments = self.link.get_link_segments()
         min_distance = 20037000  # biggest range of earth: 40074000 Meter
         matched_point = None
         involved_segment = None
@@ -171,20 +155,4 @@ class LinkDistance:
                 involved_segment = seg
 
         self._matched_point = matched_point
-        self._calc_fraction(link_segments, involved_segment)
-
-    def _build_link_segments(self) -> list:
-        """
-        Splits a link into segments, each consisting of two positions/coordinates.
-
-        :return: list, containing the segments
-        """
-        segments = list()
-
-        for i in range(len(self.link.__geometry) - 1):
-            segment = (self.link.__geometry[i], self.link.__geometry[i+1])
-            segments.append(segment)
-
-        return segments
-
-
+        self.fraction = self._calc_fraction(link_segments, involved_segment)

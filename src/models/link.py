@@ -252,6 +252,20 @@ class Link:
 
         return False
 
+    def get_link_segments(self) -> list:
+        """
+        Splits a link into segments, each consisting of two positions/coordinates.
+
+        :return: list, containing the segments
+        """
+        segments = list()
+
+        for i in range(len(self.__geometry) - 1):
+            segment = (self.__geometry[i], self.__geometry[i+1])
+            segments.append(segment)
+
+        return segments
+
 
 
 
