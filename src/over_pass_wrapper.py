@@ -62,6 +62,12 @@ class OverpassWrapperServerSide(OverpassWrapper):
         return self._create_tile(geo_hash, elements)
 
     def _create_tile(self, geohash, elements):
+        """
+        Create Tile of given Overpass Data
+        :param geohash: geohash of tile
+        :param elements: json data from nodes and ways as dict
+        :return: Tile
+        """
         ghw = GeoHashWrapper()
         intersections = set()
 
@@ -78,11 +84,23 @@ class OverpassWrapperServerSide(OverpassWrapper):
         return Tile(geohash, nodes, links)
 
     def _build_node_dictionary(self, osm_nodes: list):
+        """
+        return dictionary with NodeId: Node
+        :param osm_nodes: list of all Nodes in downloaded data
+        :return: dict {Nodeid: Node}
+        """
         node_list = list(map(lambda n: self.__create_node(n["id"], (n["lat"], n["lon"]), n.get("tags")), osm_nodes))
 
         return dict(map(lambda n: (n.get_id(), n), node_list))
 
     def _build_link_dictionary(self, osm_ways: list, intersections: set, geohash_wrapper):
+        """
+        returns dictionary with LinkId : Link
+        :param osm_ways: Ways from osm data as dict
+        :param intersections: set of intersections between ways
+        :param geohash_wrapper:
+        :return: dict with {LinkId: Link}
+        """
         links = {}
 
         print("length of osm_ways: {}".format(len(osm_ways)))
@@ -174,6 +192,13 @@ class OverpassWrapperServerSide(OverpassWrapper):
         return query[:-2] + ")"
 
     def __create_node(self, osm_id, pos: tuple, tags=None):
+        """
+        Creates Node Object from given Data
+        :param osm_id:
+        :param pos: tuple lat/lon
+        :param tags: dict
+        :return: Node
+        """
         node_id = NodeId(osm_id, GeoHashWrapper().get_geohash(pos, level=self.full_geohash_level))
         node = Node(node_id, pos)
         node.set_tags(tags)
@@ -224,7 +249,12 @@ class OverpassWrapperClientSide(OverpassWrapper):
             raise Exception("Download Tile Failed %s" % resp.text)
 
     def _crossings(self, osm_nodes, osm_ways):
-
+        """
+        Search for Crossings in osm Ways and returns them as Nodes
+        :param osm_nodes: raw osm nodes data parsed from json
+        :param osm_ways: raw osm way data parsed from json
+        :return: List of NodeId
+        """
         nodes_dict = dict(map(lambda node: (node["id"], node), osm_nodes))
 
         all = []
@@ -242,11 +272,21 @@ class OverpassWrapperClientSide(OverpassWrapper):
         return node_ids
 
     def _build_node_dictionary(self, osm_nodes: list):
+        """
+        :param osm_nodes: raw dict of Osm Data
+        :return: dict {NodeId: Node}
+        """
         node_list = list(map(lambda n: self.__create_node(n["id"], (n["lat"], n["lon"]), n.get("tags")), osm_nodes))
 
         return dict(map(lambda n: (n.get_id(), n), node_list))
 
-    def _build_link_dictionary(self, osm_ways: list, crossings: list):
+    def _build_link_dictionary(self, osm_ways: list, crossings: list, nodes: dict):
+        """
+        :param osm_ways: raw way data from overpass as dict
+        :param crossings: List of Nodeids represent crossings in street
+        :param nodes: List of Node Objects
+        :return: dict {LinkId: Link}
+        """
         links = {}
 
         for way in osm_ways:
@@ -270,6 +310,10 @@ class OverpassWrapperClientSide(OverpassWrapper):
                     link.set_tags(way.get("tags"))
                     links[link_id] = link
 
+                    for nid in link_node_ids: nodes[nid].set_parent_link(link)
+                    nodes[link_node_ids[0]].add_link(link)
+                    nodes[link_node_ids[-1]].add_link(link)
+
                     #  Re-Initialization for the next link
                     link_geometry = [node_pos]
                     link_node_ids = [node_id]
@@ -277,7 +321,11 @@ class OverpassWrapperClientSide(OverpassWrapper):
         return links
 
     def _create_tile(self, geo_hash, elements: dict):
-
+        """
+        :param geo_hash: geohash as str
+        :param elements: raw dict data from overpass json api
+        :return: Tile Object
+        """
         print("Build Datamodel ...")
 
         osm_nodes = list(filter(lambda e: e["type"] == "node", elements))
@@ -285,7 +333,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
 
         osm_ways = list(filter(lambda e: e["type"] == "way", elements))
         crossings = self._crossings(osm_nodes, osm_ways)
-        links = self._build_link_dictionary(osm_ways, crossings)
+        links = self._build_link_dictionary(osm_ways, crossings, nodes)
 
         print(len(crossings))
 

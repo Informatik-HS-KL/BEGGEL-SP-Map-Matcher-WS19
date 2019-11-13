@@ -31,12 +31,12 @@ class BoundingBox:
             raise TypeError("{} is not supported by this method.".format(type(item)))
 
     def contains_link(self, link: Link):
-        """
+        """ if bbox of link and self bbox overlaps: true
         :param link:
-        :return:
+        :return: bool
         """
-
-        return link.get_start_node() in self or link.get_end_node() in self
+        #OLDlink.get_start_node() in self or link.get_end_node() in self
+        return link.get_bbox().overlap(self)
 
     def contains_node(self, node: Node):
         return (ut.number_is_in_interval(node.get_lat(), (self.south, self.north), 90) and
@@ -110,8 +110,6 @@ class BoundingBox:
 
         return BoundingBox(lat - radius_as_lat, lon - radius_as_lon, lat + radius_as_lat, lon + radius_as_lon)
 
-    def get_bbox_from_points(self, min):
-        pass
 
     @staticmethod
     def from_geohash(geohash):

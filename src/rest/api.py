@@ -4,12 +4,14 @@ Description: This file defines the endpoints of the REST-API.
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-
 from flask import jsonify
 from flask import Response, request, Blueprint
 from src.map_service import MapService
 from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
+from src.models.node import NodeId, Node
+from src.models.link import Link
+from src.router import RouterDijkstra
 
 map_service = MapService()
 api = Blueprint('api', __name__)
@@ -204,6 +206,48 @@ def get_crossroads(geohash):
     return _resp(data)
 
 
+@api.route('/route')
+def route():
+    """ ?geofrom=geohash&geoto=geohash&osmfrom=osmid&osmto=osmid
+
+    u0v90hsp01h2 OSM:1298232519
+
+    u0v90jk7p21y OSM:266528360
+
+    ?geofrom=u0v90hsp01h2&geoto=u0v90jk7p21y&osmfrom=1298232519&osmto=266528360
+    """
+
+    full_geohash_from = request.args.get("geofrom")
+    full_geohash_to = request.args.get("geoto")
+
+    osmid_from = request.args.get("osmfrom")
+    osmid_to = request.args.get("osmto")
+
+    node_id_from = NodeId(int(osmid_from), full_geohash_from)
+    node_id_to = NodeId(int(osmid_to), full_geohash_to)
+
+    node_from = map_service.get_node(node_id_from)
+    node_to = map_service.get_node(node_id_to)
+
+    data = []
+    result_nodes = []
+    print(node_from.get_parent_link(), node_to.get_parent_link())
+    router = RouterDijkstra()
+    router.set_start_link(node_from.get_parent_link())
+    router.set_end_link(node_to.get_parent_link())
+    result_nodes = router.compute()
+
+    for node in result_nodes:
+        print(node)
+        point = {
+            "type": "Point",
+            "coordinates": list(node.get_latlon())
+        }
+        data.append(point)
+
+    return _resp(data)
+
+
 @api.route('/ways/<int:way_id>/links', methods=["GET"])
 def get_way_links(way_id):
     """Links eines Ways"""
@@ -216,6 +260,27 @@ def get_way_links(way_id):
         }
         data.append(linestr)
 
+    return _resp(data)
+
+@api.route('/linkdistance', methods=["GET"])
+def get__linkdistance():
+    """Calculate Link Distances Canidates"""
+
+    from src.models.link_distance import LinkDistance
+
+    pos = float(request.args.get("lat")), float(request.args.get("lon"))
+    linkdists = map_service.get_linkdistances_in_radius(pos, 150)
+
+    data = []
+    for ld in linkdists:
+        ld_data = {
+            "link": ld.link.to_geojson(),
+            "distance": ld.get_distance(),
+            "fraction": ld.get_fraction(),
+        }
+        data.append(ld_data)
+
+    print(data)
     return _resp(data)
 
 

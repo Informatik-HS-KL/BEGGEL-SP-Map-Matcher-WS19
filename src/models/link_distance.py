@@ -7,7 +7,6 @@ information, e.g. the shortest distance between the point and the link or the ne
 
 
 from src.geo_utils import great_circle
-import numpy.linalg
 import math
 
 
@@ -133,6 +132,14 @@ class LinkDistance:
             matched_point = (c_lat, c_lon/shrink_factor)
 
         return matched_point
+
+    def get_distance(self):
+        """
+        :return:
+        """
+        if not self.init:
+            self._lazy_load()
+        return self.distance
 
     def _initialize_matched_point_and_fraction(self):
         """

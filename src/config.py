@@ -5,9 +5,7 @@ see __init__.py für instanceiating during runtime
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-
 from configparser import ConfigParser, NoSectionError
-
 
 class MapServiceConfig(ConfigParser):
 

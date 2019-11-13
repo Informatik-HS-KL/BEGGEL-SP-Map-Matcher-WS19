@@ -43,6 +43,13 @@ class Node:
         self.__latLon = lat_lon
         self.__tags = {}
         self.__links = []
+        self.__parent_link = None
+
+    def set_parent_link(self, link):
+        self.__parent_link = link
+
+    def get_parent_link(self):
+        return self.__parent_link
 
     def get_links(self):
         """
@@ -91,13 +98,6 @@ class Node:
         :return: None
         """
         self.__links.append(link)
-
-    def get_distance(self, other):
-        """
-        :param other: Node
-        :return:
-        """
-        # TODO Berechne Distanz zu anderem Knoten
 
     def to_geo_json(self):
         """
