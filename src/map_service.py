@@ -183,9 +183,8 @@ class MapService:
 
     # def get_linkdistances_in_radius(self, pos, max_distance, max_nbr=10):
     def get_linkdistances_in_radius(self, pos, max_distance):
-        """ Match wenn Link Bbox mit pos und radius überlappt
-            können nicht erreicht werden.
-            Liste wird nach tatsächer distance sortiert und nur die max_nbr geringen Abstände zurückgegeben.
+        """ Match wenn Link Bbox mit pos und radius überlappt können nicht erreicht werden. Liste wird nach tatsächer
+        distance sortiert und nur die max_nbr geringen Abstände zurückgegeben.
         :param pos:
         :param max_distance:
         :return:

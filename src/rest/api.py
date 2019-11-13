@@ -269,14 +269,14 @@ def get__linkdistance():
     from src.models.link_distance import LinkDistance
 
     pos = float(request.args.get("lat")), float(request.args.get("lon"))
-    linkdists = map_service.get_linkdistances_in_radius(pos, 150)
+    linkdists = map_service.get_linkdistances_in_radius(pos, 80)
 
     data = []
     for ld in linkdists:
         ld_data = {
             "link": ld.link.to_geojson(),
             "distance": ld.get_distance(),
-            "fraction": ld.get_fraction(),
+            "fraction": ld.get_fraction()
         }
         data.append(ld_data)
 

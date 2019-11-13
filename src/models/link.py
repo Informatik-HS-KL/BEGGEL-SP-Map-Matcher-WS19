@@ -57,6 +57,7 @@ class Link:
         :return: BoundingBox Object
         """
         s, w, n, e = LineString(self.get_geometry()).bounds
+
         return src.models.bounding_box.BoundingBox(s, w, n, e)
 
     def get_start_node(self):
