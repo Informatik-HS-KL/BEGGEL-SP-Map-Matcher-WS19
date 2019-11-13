@@ -266,6 +266,142 @@ class Link:
 
         return False
 
+
+
+
+    def is_navigatable_from_start(self, link_user: LinkUser) -> bool:
+        """
+        Indicates, whether the specified user is permitted to use the link from the start-node to the end-node.
+        :param link_user:
+        :return:
+        """
+
+        if link_user == LinkUser.PEDESTRIAN:
+
+            if self.is_usable_by_pedestrians():
+
+                oneway_foot_val = self.__tags.get("oneway:foot")
+                if oneway_foot_val != "-1":
+                    return True
+                else:
+                    return False
+
+            else:
+                return False
+
+        elif link_user == LinkUser.CYCLIST:
+
+            if self.is_usable_by_cyclists():
+
+                oneway_val = self.__tags.get("oneway")
+                oneway_bicycle_val = self.__tags.get("oneway:bicycle")
+
+                if oneway_bicycle_val is None:
+                    if oneway_val != "-1":
+                        return True
+                    else:
+                        return False
+                else:
+                    if oneway_bicycle_val != "-1":
+                        return True
+                    else:
+                        return False
+
+            else:
+                return False
+
+        elif link_user == LinkUser.CAR:
+
+            if self.is_usable_by_cars():
+                oneway_val = self.__tags.get("oneway")
+                if oneway_val != -1:
+                    return True
+                else:
+                    return False
+
+            else:
+                return False
+
+        else:
+            # Todo (13.11.2019, Lukas Felzmann): Hier müssen wir uns noch auf eine Behandlung einigen. Vielleicht
+            #  eine Exception werfen?
+            return False
+
+
+    def is_navigatable_to_start(self, link_user: LinkUser) -> bool:
+        """
+        Indicates, whether the specified user is permitted to use the link from the end-node to the start-node.
+        :param link_user:
+        :return:
+        """
+        # Todo (13.11.2019, Lukas Felzmann): noch implementieren!!!
+
+
+        if link_user == LinkUser.PEDESTRIAN:
+
+            if self.is_usable_by_pedestrians():
+
+                oneway_foot_val = self.__tags.get("oneway:foot")
+                if oneway_foot_val != "yes":
+                    return True
+                else:
+                    return False
+
+
+            else:
+                return False
+
+        elif link_user == LinkUser.CYCLIST:
+
+            if self.is_usable_by_cyclists():
+
+                oneway_val = self.__tags.get("oneway")
+                oneway_bicycle_val = self.__tags.get("oneway:bicycle")
+
+                if oneway_bicycle_val is None:
+                    if oneway_val != "yes":
+                        return True
+                    else:
+                        return False
+                else:
+                    if oneway_bicycle_val != "yes":
+                        return True
+                    else:
+                        return False
+
+            else:
+                return False
+
+        elif link_user == LinkUser.CAR:
+
+            if self.is_usable_by_cars():
+
+                highway_val = self.__tags.get("highway")
+                oneway_val = self.__tags.get("oneway")
+
+                if highway_val == "motorway":
+                    # Todo (13.11.2019, Lukas Felzmann): Nochmal sicherstellen (durch Recherche), ob highway=motorway
+                    #  auch wirklich nicht zusammen mit oneway=no oder oneway=-1 verwendet wird/werden kann.
+                    return False
+                elif highway_val == "trunk" and oneway_val not in {"no", "-1"}:
+                    return False
+
+                if oneway_val == "yes":
+                    return False
+
+                return True
+
+            else:
+                return False
+
+        else:
+            # Todo (13.11.2019, Lukas Felzmann): Hier müssen wir uns noch auf eine Behandlung einigen. Vielleicht
+            #  eine Exception werfen?
+            return False
+
+
+
+
     def get_link_segments(self) -> list:
         """
         Splits a link into segments, each consisting of two positions/coordinates.
