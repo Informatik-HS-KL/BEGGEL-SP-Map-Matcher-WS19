@@ -21,15 +21,9 @@ from .node import NodeId
 from .link_id import LinkId
 import src.map_service
 from src.geo_utils import great_circle
-from enum import Enum
 import src.models.bounding_box
-from shapely.geometry import  LineString
-
-
-class LinkUser(Enum):
-    PEDESTRIAN = 1
-    CYCLIST = 2
-    CAR = 3
+from shapely.geometry import LineString
+from src.models.link_user import LinkUser
 
 
 class Link:
@@ -178,243 +172,21 @@ class Link:
         """
         return great_circle(self.get_start_node().get_latlon(), self.get_end_node().get_latlon())
 
-    # Todo (14.11.2019, Lukas Felzmann): Eine abstrakte Klasse LinkUser und Unterklassen für jeden User (z.B.
-    #  Pedestrian) implementieren, die jeweils sagen, ob sie einen Link verwenden können. Die Logik zur Nutzbarkeit (
-    #  auch zu den Richtungen) kommt also raus aus Link.
-    def is_usable_by(self) -> list:
-        """
-        Returns a list, which contains all kinds of permitted users for this link
-        :return: list, which contains LinkUser-Objects or is empty
-        """
-        permitted_link_users = list()
-        if self.is_usable_by_pedestrians():
-            permitted_link_users.append(LinkUser.PEDESTRIAN)
-        if self.is_usable_by_cyclists():
-            permitted_link_users.append(LinkUser.CYCLISTI)
-        if self.is_usable_by_cars():
-            permitted_link_users.append(LinkUser.CAR)
-
-    def is_usable_by_pedestrians(self) -> bool:
-        """
-        Checks whether pedestrians are permitted to use the link.
-        """
-        highway_val = self.__tags.get("highway")
-        foot_val = self.__tags.get("foot")
-
-        if highway_val is not None:
-            if highway_val in {"residential", "living_street", "bridleway", "path"}:
-                if foot_val != "no":
-                    return True
-
-            elif highway_val in {"pedestrian", "footway", "steps"}:
-                return True
-
-        sidewalk_val = self.__tags.get("sidewalk")
-        if sidewalk_val in {"both", "left", "right"}:
-            if foot_val not in {None, "no"}:
-                return True
-
-        if foot_val in {"yes", "designated", "permissive"}:
-            return True
-
-        return False
-
-    def is_usable_by_cyclists(self) -> bool:
-        """
-        Checks whether cyclists are permitted to use the link.
-        """
-
-        highway_val = self.__tags.get("highway")
-        bicycle_val = self.__tags.get("bicycle")
-
-        if bicycle_val == "no":
-            return False
-
-        if highway_val is not None:
-
-            if highway_val in {"residential", "cycleway", "bridleway", "path"}:
-                return True
-
-            elif highway_val == "steps":
-                if self.__tags.get("ramp:bicycle") == "yes":
-                    return True
-
-        if bicycle_val is not None:
-            if bicycle_val in {"yes", "designated", "use_sidepath", "permissive", "destination"}:
-                return True
-
-        if self.__tags.get("cycleway") not in {None, "no"}:
-            return True
-
-        if self.__tags.get("bicycle_road") == "yes":
-            return True
-
-        if self.__tags.get("cyclestreet") == "yes":
-            return True
-
-        if self.__tags.get("cycleway:right") is not None or self.__tags.get("cycleway:left") is not None or self.__tags.get("cycleway:both") is not None:
-            return True
-
-        return False
-
-    def is_usable_by_cars(self) -> bool:
-        """
-        Checks whether cars are permitted to use the link.
-        """
-        highway_val = self.__tags.get("highway")
-        motor_vehicle_val = self.__tags.get("motor_vehicle")
-        motorcar_val = self.__tags.get("motorcar")
-
-        if highway_val is not None:
-            if highway_val in {"motorway", "trunk", "primary", "secondary", "tertiary", "motorway_link", "trunk_link", "primary_link", "secondary_link", "tertiary_link"}:
-                return True
-            elif highway_val in {"unclassified", "residential", "living_street"} and motor_vehicle_val != "no" and motorcar_val != "no":
-                return True
-
-        if motor_vehicle_val == "yes" or motorcar_val == "yes":
-            return True
-
-        return False
-
-
-
-    # Todo(14.11.2019, Lukas Felzmann, Idee von Kai): Man könnte tags wie cycleway:left aufteilen in eine Liste [
-    #  cycleway, left]. Sprich: self__tags wäre kein gewöhnliches Dictionary mehr. Dann könnten wir regeln für solche
-    #  Fälle definieren und nur noch danach fragen, ob irgendein cycleway-tag vorhanden ist. Das ist relevant für
-    #  is_navigatable_from_start() und is_navigatable_to_start().
     def is_navigatable_from_start(self, link_user: LinkUser) -> bool:
         """
         Indicates, whether the specified user is permitted to use the link from the start-node to the end-node.
         :param link_user:
-        :return:
+        :return: bool
         """
-
-        if link_user == LinkUser.PEDESTRIAN:
-
-            if self.is_usable_by_pedestrians():
-
-                oneway_foot_val = self.__tags.get("oneway:foot")
-                if oneway_foot_val != "-1":
-                    return True
-                else:
-                    return False
-
-            else:
-                return False
-
-        elif link_user == LinkUser.CYCLIST:
-
-            if self.is_usable_by_cyclists():
-
-                oneway_val = self.__tags.get("oneway")
-                oneway_bicycle_val = self.__tags.get("oneway:bicycle")
-
-                if oneway_bicycle_val is None:
-                    if oneway_val != "-1":
-                        return True
-                    else:
-                        return False
-                else:
-                    if oneway_bicycle_val != "-1":
-                        return True
-                    else:
-                        return False
-
-            else:
-                return False
-
-        elif link_user == LinkUser.CAR:
-
-            if self.is_usable_by_cars():
-                oneway_val = self.__tags.get("oneway")
-                if oneway_val != "-1":
-                    return True
-                else:
-                    return False
-
-            else:
-                return False
-
-        else:
-            # Todo (13.11.2019, Lukas Felzmann): Hier müssen wir uns noch auf eine Behandlung einigen. Vielleicht
-            #  eine Exception werfen?
-            #  Edit(14.11.2019, Lukas Felzmann): Das erledigt sich durch die Umstellung der
-            #  Struktur von selbst.
-            return False
-
+        return link_user.can_navigate_from_start(self)
 
     def is_navigatable_to_start(self, link_user: LinkUser) -> bool:
         """
         Indicates, whether the specified user is permitted to use the link from the end-node to the start-node.
         :param link_user:
-        :return:
+        :return: bool
         """
-
-        if link_user == LinkUser.PEDESTRIAN:
-
-            if self.is_usable_by_pedestrians():
-
-                oneway_foot_val = self.__tags.get("oneway:foot")
-                if oneway_foot_val != "yes":
-                    return True
-                else:
-                    return False
-
-
-            else:
-                return False
-
-        elif link_user == LinkUser.CYCLIST:
-
-            if self.is_usable_by_cyclists():
-
-                oneway_val = self.__tags.get("oneway")
-                oneway_bicycle_val = self.__tags.get("oneway:bicycle")
-
-                if oneway_bicycle_val is None:
-                    if oneway_val != "yes":
-                        return True
-                    else:
-                        return False
-                else:
-                    if oneway_bicycle_val != "yes":
-                        return True
-                    else:
-                        return False
-
-            else:
-                return False
-
-        elif link_user == LinkUser.CAR:
-
-            if self.is_usable_by_cars():
-
-                highway_val = self.__tags.get("highway")
-                oneway_val = self.__tags.get("oneway")
-
-                if highway_val == "motorway":
-                    # Todo (13.11.2019, Lukas Felzmann): Nochmal sicherstellen (durch Recherche), ob highway=motorway
-                    #  auch wirklich nicht zusammen mit oneway=no oder oneway=-1 verwendet wird/werden kann.
-                    return False
-                elif highway_val == "trunk" and oneway_val not in {"no", "-1"}:
-                    return False
-
-                if oneway_val == "yes":
-                    return False
-
-                return True
-
-            else:
-                return False
-
-        else:
-            # Todo (13.11.2019, Lukas Felzmann): Hier müssen wir uns noch auf eine Behandlung einigen. Vielleicht
-            #  eine Exception werfen?
-            #  Edit(14.11.2019, Lukas Felzmann): Das erledigt sich durch die Umstellung der Struktur von selbst.
-            return False
-
-
-
+        return link_user.can_navigate_to_start(self)
 
     def get_link_segments(self) -> list:
         """
