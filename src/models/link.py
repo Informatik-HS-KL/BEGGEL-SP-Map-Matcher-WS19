@@ -77,16 +77,23 @@ class Link:
     # def get_links(self):
     #     return self.__startNode.get_links().extend(self.__endNode.get_links())
 
-    def get_links_at_start_node(self):
+    def get_links_at_start_node(self, link_user: LinkUser = None):
         """
         Gibt alle vom Startknoten ausgehende Links zurück (exclusive self).
         :return: Liste von Link-Objekten
-        """
-        nodelinks = self.get_start_node().get_links()
-        links = filter(lambda l: l!=self, nodelinks)
-        return list(links)
 
-    def get_links_at_end_node(self):
+        """
+
+        nodelinks = self.get_start_node().get_links()
+        links = filter(lambda l: l != self, nodelinks)
+
+        if link_user is None:
+            return list(links)
+        else:
+            # Todo(14.11.2019, Lukas Felzmann): noch für die unterschiedlichen User implementieren.
+            pass
+
+    def get_links_at_end_node(self, link_user: LinkUser = None):
         """
         Gibt alle vom Endknoten ausgehende Links zurück (exclusive self).
         :return: Liste von Link-Objekten
@@ -94,7 +101,12 @@ class Link:
 
         nodelinks = self.get_end_node().get_links()
         links = filter(lambda l: l != self, nodelinks)
-        return list(links)
+
+        if link_user is None:
+            return list(links)
+        else:
+            # Todo(14.11.2019, Lukas Felzmann): noch für die unterschiedlichen User implementieren.
+            pass
 
     def get_tags(self):
         """
@@ -166,16 +178,9 @@ class Link:
         """
         return great_circle(self.get_start_node().get_latlon(), self.get_end_node().get_latlon())
 
-    # Todo (13.11.2019, Lukas Felzmann): Mit anderen besprechen, ob diese beiden durch die is_navigatable_... -
-    #  Methoden obsolet sind.
-
-    #  def is_from_start(self):
-    #  """ :return: """
-    #  pass
-    #
-    # def is_to_start(self):
-    #     pass
-
+    # Todo (14.11.2019, Lukas Felzmann): Eine abstrakte Klasse LinkUser und Unterklassen für jeden User (z.B.
+    #  Pedestrian) implementieren, die jeweils sagen, ob sie einen Link verwenden können. Die Logik zur Nutzbarkeit (
+    #  auch zu den Richtungen) kommt also raus aus Link.
     def is_usable_by(self) -> list:
         """
         Returns a list, which contains all kinds of permitted users for this link
@@ -273,7 +278,10 @@ class Link:
 
 
 
-
+    # Todo(14.11.2019, Lukas Felzmann, Idee von Kai): Man könnte tags wie cycleway:left aufteilen in eine Liste [
+    #  cycleway, left]. Sprich: self__tags wäre kein gewöhnliches Dictionary mehr. Dann könnten wir regeln für solche
+    #  Fälle definieren und nur noch danach fragen, ob irgendein cycleway-tag vorhanden ist. Das ist relevant für
+    #  is_navigatable_from_start() und is_navigatable_to_start().
     def is_navigatable_from_start(self, link_user: LinkUser) -> bool:
         """
         Indicates, whether the specified user is permitted to use the link from the start-node to the end-node.
@@ -330,6 +338,8 @@ class Link:
         else:
             # Todo (13.11.2019, Lukas Felzmann): Hier müssen wir uns noch auf eine Behandlung einigen. Vielleicht
             #  eine Exception werfen?
+            #  Edit(14.11.2019, Lukas Felzmann): Das erledigt sich durch die Umstellung der
+            #  Struktur von selbst.
             return False
 
 
@@ -400,6 +410,7 @@ class Link:
         else:
             # Todo (13.11.2019, Lukas Felzmann): Hier müssen wir uns noch auf eine Behandlung einigen. Vielleicht
             #  eine Exception werfen?
+            #  Edit(14.11.2019, Lukas Felzmann): Das erledigt sich durch die Umstellung der Struktur von selbst.
             return False
 
 
@@ -424,22 +435,3 @@ class Link:
 
     def get_node_ids(self):
         return self.__node_ids
-
-    # beggel-changes
-    # def isNavFromStart(self, vehicleType):
-    #     """
-    #     Kann der Link vom Startknoten zum Endknoten befahren werden.
-    #
-    #     :param _self:
-    #     :return:
-    #     """
-    #     return 0
-    #
-    # def isNavToStart(self):
-    #     """
-    #     Kann der Link vom Endknoten zum StartKnoten befahren werden.
-    #
-    #     :param _self:
-    #     :return:
-    #     """
-    #     return 0
