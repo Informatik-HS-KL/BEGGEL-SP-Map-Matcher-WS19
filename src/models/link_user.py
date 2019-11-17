@@ -40,11 +40,18 @@ class Pedestrian(LinkUser):
 
         if self._may_use(link):
 
-            oneway_foot_val = link.get_tags().get("oneway:foot")
-            if oneway_foot_val != "-1":
+            rules = [link.get_tags().get("oneway:foot") != "-1"]
+            if True in rules:
                 return True
             else:
                 return False
+
+            # So war es vorher:
+            # oneway_foot_val = link.get_tags().get("oneway:foot")
+            # if oneway_foot_val != "-1":
+            #     return True
+            # else:
+            #     return False
 
         else:
             return False
@@ -52,11 +59,18 @@ class Pedestrian(LinkUser):
     def can_navigate_to_start(self, link) -> bool:
         if self._may_use(link):
 
-            oneway_foot_val = link.get_tags().get("oneway:foot")
-            if oneway_foot_val != "yes":
+            rules = [link.get_tags().get("oneway:foot") != "yes"]
+            if True in rules:
                 return True
             else:
                 return False
+
+            # So war es vorher:
+            # oneway_foot_val = link.get_tags().get("oneway:foot")
+            # if oneway_foot_val != "yes":
+            #     return True
+            # else:
+            #     return False
 
         else:
             return False
@@ -91,20 +105,32 @@ class Cyclist(LinkUser):
     def can_navigate_from_start(self, link) -> bool:
 
         if self._may_use(link):
+
             tags = link.get_tags()
             oneway_val = tags.get("oneway")
             oneway_bicycle_val = tags.get("oneway:bicycle")
+            rules = [oneway_bicycle_val is None and oneway_val != "-1", oneway_bicycle_val not in {None, "-1"}]
 
-            if oneway_bicycle_val is None:
-                if oneway_val != "-1":
-                    return True
-                else:
-                    return False
+            if True in rules:
+                return True
             else:
-                if oneway_bicycle_val != "-1":
-                    return True
-                else:
-                    return False
+                return False
+
+            # So war es vorher:
+            # tags = link.get_tags()
+            # oneway_val = tags.get("oneway")
+            # oneway_bicycle_val = tags.get("oneway:bicycle")
+            #
+            # if oneway_bicycle_val is None:
+            #     if oneway_val != "-1":
+            #         return True
+            #     else:
+            #         return False
+            # else:
+            #     if oneway_bicycle_val != "-1":
+            #         return True
+            #     else:
+            #         return False
 
         else:
             return False
@@ -112,20 +138,32 @@ class Cyclist(LinkUser):
     def can_navigate_to_start(self, link) -> bool:
 
         if self._may_use(link):
+
             tags = link.get_tags()
             oneway_val = tags.get("oneway")
             oneway_bicycle_val = tags.get("oneway:bicycle")
+            rules = [oneway_bicycle_val is None and oneway_val != "yes", oneway_bicycle_val not in {None, "yes"}]
 
-            if oneway_bicycle_val is None:
-                if oneway_val != "yes":
-                    return True
-                else:
-                    return False
+            if True in rules:
+                return True
             else:
-                if oneway_bicycle_val != "yes":
-                    return True
-                else:
-                    return False
+                return False
+
+            # So war es vorher:
+            # tags = link.get_tags()
+            # oneway_val = tags.get("oneway")
+            # oneway_bicycle_val = tags.get("oneway:bicycle")
+            #
+            # if oneway_bicycle_val is None:
+            #     if oneway_val != "yes":
+            #         return True
+            #     else:
+            #         return False
+            # else:
+            #     if oneway_bicycle_val != "yes":
+            #         return True
+            #     else:
+            #         return False
 
         else:
             return False
@@ -176,10 +214,19 @@ class Car(LinkUser):
         if self._may_use(link):
 
             oneway_val = link.get_tags().get("oneway")
-            if oneway_val != "-1":
+            rules = [oneway_val != "-1"]
+
+            if True in rules:
                 return True
             else:
                 return False
+
+            # So war es vorher:
+            # oneway_val = link.get_tags().get("oneway")
+            # if oneway_val != "-1":
+            #     return True
+            # else:
+            #     return False
 
         else:
             return False
@@ -187,21 +234,34 @@ class Car(LinkUser):
     def can_navigate_to_start(self, link) -> bool:
 
         if self._may_use(link):
+
             tags = link.get_tags()
             highway_val = tags.get("highway")
             oneway_val = tags.get("oneway")
+            rules = [highway_val != "motorway" and (highway_val != "trunk" or oneway_val in {"no", "-1"}) and oneway_val != "yes"]
 
-            if highway_val == "motorway":
-                # Todo (13.11.2019, Lukas Felzmann): Nochmal sicherstellen (durch Recherche), ob highway=motorway
-                #  auch wirklich nicht zusammen mit oneway=no oder oneway=-1 verwendet wird/werden kann.
-                return False
-            elif highway_val == "trunk" and oneway_val not in {"no", "-1"}:
-                return False
-
-            if oneway_val == "yes":
+            if True in rules:
+                return True
+            else:
                 return False
 
-            return True
+
+            # So war es vorher:
+            # tags = link.get_tags()
+            # highway_val = tags.get("highway")
+            # oneway_val = tags.get("oneway")
+            #
+            # if highway_val == "motorway":
+            #     # Todo (13.11.2019, Lukas Felzmann): Nochmal sicherstellen (durch Recherche), ob highway=motorway
+            #     #  auch wirklich nicht zusammen mit oneway=no oder oneway=-1 verwendet wird/werden kann.
+            #     return False
+            # elif highway_val == "trunk" and oneway_val not in {"no", "-1"}:
+            #     return False
+            #
+            # if oneway_val == "yes":
+            #     return False
+            #
+            # return True
 
         else:
             return False
