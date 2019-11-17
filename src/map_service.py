@@ -5,6 +5,7 @@ is managing the obtainment and caching of Tiles, the latter for improving the pe
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
+import os
 
 from src.geo_hash_wrapper import GeoHashWrapper
 from .models.bounding_box import BoundingBox
@@ -13,7 +14,7 @@ from src.models.node import NodeId
 from src.models.tile import Tile
 from src.models.link_distance import LinkDistance
 from src.geo_utils import great_circle
-
+from src.config import MapServiceConfig
 from src.config import CONFIG
 
 def __one_of_the_nodes_in_circle(points, circle_center_latlon, circle_radius):
@@ -74,11 +75,40 @@ class MapService:
     """"""
     # maps geohash --> Tile class
     _tileCache = {}
-    _geoHashLevel = CONFIG.getint("DEFAULT", "geohashlevel")
 
     def __init__(self):
         """"""
+        from src.over_pass_wrapper import OverpassWrapperClientSide
+
         self.name = "A"
+        self.config = CONFIG
+        self._geoHashLevel = self.config.getint("DEFAULT", "geohashlevel")
+        self.overpass_wrapper = OverpassWrapperClientSide(self.config)
+
+    def set_config(self, config_path):
+        """
+        Sets Custom Config
+        :return:
+        """
+
+        self.config = MapServiceConfig()
+        self.config.read(config_path)
+        self._geoHashLevel = self.config.getint("DEFAULT", "geohashlevel")
+
+    def get_config(self):
+        """ Getter
+            :return: config Object vom MapServiceConfig
+        """
+
+        return self.config
+
+    def set_overpass_wrapper(self, opw):
+        """
+        Sets Overpass Wrapper which will be use to download tiles from overpass api
+        :param opw: Overpass Wrapper Object with custom Config
+        :return: none
+        """
+        self.overpass_wrapper = opw
 
 
     def get_nodes_in_bounding_box(self, bbox: BoundingBox):
@@ -137,17 +167,9 @@ class MapService:
         """Gibt das entprechende Tile zurück. Liegt es noch nicht im Tile-Cache,
         so wird es erst noch geladen und im Cache gespeichert."""
 
-        # from src.over_pass_wrapper import OverpassWrapperServerSide
-        from src.over_pass_wrapper import OverpassWrapperClientSide
-
-        full_geohash_level = CONFIG.getint("DEFAULT", "full_geohash_level")
-        OVERPASS_URL = CONFIG.get("DEFAULT", "overpass_url")
-
-        # self.opw = OverpassWrapperServerSide(full_geohash_level, OVERPASS_URL)
-        self.opw = OverpassWrapperClientSide(full_geohash_level, OVERPASS_URL)
 
         if geohash_str not in self._tileCache:
-            self._tileCache[geohash_str] = self.opw.load_tile(geohash_str)
+            self._tileCache[geohash_str] = self.overpass_wrapper.load_tile(geohash_str)
 
         return self._tileCache[geohash_str]
 

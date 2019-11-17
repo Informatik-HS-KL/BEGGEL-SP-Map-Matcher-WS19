@@ -28,11 +28,10 @@ class OverpassWrapper(ABC):
     ABSTRACT BASE CLASS
     """
 
-    def __init__(self, full_geohash_level, OVERPASS_URL):
-        # self.full_geohash_level = CONFIG.getint("DEFAULT", "full_geohash_level")
-        # self.OVERPASS_URL = CONFIG.get("DEFAULT", "overpass_url")
-        self.full_geohash_level = full_geohash_level
-        self.OVERPASS_URL = OVERPASS_URL
+    def __init__(self, config):
+        self.full_geohash_level = config.getint("DEFAULT", "full_geohash_level")
+        self.OVERPASS_URL = config.get("DEFAULT", "overpass_url")
+        self.config = config
 
     @abstractmethod
     def load_tile(self, geo_hash):
@@ -47,8 +46,8 @@ class OverpassWrapperServerSide(OverpassWrapper):
     Subclass of OverpassWrapper which determines the intersections of ways on the server-side.
     """
 
-    def __init__(self, full_geohash_level, OVERPASS_URL):
-        super(OverpassWrapperServerSide, self).__init__(full_geohash_level, OVERPASS_URL)
+    def __init__(self, config):
+        super(OverpassWrapperServerSide, self).__init__(config)
         self.ghw = GeoHashWrapper()
         self.counter = 0
 
@@ -58,7 +57,7 @@ class OverpassWrapperServerSide(OverpassWrapper):
         geohash.
         """
 
-        q_filter = self._filter_query(CONFIG)
+        q_filter = self._filter_query(self.config)
         elements = self._download(self.OVERPASS_URL, geo_hash, q_filter)
         return self._create_tile(geo_hash, elements)
 
@@ -211,9 +210,9 @@ class OverpassWrapperClientSide(OverpassWrapper):
         Subclass of OverpassWrapper which determines the intersections of ways on the client-side.
     """
 
-    def __init__(self, full_geohash_level, OVERPASS_URL):
+    def __init__(self, config):
         """"""
-        super(OverpassWrapperClientSide, self).__init__(full_geohash_level, OVERPASS_URL)
+        super(OverpassWrapperClientSide, self).__init__(config)
         self.ghw = GeoHashWrapper()
         self.counter = 0
 
@@ -223,7 +222,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
         geohash.
         """
 
-        q_filter = self._filter_query(CONFIG)
+        q_filter = self._filter_query(self.config)
         elements = self._download(self.OVERPASS_URL, geo_hash, q_filter)
 
         return self._create_tile(geo_hash, elements)
