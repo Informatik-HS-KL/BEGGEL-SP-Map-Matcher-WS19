@@ -17,6 +17,16 @@ def main():
     for ld in linkdists:
         print("LinkDistance: ", ld.get_distance(),"m", "Fraction: ", ld.get_fraction())
 
+def main2():
+    mapService = MapService()
+
+    mapService.get_tile("u0v90")
+    mapService.get_tile("u0v91")
+    mapService.get_tile("u33dc")
+    mapService.get_tile("u33d")
+
+
+
 from src.rest.app import app
 def start_server():
 
@@ -24,7 +34,6 @@ def start_server():
         print("localhost:5000/api")
         app.run(host="localhost", port=5000)
 
-main()
-
-
+main2()
+#main()
 start_server()
