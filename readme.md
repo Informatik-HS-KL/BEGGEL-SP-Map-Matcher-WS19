@@ -94,12 +94,28 @@ Returns all Nodes as Array in the Bounding box.
 #### Tile with geohash
     mapService.get_links_in_bounding_box("u0v970")
 If not loaded the Interface will download the street data 
-and return it as a Tile with nodes and Links
+and return it as a Tile with nodes and Links.
 
 #### All Cached Tiles
     mapService.get_all_cached_tiles()
-Returns all already loaded Tiles
+Returns all already loaded Tiles.
 
+### Routing
+
+### Distances
+
+    def example()
+        bbox = BoundingBox.from_geohash("u0v970")
+        
+        nodes = mapService.get_nodes_in_bounding_box(bbox)
+        links = mapService.get_links_in_bounding_box(bbox)
+        
+        linkdists = mapService.get_linkdistances_in_radius(nodes[1].get_latlon(), 150) # meter
+        for ld in linkdists:
+            print("LinkDistance: ", ld.get_distance(),"m", "Fraction: ", ld.get_fraction())
+
+This example prints out all links with their distances around the first point (Node) in the Tile.
+        
 ## Data Visualisation (testing)
 After the start you have the opportunity to Visual your Links and Nodes. 
 We implement a test web page under [localhost](http://http://localhost:5000/). 
@@ -107,9 +123,6 @@ We implement a test web page under [localhost](http://http://localhost:5000/).
 
 In the Visualisation you can choose if you want to see all Nodes or Links in a Geohash.
 Set Nodes and Links are preserved.
-
-## Supported Geo function's
-in work
 
 ## Wrongdoer
   
