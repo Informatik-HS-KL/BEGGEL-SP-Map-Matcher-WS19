@@ -7,15 +7,14 @@ is managing the obtainment and caching of Tiles, the latter for improving the pe
 """
 
 from src.geo_hash_wrapper import GeoHashWrapper
-from src.models.bounding_box import BoundingBox
-from src.models.link_id import LinkId
+from .models.bounding_box import BoundingBox
+from src.models.link import LinkId
 from src.models.node import NodeId
 from src.models.tile import Tile
 from src.models.link_distance import LinkDistance
 from src.geo_utils import great_circle
 
-from . import CONFIG
-
+from src.config import CONFIG
 
 def __one_of_the_nodes_in_circle(points, circle_center_latlon, circle_radius):
     """Prüft ob eines der Nodes innerhalb des Zirkels sind"""
@@ -86,8 +85,8 @@ class MapService:
         """
         Knoten einer Boudingbox zurückgeben.
         Knoten werden aus den Tiles geladen
-        :param bbox:
-        :return:
+        :param Boundingbox Object
+        :return: List(Node-Object, ...)
         """
         ret = []
 
@@ -100,7 +99,10 @@ class MapService:
         return ret
 
     def get_links_in_bounding_box(self, bbox):
-
+        """
+        :param bbox: BoundingBox-Object
+        :return: list(link-Object, ...)
+        """
         ret = []
 
         for geoHash in GeoHashWrapper().get_geohashes(bbox, self._geoHashLevel):
@@ -150,6 +152,9 @@ class MapService:
         return self._tileCache[geohash_str]
 
     def get_all_cached_tiles(self):
+        """
+        :return: dict(geohashstr, Tile-Object)
+        """
         return self._tileCache
 
     def get_link_by_id(self, link_id: LinkId):
@@ -187,7 +192,7 @@ class MapService:
         distance sortiert und nur die max_nbr geringen Abstände zurückgegeben.
         :param pos:
         :param max_distance:
-        :return:
+        :return: Link Distance Objects
         """
 
         bbox = BoundingBox.get_bbox_from_point(pos, max_distance)

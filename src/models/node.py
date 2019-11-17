@@ -46,10 +46,19 @@ class Node:
         self.__parent_links = []
 
     def add_parent_link(self, link):
+        """
+        Adds Parent Link of this Node
+        :param link: Link Object
+        :return: None
+        """
         self.__parent_links.append(link)
 
-    def get_parent_link(self):
-        return self.__parent_link
+    def get_parent_links(self):
+        """
+        getter for all parent Links from this Node Object
+        :return: list(linkobject, ..)
+        """
+        return self.__parent_links
 
     def get_links(self):
         """

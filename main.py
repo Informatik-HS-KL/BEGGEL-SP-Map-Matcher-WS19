@@ -1,5 +1,6 @@
 from src.map_service import MapService
 from src.models.bounding_box import BoundingBox
+from src.models.link import Link
 
 def main():
     """ Test Main
@@ -20,12 +21,13 @@ def main():
 def main2():
     mapService = MapService()
 
-    mapService.get_tile("u0v90")
+    tile = mapService.get_tile("u0v90")
     mapService.get_tile("u0v91")
     mapService.get_tile("u33dc")
-    mapService.get_tile("u33d")
+    #mapService.get_tile("u33d")
 
-
+    for i in tile.get_links():
+        print(i.get_geometry())
 
 from src.rest.app import app
 def start_server():
@@ -36,4 +38,6 @@ def start_server():
 
 main2()
 #main()
-start_server()
+start_server()#
+for i in t1.get_links():
+    print(Link)

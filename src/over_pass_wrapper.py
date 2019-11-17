@@ -18,7 +18,7 @@ from src.models.link_id import LinkId
 from src.models.link import Link
 from src.models.bounding_box import BoundingBox
 
-from . import CONFIG
+from src.config import CONFIG
 
 
 # Todo: Testen !!!
@@ -293,8 +293,8 @@ class OverpassWrapperClientSide(OverpassWrapper):
     def _build_link_dictionary(self, osm_ways: list, crossings: list, nodes: dict):
         """
         :param osm_ways: raw way data from overpass as dict
-        :param crossings: List of Nodeids represent crossings in street
-        :param nodes: List of Node Objects
+        :param crossings: list(int(osm_ids))
+        :param nodes: dict(osmid, Node Object)
         :return: dict {LinkId: Link}
         """
         links = {}
@@ -313,7 +313,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
                 link_geometry.append(node_pos)
                 link_node_ids.append(node_id)
 
-                if (node_id.osm_node_id in crossings): #or way_nodes_ids[-1] == node_id.osm_node_id) and i != 0:  # Wenn Kreuzung oder Ende des
+                if (node_id.osm_node_id in crossings or way_nodes_ids[-1] == node_id.osm_node_id) and i != 0:  # Wenn Kreuzung oder Ende des
                     # Ways erreicht. Ausnahme: wir befinden uns noch am Anfang des Links (closed link)!!!
                     link_id = LinkId(way["id"], link_node_ids[0])
                     link = Link(link_id, link_geometry, link_node_ids)
@@ -359,6 +359,12 @@ class OverpassWrapperClientSide(OverpassWrapper):
         return query[:-2] + ")"
 
     def __create_node(self, osm_id, pos: tuple, tags=None):
+        """
+        :param osm_id: int
+        :param pos: tuple (lat, lon)
+        :param tags: dict
+        :return: tuple (osm_id(int), Node Object)
+        """
         node_id = NodeId(osm_id, self.ghw.get_geohash(pos, level=self.full_geohash_level))
         node = Node(node_id, pos)
         node.set_tags(tags)

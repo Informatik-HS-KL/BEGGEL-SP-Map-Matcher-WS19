@@ -6,7 +6,8 @@ determining the (geometric) relation of  a BoundingBox to a node/link/other Boun
 
 
 from src.models.node import Node
-from src.models.link import Link
+import src.models.link as link
+
 import src.geo_utils as ut
 import geohash2 as Geohash
 
@@ -24,13 +25,13 @@ class BoundingBox:
             return self.contains_node(item)
         elif isinstance(item, BoundingBox):
             return self.contains_bbox(item)
-        elif isinstance(item, Link):
+        elif isinstance(item, link.Link):
             return self.contains_link(item)
 
         else:
             raise TypeError("{} is not supported by this method.".format(type(item)))
 
-    def contains_link(self, link: Link):
+    def contains_link(self, link):
         """ if bbox of link and self bbox overlaps: true
         :param link:
         :return: bool
