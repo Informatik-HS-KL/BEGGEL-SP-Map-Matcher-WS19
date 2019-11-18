@@ -81,9 +81,10 @@ class Pedestrian(LinkUser):
         highway_val = tags.get("highway")
         foot_val = tags.get("foot")
         sidewalk_val = tags.get("sidewalk")
-        rules = [highway_val is not None and highway_val in {"residential", "living_street", "bridleway", "path"} and
-                 foot_val != "no", highway_val is not None and highway_val in {"pedestrian", "footway", "steps"},
-                 sidewalk_val in {"both", "left", "right"} and foot_val not in {None, "no"}, foot_val in {"yes", "designated", "permissive"}]
+        rules = [highway_val is not None and highway_val in {"residential", "living_street", "bridleway", "path"} and foot_val != "no",
+                 highway_val is not None and highway_val in {"pedestrian", "footway", "steps"},
+                 sidewalk_val in {"both", "left", "right"} and foot_val not in {None, "no"},
+                 foot_val in {"yes", "designated", "permissive"}]
 
         if True in rules:
             return True
@@ -124,7 +125,8 @@ class Cyclist(LinkUser):
             tags = link.get_tags()
             oneway_val = tags.get("oneway")
             oneway_bicycle_val = tags.get("oneway:bicycle")
-            rules = [oneway_bicycle_val is None and oneway_val != "-1", oneway_bicycle_val not in {None, "-1"}]
+            rules = [oneway_bicycle_val is None and oneway_val != "-1",
+                     oneway_bicycle_val not in {None, "-1"}]
 
             if True in rules:
                 return True
@@ -157,7 +159,8 @@ class Cyclist(LinkUser):
             tags = link.get_tags()
             oneway_val = tags.get("oneway")
             oneway_bicycle_val = tags.get("oneway:bicycle")
-            rules = [oneway_bicycle_val is None and oneway_val != "yes", oneway_bicycle_val not in {None, "yes"}]
+            rules = [oneway_bicycle_val is None and oneway_val != "yes",
+                     oneway_bicycle_val not in {None, "yes"}]
 
             if True in rules:
                 return True
@@ -192,9 +195,10 @@ class Cyclist(LinkUser):
 
         rules = [bicycle_val != "no" and highway_val is not None and (highway_val in {"residential", "cycleway", "bridleway", "path"} or (highway_val == "steps" and tags.get("ramp:bicycle") == "yes")),
                  bicycle_val not in {"no", None} and bicycle_val in {"yes", "designated", "use_sidepath", "permissive", "destination"},
-                 tags.get("cycleway") not in {None, "no"}, tags.get("bicycle_road") == "yes",
-                 tags.get("cyclestreet") == "yes", tags.get("cycleway:right") is not None or tags.get("cycleway:left")
-                 is not None or tags.get("cycleway:both") is not None]
+                 tags.get("cycleway") not in {None, "no"},
+                 tags.get("bicycle_road") == "yes",
+                 tags.get("cyclestreet") == "yes",
+                 tags.get("cycleway:right") is not None or tags.get("cycleway:left") is not None or tags.get("cycleway:both") is not None]
 
         if True in rules:
             return True
