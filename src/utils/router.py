@@ -1,15 +1,12 @@
 from abc import ABC, abstractmethod
-from src.geo_utils import point_to_point_dijsktra
+from src.utils.routing import point_to_point_dijkstra, link_to_link_dijkstra, ShortestPath, WeightCalculator
+from src.models.link import LinkUser
 
 
 class RoutingException(Exception):
     """ IF any stuff in Routing goes wrong"""
     pass
 
-
-class ShortestPath:
-    def get_wight(self, link, fraction):
-        return link.get_length() * fraction
 
 
 class Router(ABC):
@@ -77,15 +74,16 @@ class Router(ABC):
             raise RoutingException("Start or End Link not given")
 
 
-class RouterDijkstra(Router):
+class RouterBaseDijkstra(Router):
     """
     Derived Class with Dijkstra implementation
     """
 
-    def __init__(self):
+    def __init__(self, link_user: LinkUser = LinkUser.CAR):
         super().__init__()
+        self.link_user = link_user
 
-    def compute(self, weight_property=0, wight_function=ShortestPath):
+    def compute(self, weight_property=0, wight_function=WeightCalculator):
         """
         Computes Route with Dijkstra
         :param: weight_property = 0 are lenth as weight factor
@@ -94,5 +92,25 @@ class RouterDijkstra(Router):
 
         super().compute()
         s, n = self.get_start_link(), self.get_end_link()
-        return point_to_point_dijsktra(s, self.s_fraction, n, self.e_fraction, "length")
+        return point_to_point_dijkstra(s, n, wight_function)
 
+
+class RouterLinkDijkstra(Router):
+    """
+    Derived Class with Dijkstra implementation
+    """
+
+    def __init__(self, link_user: LinkUser = LinkUser.CAR):
+        super().__init__()
+        self.link_user = link_user
+
+    def compute(self, weight_property=0, wight_function=ShortestPath()):
+        """
+        Computes Route with Dijkstra
+        :param: weight_property = 0 are lenth as weight factor
+        :return: [nodes]
+        """
+
+        super().compute()
+        s, n = self.get_start_link(), self.get_end_link()
+        return link_to_link_dijkstra(s, n, wight_function)

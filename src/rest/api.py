@@ -5,13 +5,12 @@ Description: This file defines the endpoints of the REST-API.
 """
 
 from flask import jsonify
-from flask import Response, request, Blueprint
+from flask import request, Blueprint
 from src.map_service import MapService
 from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
-from src.models.node import NodeId, Node
-from src.models.link import Link
-from src.router import RouterDijkstra
+from src.models.node import NodeId
+from src.utils.router import RouterBaseDijkstra, RouterLinkDijkstra
 
 map_service = MapService()
 api = Blueprint('api', __name__)
@@ -232,7 +231,10 @@ def route():
     data = []
     result_nodes = []
     print(node_from.get_parent_link(), node_to.get_parent_link())
-    router = RouterDijkstra()
+
+    #router = RouterBaseDijkstra()
+    router = RouterLinkDijkstra()
+
     router.set_start_link(node_from.get_parent_link())
     router.set_end_link(node_to.get_parent_link())
     result_nodes = router.compute()
