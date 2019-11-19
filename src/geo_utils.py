@@ -4,15 +4,15 @@ Description: This files offers some mathematical and geographic-related methods.
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
+
 # from src.models.tile import Tile
 from math import radians, degrees, sin, cos, asin, acos, sqrt, isclose
 from src.models.tile import Tile
 from src.models.node import Node
 
-
 def great_circle(point1: tuple, point2: tuple):
     """
-    Angaben in KM
+    Angaben in Meter
     :param point1:
     :param point2:
     :return:
@@ -30,7 +30,7 @@ def great_circle(point1: tuple, point2: tuple):
     if result < -1.0:
         result = -1
 
-    return 6371 * (acos(result))
+    return 6371 * (acos(result)) * 1000
 
 
 def convert_meter_2_lat(meter):
@@ -38,8 +38,10 @@ def convert_meter_2_lat(meter):
     Convert meter to latitude difference
     :return: lat-difference in float
     """
+    # Todo(13.11.2019, Lukas Felzmann): Diese Berechnungen stimmen vermutlich nicht mehr (vielleicht shrinking_factor
+    #  miteinbeziehen). Also überprüfen!
 
-    meter_per_lat = great_circle((0, 0), (1, 0)) * 1000
+    meter_per_lat = great_circle((0, 0), (1, 0))
     lat_per_meter = 1 / meter_per_lat
     return meter * lat_per_meter
 
@@ -49,7 +51,10 @@ def convert_meter_2_lon(meter):
     Convert meter to latitude difference
     :return: lat-difference in float
     """
-    meter_per_lon = great_circle((0, 0), (0, 1)) * 1000
+    # Todo(13.11.2019, Lukas Felzmann): Diese Berechnungen stimmen vermutlich nicht mehr (vielleicht shrinking_factor
+    #  miteinbeziehen). Also überprüfen!
+
+    meter_per_lon = great_circle((0, 0), (0, 1))
     lon_per_meter = 1 / meter_per_lon
     return meter * lon_per_meter
 
@@ -146,7 +151,7 @@ def vector_norm(v: tuple):
     return sqrt(dot_product(v, v))
 
 
-def is_nullvector(v: tuple) -> bool:
+def is_nullvector(v:tuple) -> bool:
     """Überprüft, ob v der Nullvektor ist.
     :return: bool"""
     for i in range(0, len(v)):
@@ -200,7 +205,7 @@ def vectors_have_same_direction(a: tuple, b: tuple) -> bool:
     # Diese Schleife überprüft, ob a und b in jeder Komponente das gleiche Vorzeichen haben.
     for i in range(0, len(a)):
         if b[i] != 0:
-            if a[i] / b[i] < 0:
+            if a[i]/b[i] < 0:
                 return False
 
     return vectors_are_parallel(a, b)

@@ -1,67 +1,37 @@
 from src.map_service import MapService
 from src.models.bounding_box import BoundingBox
-from src.models.link import Link
-from src.models.node import NodeId, Node
-from src.models.tile import Tile
-from src.models.link_distance import LinkDistance
-from src.over_pass_wrapper import OverpassWrapper
+from src.models.link_user import Pedestrian, Cyclist, Car
+
 
 def main():
-    """
+    """ Test Main
     """
     mapService = MapService()
-    bbox = BoundingBox.from_geohash("u0v970")
-    nodes = mapService.get_nodes_in_bounding_box(bbox)
-
-    for node in nodes:
-        print(node, node.get_lat(), node.get_lon())
-
-    links = mapService.get_links_in_bounding_box(bbox)
-
-    for l in links:
-        print(l.to_wkt())
-        print(l.to_geojson())
-        print(l.get_length())
-
-
-    link = links[0]
-    # Ausgehende Links am Start- bzw. Endknoten eines Links sollen geliefert werden können:
-
-    startlinks = link.get_links_at_start_node()
-    print(startlinks)
-    endlinks = link.get_links_at_end_node()
-    print(endlinks)
-
-    # Link Distance
-    # Das Beispiel passt nicht mehr, da Links jetzt anders aufgebaut sind und infolgedessen der Knoten
-    # mit der Id 462739562 kein Startknoten mehr ist.
-    # link = mapService.get_link(38936694, NodeId(462739567,
-    # "u0v97b9yr5gy")) pos = (49.4419412, 7.9026608) ld = LinkDistance(pos, link) print("Link Distance: ",
-    # ld.get_distance(),"Link Fraction:", ld.get_fraction())
-
-    # waylinks = mapService.get_links(38936691)
-    # print(waylinks)
-    # l = mapService.get_link(38936691, NodeId(1784694212, "u0v97b8pkp3w"))
-    # print(l)
+    # bbox = BoundingBox.from_geohash("u0v970")
+    # nodes = mapService.get_nodes_in_bounding_box(bbox)
     #
-    # listDistanceData = mapService.get_linkdistances_in_radius(pos, 50)
+    # links = mapService.get_links_in_bounding_box(bbox)
     #
-    # for ld in listDistanceData:
-    #     print("Ld", ld.link.get_link_id(), "Distance:", ld.get_distance())
-    #     #print("linkID: " + ld.link.get_link_id().geohash)
+    # for l in links:
+    #     print(l)
+    #
+    # linkdists = mapService.get_linkdistances_in_radius(nodes[1].get_latlon(), 150) # meter
+    # for ld in linkdists:
+    #     print("LinkDistance: ", ld.get_distance(),"m", "Fraction: ", ld.get_fraction())
 
-    # Jeder Link soll die Information enthalten, von wem er benutzt werden kann (also z.B. Radfahrer, Fußgänger, Autos)
-    # link.navigatable # car, bike, pedestrial
-    # Links sollen in bestimmte nützliche Geoformate umgewandelt werden können (Wkt, geoJson):
 
-    # Es muss klar, in welcher Richtung der Link befahren werden kann.
-    # Kann der link vom Startknoten zum Endknoten befahren werden.
-    # link.is_from_start()
-    # Kann der link vom Endknoten zum Startknoten befahren werden.
-    # link.is_to_start()
-
-    # Auch Links sollen eine Id haben die sich wie folgt zusammensetzt: (wayId , startNoteId, geoHash[volle Länge])
-
+    print("Tests zu LinkDirections:")
+    mapService.get_tile("u1557")
+    links = mapService.get_links(147444263)
+    print(len(links))
+    for link in links:
+        print(link)
+        print(link.is_navigatable_to_start(Pedestrian()))
+        print(link.is_navigatable_from_start(Pedestrian()))
+        print(link.is_navigatable_to_start(Cyclist()))
+        print(link.is_navigatable_from_start(Cyclist()))
+        print(link.is_navigatable_to_start(Car()))
+        print(link.is_navigatable_from_start(Car()))
 
 from src.rest.app import app
 def start_server():
@@ -70,6 +40,7 @@ def start_server():
         print("localhost:5000/api")
         app.run(host="localhost", port=5000)
 
-#main()
+main()
 
-start_server()
+
+# start_server()

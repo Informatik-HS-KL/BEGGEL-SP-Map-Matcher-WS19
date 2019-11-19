@@ -265,6 +265,27 @@ def get_way_links(way_id):
 
     return _resp(data)
 
+@api.route('/linkdistance', methods=["GET"])
+def get__linkdistance():
+    """Calculate Link Distances Canidates"""
+
+    from src.models.link_distance import LinkDistance
+
+    pos = float(request.args.get("lat")), float(request.args.get("lon"))
+    linkdists = map_service.get_linkdistances_in_radius(pos, 80)
+
+    data = []
+    for ld in linkdists:
+        ld_data = {
+            "link": ld.link.to_geojson(),
+            "distance": ld.get_distance(),
+            "fraction": ld.get_fraction()
+        }
+        data.append(ld_data)
+
+    print(data)
+    return _resp(data)
+
 
 @api.route('/samples', methods=["GET"])
 def samples():
