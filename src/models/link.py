@@ -6,9 +6,6 @@ For WKT see: (https://en.wikipedia.org/wiki/Well-known_text_representation_of_ge
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-
-
-
 # """
 # Part of street where there is no intersection and that has a fixed set of properties.
 # A link might have a non-linear geometry. Geometry of a link is a LINESTRING!
@@ -36,7 +33,7 @@ class Link:
         :param endNode: Node End of this Link
         """
         self.__start_node_id = node_ids[0]
-        self.__end_node_id = node_ids[len(node_ids)-1]
+        self.__end_node_id = node_ids[len(node_ids) - 1]
         self.__outs = []
         self.__link_id = link_id
         self.__geometry = geometry  # contains the (lat, lon)-tupel of all nodes of the link
@@ -78,14 +75,20 @@ class Link:
 
         """
 
-        nodelinks = self.get_start_node().get_links()
-        links = filter(lambda l: l != self, nodelinks)
+        node_links = self.get_start_node().get_links()
+        links = list(filter(lambda i: i != self, node_links))
 
         if link_user is None:
-            return list(links)
+            return links
         else:
-            # Todo(14.11.2019, Lukas Felzmann): noch für die unterschiedlichen User implementieren.
-            pass
+            for link in links:
+                if self.get_start_node() == link.get_start_node():
+                    if not link.is_navigatable_from_start(link_user):
+                        links.remove(link)
+                elif self.get_start_node() == link.get_end_node():
+                    if not link.is_navigatable_to_start(link_user):
+                        links.remove(link)
+            return links
 
     def get_links_at_end_node(self, link_user: LinkUser = None):
         """
@@ -94,13 +97,19 @@ class Link:
         """
 
         nodelinks = self.get_end_node().get_links()
-        links = filter(lambda l: l != self, nodelinks)
+        links = list(filter(lambda l: l != self, nodelinks))
 
         if link_user is None:
-            return list(links)
+            return links
         else:
-            # Todo(14.11.2019, Lukas Felzmann): noch für die unterschiedlichen User implementieren.
-            pass
+            for link in links:
+                if self.get_end_node() == link.get_start_node():
+                    if not link.is_navigatable_from_start(link_user):
+                        links.remove(link)
+                elif self.get_end_node() == link.get_end_node():
+                    if not link.is_navigatable_to_start(link_user):
+                        links.remove(link)
+            return links
 
     def get_tags(self):
         """
@@ -164,7 +173,7 @@ class Link:
         :return:
         """
         return "LINESTRING (%s %s, %s %s)" % (self.get_start_node().get_lat(), self.get_start_node().get_lon(), \
-                                                     self.get_end_node().get_lat(), self.get_end_node().get_lon())
+                                              self.get_end_node().get_lat(), self.get_end_node().get_lon())
 
     def get_length(self):
         """
@@ -197,7 +206,7 @@ class Link:
         segments = list()
 
         for i in range(len(self.__geometry) - 1):
-            segment = (self.__geometry[i], self.__geometry[i+1])
+            segment = (self.__geometry[i], self.__geometry[i + 1])
             segments.append(segment)
 
         return segments

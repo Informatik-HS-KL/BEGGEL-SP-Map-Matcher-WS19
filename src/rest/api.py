@@ -12,6 +12,7 @@ from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
 from src.models.node import NodeId
 from src.utils.router import RouterBaseDijkstra, RouterLinkDijkstra, RouterTestDijkstra
+from src.models.link_user import Car
 
 map_service = MapService()
 api = Blueprint('api', __name__)
@@ -232,9 +233,9 @@ def route():
     data = []
     result_nodes = []
 
-    # router = RouterBaseDijkstra()  # Mit Laden: ~11 ohne 1,21
-    router = RouterLinkDijkstra()  # Mit Laden: ~12 ohne 3,31
-    # router = RouterTestDijkstra()  # Mit Laden: ~13 ohne 0.85
+    # router = RouterBaseDijkstra(Car())  # Mit Laden: ~11 ohne 1,21
+    # router = RouterLinkDijkstra(Car())  # Mit Laden: ~12 ohne 3,31
+    router = RouterTestDijkstra(Car())  # Mit Laden: ~13 ohne 0.85
     start_time = time.time()
     router.set_start_link(node_from.get_parent_link())
     router.set_end_link(node_to.get_parent_link())

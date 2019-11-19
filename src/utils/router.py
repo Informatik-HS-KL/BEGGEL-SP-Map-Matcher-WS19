@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from src.utils.routing import point_to_point_dijkstra, link_to_link_dijkstra, ShortestPath, WeightCalculator, \
     test_dijkstra
-from src.models.link import LinkUser
+from src.models.link_user import LinkUser
 
 
 class RoutingException(Exception):
@@ -80,7 +80,7 @@ class RouterBaseDijkstra(Router):
     Derived Class with Dijkstra implementation
     """
 
-    def __init__(self, link_user: LinkUser = LinkUser.CAR):
+    def __init__(self, link_user: LinkUser):
         super().__init__()
         self.link_user = link_user
 
@@ -101,7 +101,7 @@ class RouterLinkDijkstra(Router):
     Derived Class with Dijkstra implementation
     """
 
-    def __init__(self, link_user: LinkUser = LinkUser.CAR):
+    def __init__(self, link_user: LinkUser):
         super().__init__()
         self.link_user = link_user
 
@@ -122,7 +122,7 @@ class RouterTestDijkstra(Router):
     Derived Class with Dijkstra implementation
     """
 
-    def __init__(self, link_user: LinkUser = LinkUser.CAR):
+    def __init__(self, link_user: LinkUser):
         super().__init__()
         self.link_user = link_user
 
@@ -135,4 +135,8 @@ class RouterTestDijkstra(Router):
 
         super().compute()
         s, n = self.get_start_link(), self.get_end_link()
-        return test_dijkstra(s, 1, n, 1, wight_function, True)
+        nodes = test_dijkstra(s, 1, n, 1, wight_function, True, self.link_user)
+        for node in nodes:
+            print(node.get_id())
+            print(",")
+        return nodes

@@ -1,5 +1,6 @@
 from abc import ABC
 from src.models.link import Link
+from src.models.link_user import LinkUser
 
 class WeightCalculator(ABC):
     def get_wight(self, link: Link, fraction=1.0):
@@ -117,7 +118,8 @@ def link_to_link_dijkstra(initial, end_link, weight_function: WeightCalculator()
     return path
 
 
-def test_dijkstra(start_link, start_fraction, end_link, end_fraction, weight_function, from_start_to_end):
+def test_dijkstra(start_link, start_fraction, end_link, end_fraction, weight_function, from_start_to_end,
+                  link_user: LinkUser):
     if start_link == end_link:
         # TODO (SL 19.11.2019) Sonderfall noch nicht abgefangen:
         #  Was ist wenn ich am ende in einer einbahnstraße (anfang nach ende) stehe und an den anfang will ?
@@ -129,17 +131,17 @@ def test_dijkstra(start_link, start_fraction, end_link, end_fraction, weight_fun
     already_used = {start_link}
 
     if from_start_to_end:
-        __update_first_way(possible_ways, start_link.get_links_at_end_node(), weight_function, already_used)
+        __update_first_way(possible_ways, start_link.get_links_at_end_node(link_user), weight_function, already_used)
     else:
-        __update_first_way(possible_ways, start_link.get_links_at_start_node(), weight_function, already_used)
+        __update_first_way(possible_ways, start_link.get_links_at_start_node(link_user), weight_function, already_used)
     i = 0
     while True:
         i = i+1
         if len(possible_ways) == 0:
             return "Kein Weg gefunden"
         possible_ways = sorted(possible_ways, key=lambda pw: pw[0])
-        destinations = [link for link in possible_ways[0][1][-1].get_links_at_start_node()] + \
-                       [link for link in possible_ways[0][1][-1].get_links_at_end_node()]
+        destinations = [link for link in possible_ways[0][1][-1].get_links_at_start_node(link_user)] + \
+                       [link for link in possible_ways[0][1][-1].get_links_at_end_node(link_user)]
 
         if end_link in destinations:
             print(i)
@@ -153,17 +155,6 @@ def test_dijkstra(start_link, start_fraction, end_link, end_fraction, weight_fun
 
         __update_first_way(possible_ways, destinations, weight_function, already_used)
 
-def __init_graph():
-    path = []
-    while current_link is not None:
-        path.append(current_link.get_start_node())
-        next_link = shortest_paths[current_link][0]
-        current_link = next_link
-        print(current_link)
-    # Reverse path
-    path = path[::-1]
-
-    return path
 
 def __update_first_way(possible_ways: list, next_links: list, weight_function, already_used: set):
     """

@@ -40,7 +40,7 @@ def start_server():
         print("localhost:5000/api")
         app.run(host="localhost", port=5000)
 
-main()
+# main()
 
 
-# start_server()
+start_server()
