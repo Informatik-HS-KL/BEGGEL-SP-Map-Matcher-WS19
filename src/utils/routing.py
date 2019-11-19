@@ -1,7 +1,6 @@
 from abc import ABC
 from src.models.link import Link
 
-
 class WeightCalculator(ABC):
     def get_wight(self, link: Link, fraction=1.0):
         pass
@@ -77,7 +76,6 @@ def point_to_point_dijkstra(initial, end):
 def link_to_link_dijkstra(initial, end_link, weight_function: WeightCalculator()):
     # shortest paths is a dict of nodes
     # whose value is a tuple of (previous link, weight)
-    print("EXECUTE FUNKTION link_to_link_dijkstra")
     shortest_paths = {initial: (None, 0)}
     current_link = initial
     visited = set()
@@ -118,9 +116,72 @@ def link_to_link_dijkstra(initial, end_link, weight_function: WeightCalculator()
 
     return path
 
-def test_dijkstra(initial, initial_fraction, end_link, end_fraction, weight_function, from_start_to_end):
+
+def test_dijkstra(start_link, start_fraction, end_link, end_fraction, weight_function, from_start_to_end):
+    if start_link == end_link:
+        # TODO (SL 19.11.2019) Sonderfall noch nicht abgefangen:
+        #  Was ist wenn ich am ende in einer einbahnstraße (anfang nach ende) stehe und an den anfang will ?
+        #  (Bei meinem Navi kommt direkt ziel erreicht)
+        return [start_link.get_start_node(), start_link.get_end_node()]
+
+    start_length = weight_function.get_wight(start_link, (start_fraction if from_start_to_end else 1 - start_fraction))
+    possible_ways = [(start_length, [start_link])]
+    already_used = {start_link}
 
     if from_start_to_end:
-        initial.get_links_at_end_node()
+        __update_first_way(possible_ways, start_link.get_links_at_end_node(), weight_function, already_used)
     else:
-        initial.get_links_at_start_node()
+        __update_first_way(possible_ways, start_link.get_links_at_start_node(), weight_function, already_used)
+    i = 0
+    while True:
+        i = i+1
+        if len(possible_ways) == 0:
+            return "Kein Weg gefunden"
+        possible_ways = sorted(possible_ways, key=lambda pw: pw[0])
+        destinations = [link for link in possible_ways[0][1][-1].get_links_at_start_node()] + \
+                       [link for link in possible_ways[0][1][-1].get_links_at_end_node()]
+
+        if end_link in destinations:
+            print(i)
+            shortest_way = possible_ways[0][1][:]
+            shortest_way.append(end_link)
+            list_nodes = []
+            for link in shortest_way:
+                list_nodes.append(link.get_start_node())
+            print("Weight: ",possible_ways[0][0] + weight_function.get_wight(end_link, end_fraction))
+            return list_nodes
+
+        __update_first_way(possible_ways, destinations, weight_function, already_used)
+
+def __init_graph():
+    path = []
+    while current_link is not None:
+        path.append(current_link.get_start_node())
+        next_link = shortest_paths[current_link][0]
+        current_link = next_link
+        print(current_link)
+    # Reverse path
+    path = path[::-1]
+
+    return path
+
+def __update_first_way(possible_ways: list, next_links: list, weight_function, already_used: set):
+    """
+    This function add the neu Links for the first (shortest) way in possible_ways
+    After the neu ways are inserted, the first way will dropped
+
+    :param possible_ways: List with all traveled routes and their weight
+    :param next_links: List of all accessible routes from the first route in possible_ways
+    :param weight_function: function to calculate the Link weight
+    :param already_used: List with all already traveled links
+    :return:
+    """
+    for link in next_links:
+        if link in already_used:
+            continue
+        new_way = possible_ways[0][1][:]
+        new_way.append(link)
+        already_used.add(link)
+        possible_ways.append((possible_ways[0][0] + weight_function.get_wight(link), new_way))
+
+    del possible_ways[0]
