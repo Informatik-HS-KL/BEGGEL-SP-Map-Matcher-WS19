@@ -7,6 +7,7 @@ the obtained data into the convenient model-objects.
 
 
 import collections
+import time
 from abc import ABC, abstractmethod
 import requests
 from .geo_hash_wrapper import GeoHashWrapper
@@ -248,37 +249,46 @@ class OverpassWrapperClientSide(OverpassWrapper):
         except Exception as e:
             raise Exception("Download Tile Failed %s" % resp.text)
 
-    def _crossings(self, osm_nodes, osm_ways):
+    def _create_tile(self, geo_hash, elements: dict):
+        """
+        :param geo_hash: geohash as str
+        :param elements: raw dict data from overpass json api
+        :return: Tile Object
+        """
+
+        print("Build Datamodel ...")
+        t0 = time.time()
+
+        osm_nodes = list(filter(lambda e: e["type"] == "node", elements))
+        osm_ways = list(filter(lambda e: e["type"] == "way", elements))
+        osm_id_nodes_dict = dict(map(lambda n: self.__create_node(n["id"], (n["lat"], n["lon"]), n.get("tags")), osm_nodes))
+
+        crossings_osm_ids = self._crossings(osm_ways)
+
+        links = self._build_link_dictionary(osm_ways, crossings_osm_ids, osm_id_nodes_dict)
+        nodes = dict(map(lambda n: (n.get_id(), n), osm_id_nodes_dict.values()))
+
+        t = Tile(geo_hash, nodes, links)
+
+        t1 = time.time()
+        print("Zeit in s:", t1 - t0, "Links:", len(links), "Nodes:", len(nodes), "Crossingids:", len(crossings_osm_ids))
+        return t
+
+    def _crossings(self, osm_ways):
         """
         Search for Crossings in osm Ways and returns them as Nodes
         :param osm_nodes: raw osm nodes data parsed from json
         :param osm_ways: raw osm way data parsed from json
         :return: List of NodeId
         """
-        nodes_dict = dict(map(lambda node: (node["id"], node), osm_nodes))
 
         all = []
         for way in osm_ways:
             all.extend(way["nodes"])
 
-        crossing_ids = filter(lambda i: i[1] > 1, collections.Counter(all).items())
+        crossing_osm_ids = dict(filter(lambda i: i[1] > 1, collections.Counter(all).items()))
+        return crossing_osm_ids
 
-        node_ids = []
-        for cid in crossing_ids:
-            n = nodes_dict[cid[0]]
-            node_id = NodeId(cid[0], self.ghw.get_geohash((n["lat"], n["lon"]), level=self.full_geohash_level))
-            node_ids.append(node_id)
-
-        return node_ids
-
-    def _build_node_dictionary(self, osm_nodes: list):
-        """
-        :param osm_nodes: raw dict of Osm Data
-        :return: dict {NodeId: Node}
-        """
-        node_list = list(map(lambda n: self.__create_node(n["id"], (n["lat"], n["lon"]), n.get("tags")), osm_nodes))
-
-        return dict(map(lambda n: (n.get_id(), n), node_list))
 
     def _build_link_dictionary(self, osm_ways: list, crossings: list, nodes: dict):
         """
@@ -291,55 +301,36 @@ class OverpassWrapperClientSide(OverpassWrapper):
 
         for way in osm_ways:
             way_nodes_ids = way["nodes"]
-            way_nodes_positions = way["geometry"]
 
             link_geometry = []
             link_node_ids = []
 
             for i in range(len(way_nodes_ids)):
-                node_pos = (way_nodes_positions[i]["lat"], way_nodes_positions[i]["lon"])
-                node_id = NodeId(way_nodes_ids[i], self.ghw.get_geohash(node_pos, level=self.full_geohash_level))
+
+                node_id = nodes[way_nodes_ids[i]].get_id()
+                node_pos = nodes[way_nodes_ids[i]].get_latlon()
 
                 link_geometry.append(node_pos)
                 link_node_ids.append(node_id)
 
-                if (node_id in crossings or way_nodes_ids[-1] == node_id.osm_node_id) and i != 0:  # Wenn Kreuzung oder Ende des
+                if (node_id.osm_node_id in crossings): #or way_nodes_ids[-1] == node_id.osm_node_id) and i != 0:  # Wenn Kreuzung oder Ende des
                     # Ways erreicht. Ausnahme: wir befinden uns noch am Anfang des Links (closed link)!!!
                     link_id = LinkId(way["id"], link_node_ids[0])
                     link = Link(link_id, link_geometry, link_node_ids)
                     link.set_tags(way.get("tags"))
                     links[link_id] = link
 
-                    for nid in link_node_ids: nodes[nid].set_parent_link(link)
-                    nodes[link_node_ids[0]].add_link(link)
-                    nodes[link_node_ids[-1]].add_link(link)
+                    for nid in link_node_ids:
+                            nodes[nid.osm_node_id].add_parent_link(link)
+
+                    nodes[link_node_ids[0].osm_node_id].add_link(link)
+                    nodes[link_node_ids[-1].osm_node_id].add_link(link)
 
                     #  Re-Initialization for the next link
                     link_geometry = [node_pos]
                     link_node_ids = [node_id]
 
         return links
-
-    def _create_tile(self, geo_hash, elements: dict):
-        """
-        :param geo_hash: geohash as str
-        :param elements: raw dict data from overpass json api
-        :return: Tile Object
-        """
-        print("Build Datamodel ...")
-
-        osm_nodes = list(filter(lambda e: e["type"] == "node", elements))
-        nodes = self._build_node_dictionary(osm_nodes)
-
-        osm_ways = list(filter(lambda e: e["type"] == "way", elements))
-        crossings = self._crossings(osm_nodes, osm_ways)
-        links = self._build_link_dictionary(osm_ways, crossings, nodes)
-
-        print(len(crossings))
-
-        t = Tile(geo_hash, nodes, links)
-        t.set_crossings(crossings)
-        return t
 
     @staticmethod
     def _build_query(geohash, q_filter: str):
@@ -349,7 +340,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
         """
 
         bbox_str = "%s" % BoundingBox.from_geohash(geohash)
-        query = '?data=[out:json];way%s%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out geom;' % (
+        query = '?data=[out:json];way%s%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out;' % (
             bbox_str, q_filter)
         return query
 
@@ -368,7 +359,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
         return query[:-2] + ")"
 
     def __create_node(self, osm_id, pos: tuple, tags=None):
-        node_id = NodeId(osm_id, GeoHashWrapper().get_geohash(pos, level=self.full_geohash_level))
+        node_id = NodeId(osm_id, self.ghw.get_geohash(pos, level=self.full_geohash_level))
         node = Node(node_id, pos)
         node.set_tags(tags)
-        return node
+        return osm_id, node

@@ -77,6 +77,28 @@ def get_tiles():
 
     return _resp({"description": "All Cached Tiles", "tiles": data})
 
+@api.route('tiles/stats')
+def get_tiles_stats():
+    """ :return Statisiken zu allen tiles im cache
+    """
+
+    tiles = map_service.get_all_cached_tiles()
+
+    count_nodes = 0
+    count_links = 0
+    all_tiles = []
+
+    for k, v in tiles.items():
+        all_tiles.append(k)
+        count_links += len(v.get_links())
+        count_nodes += len(v.get_nodes())
+
+    data = {
+        "count:tiles": len(all_tiles),
+        "count:nodes": count_nodes,
+        "count:links": count_links
+    }
+    return _resp({"description": "All Cached Tiles", "tiles": data})
 
 @api.route('/geohashes', methods=["GET"])
 def get_geohashes():
@@ -193,16 +215,16 @@ def get_crossroads(geohash):
 
     tile = map_service.get_tile(geohash)
     data = []
-    for node_id in tile.crossings:
+    for node in tile.get_nodes():
+        if len(node.get_links()) > 2:
 
-        node = map_service.get_node(node_id)
-        point = {
-            "type": "Point",
-            "coordinates": list(node.get_latlon()),
-            "info": { "geohash": node.get_id().geohash,
-                  "osmid": node.get_id().osm_node_id}
-        }
-        data.append(point)
+            point = {
+                "type": "Point",
+                "coordinates": list(node.get_latlon()),
+                "info": { "geohash": node.get_id().geohash,
+                      "osmid": node.get_id().osm_node_id}
+            }
+            data.append(point)
 
     return _resp(data)
 

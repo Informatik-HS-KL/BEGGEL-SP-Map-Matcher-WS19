@@ -33,6 +33,16 @@ def main():
         print(link.is_navigatable_to_start(Car()))
         print(link.is_navigatable_from_start(Car()))
 
+def main2():
+    mapService = MapService()
+
+    mapService.get_tile("u0v90")
+    mapService.get_tile("u0v91")
+    mapService.get_tile("u33dc")
+    mapService.get_tile("u33d")
+
+
+
 from src.rest.app import app
 def start_server():
 
