@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from src.utils.routing import point_to_point_dijkstra, link_to_link_dijkstra, ShortestPath, WeightCalculator, \
-    test_dijkstra
+    dijkstra_routing
 from src.models.link_user import LinkUser
 
 
@@ -65,7 +65,7 @@ class Router(ABC):
         return self.end_link
 
     @abstractmethod
-    def compute(self, weight_property=0, wight_function=ShortestPath):
+    def compute(self,  wight_function=ShortestPath):
         """
         Computes Route
         :return: [nodes]
@@ -84,7 +84,7 @@ class RouterBaseDijkstra(Router):
         super().__init__()
         self.link_user = link_user
 
-    def compute(self, weight_property=0, wight_function=WeightCalculator):
+    def compute(self, wight_function=WeightCalculator):
         """
         Computes Route with Dijkstra
         :param: weight_property = 0 are lenth as weight factor
@@ -105,7 +105,7 @@ class RouterLinkDijkstra(Router):
         super().__init__()
         self.link_user = link_user
 
-    def compute(self, weight_property=0, wight_function=ShortestPath()):
+    def compute(self, wight_function=ShortestPath()):
         """
         Computes Route with Dijkstra
         :param: weight_property = 0 are lenth as weight factor
@@ -117,7 +117,7 @@ class RouterLinkDijkstra(Router):
         return link_to_link_dijkstra(s, n, wight_function)
 
 
-class RouterTestDijkstra(Router):
+class RouterDijkstra(Router):
     """
     Derived Class with Dijkstra implementation
     """
@@ -126,7 +126,7 @@ class RouterTestDijkstra(Router):
         super().__init__()
         self.link_user = link_user
 
-    def compute(self, weight_property=0, wight_function=ShortestPath()):
+    def compute(self, wight_function=ShortestPath()):
         """
         Computes Route with Dijkstra
         :param: weight_property = 0 are lenth as weight factor
@@ -135,7 +135,7 @@ class RouterTestDijkstra(Router):
 
         super().compute()
         s, n = self.get_start_link(), self.get_end_link()
-        nodes = test_dijkstra(s, 1, n, 1, wight_function, True, self.link_user)
+        nodes = dijkstra_routing(s, self.s_fraction, n, self.e_fraction, wight_function, True, self.link_user)
         for node in nodes:
             print(node.get_id())
             print(",")

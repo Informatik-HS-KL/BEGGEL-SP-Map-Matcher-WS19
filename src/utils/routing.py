@@ -2,6 +2,7 @@ from abc import ABC
 from src.models.link import Link
 from src.models.link_user import LinkUser
 
+
 class WeightCalculator(ABC):
     def get_wight(self, link: Link, fraction=1.0):
         pass
@@ -12,9 +13,9 @@ class ShortestPath(WeightCalculator):
         return link.get_length() * fraction
 
 
-class FastestPath(WeightCalculator):
-    def get_wight(self, link: Link, fraction=1.0):
-        return link.get_length() * fraction
+# class FastestPath(WeightCalculator):
+#     def get_wight(self, link: Link, fraction=1.0):
+#         return (link.get_speed_limit()*1000) / link.get_length() * fraction
 
 
 def point_to_point_dijkstra(initial, end):
@@ -75,6 +76,15 @@ def point_to_point_dijkstra(initial, end):
 
 
 def link_to_link_dijkstra(initial, end_link, weight_function: WeightCalculator()):
+    """
+    This is a Implementation of the Dijkstra Implementation adapted to the Map Service Link, Node Graph.
+    The implementation uses links to route
+    :param initial: The start Link
+    :param end_link: The end Link
+    :param weight_function: function to get the weight of an link
+    :return: List with Nodes from start to end.
+             if no Route possible a Error message
+    """
     # shortest paths is a dict of nodes
     # whose value is a tuple of (previous link, weight)
     shortest_paths = {initial: (None, 0)}
@@ -118,8 +128,21 @@ def link_to_link_dijkstra(initial, end_link, weight_function: WeightCalculator()
     return path
 
 
-def test_dijkstra(start_link, start_fraction, end_link, end_fraction, weight_function, from_start_to_end,
-                  link_user: LinkUser):
+def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_function, from_start_to_end,
+                     link_user: LinkUser):
+    """
+    This Dijkstra also takes into account route options such as one-way streets
+    Default a list of all start Nodes will return if no possible  route it returns a Error String
+
+    :param start_link:
+    :param start_fraction:
+    :param end_link:
+    :param end_fraction:
+    :param weight_function:
+    :param from_start_to_end:
+    :param link_user:
+    :return:
+    """
     if start_link == end_link:
         # TODO (SL 19.11.2019) Sonderfall noch nicht abgefangen:
         #  Was ist wenn ich am ende in einer einbahnstraße (anfang nach ende) stehe und an den anfang will ?
@@ -136,9 +159,9 @@ def test_dijkstra(start_link, start_fraction, end_link, end_fraction, weight_fun
         __update_first_way(possible_ways, start_link.get_links_at_start_node(link_user), weight_function, already_used)
     i = 0
     while True:
-        i = i+1
+        i = i + 1
         if len(possible_ways) == 0:
-            return "Kein Weg gefunden"
+            return "No Way Found"
         possible_ways = sorted(possible_ways, key=lambda pw: pw[0])
         destinations = [link for link in possible_ways[0][1][-1].get_links_at_start_node(link_user)] + \
                        [link for link in possible_ways[0][1][-1].get_links_at_end_node(link_user)]
@@ -150,7 +173,6 @@ def test_dijkstra(start_link, start_fraction, end_link, end_fraction, weight_fun
             list_nodes = []
             for link in shortest_way:
                 list_nodes.append(link.get_start_node())
-            print("Weight: ",possible_ways[0][0] + weight_function.get_wight(end_link, end_fraction))
             return list_nodes
 
         __update_first_way(possible_ways, destinations, weight_function, already_used)
