@@ -259,8 +259,8 @@ def route():
     # router = RouterLinkDijkstra(Car())  # Mit Laden: ~12 ohne 3,31
     router = RouterDijkstra(Car())  # Mit Laden: ~13 ohne 0.85
     start_time = time.time()
-    router.set_start_link(node_from.get_parent_link()[0])
-    router.set_end_link(node_to.get_parent_link()[0])
+    router.set_start_link(node_from.get_parent_links()[0])
+    router.set_end_link(node_to.get_parent_links()[0])
     result_nodes = router.compute()
     print("Zeit: ", time.time() - start_time)
     print("Loaded Tiles:",map_service.get_all_cached_tiles())

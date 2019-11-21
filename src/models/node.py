@@ -48,7 +48,7 @@ class Node:
     def add_parent_link(self, link):
         self.__parent_links.append(link)
 
-    def get_parent_link(self):
+    def get_parent_links(self):
         return self.__parent_links
 
     def get_links(self):
