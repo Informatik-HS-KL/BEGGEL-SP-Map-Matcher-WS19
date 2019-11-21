@@ -9,7 +9,6 @@ class RoutingException(Exception):
     pass
 
 
-
 class Router(ABC):
     """
     ABSTRACT BASE CLASS
@@ -65,7 +64,7 @@ class Router(ABC):
         return self.end_link
 
     @abstractmethod
-    def compute(self,  wight_function=ShortestPath):
+    def compute(self, wight_function=ShortestPath):
         """
         Computes Route
         :return: [nodes]

@@ -49,7 +49,7 @@ class Node:
         self.__parent_links.append(link)
 
     def get_parent_link(self):
-        return self.__parent_link
+        return self.__parent_links
 
     def get_links(self):
         """
