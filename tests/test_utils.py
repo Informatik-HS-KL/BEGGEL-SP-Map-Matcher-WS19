@@ -2,7 +2,6 @@
 Description: This is a testfile for geo_utils.py
 @date: 11/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
-Todo: merge this file with test_geo_utils.py
 """
 
 

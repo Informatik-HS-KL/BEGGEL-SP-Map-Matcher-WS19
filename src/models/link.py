@@ -116,7 +116,6 @@ class Link:
         Attributes of this Link
         :return: dict
         """
-        # TODO
         return self.__tags
 
     def set_tags(self, tags: dict):
@@ -142,7 +141,6 @@ class Link:
 
     def to_geojson(self):
         """
-        Todo: Wenn wir shapely verwenden, dann geht das hier komfortabler!!!
         returns link as geojson feature
         """
 
@@ -168,12 +166,10 @@ class Link:
 
     def to_wkt(self):
         """
-        Todo: An neue Linkstruktur anpassen (verwenden wir hier shapely oder nicht?)!!!
         return WKT String from self
         :return:
         """
-        return "LINESTRING (%s %s, %s %s)" % (self.get_start_node().get_lat(), self.get_start_node().get_lon(), \
-                                              self.get_end_node().get_lat(), self.get_end_node().get_lon())
+        return LineString(self.get_geometry()).wkt
 
     def get_length(self):
         """

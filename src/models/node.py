@@ -26,7 +26,7 @@ class NodeId:
         return "NodeId: <osm_node_id: %s> <geohash: %s>" % (self.osm_node_id, self.geohash)
 
     def __hash__(self):
-        # ToDo: Muss überarbeitet werden. Hashes sind derzeit noch eindeutig. Vielleicht einfach self.osm_node_id % p
+        # ToDo(22.11.19 LF): Muss überarbeitet werden. Hashes sind derzeit noch eindeutig. Vielleicht einfach self.osm_node_id % p
         #  (wobei p eine ausreichend große Primzahl ist).
         return self.osm_node_id
 
@@ -101,9 +101,21 @@ class Node:
 
     def to_geo_json(self):
         """
-        :return: Gibt den Knoten im GeoJson-Format (als String) zurück.
+        returns Node as geojson feature
         """
-        # TODO KP: Macht das Sinn hier sowas zu erstellen oder lieber an einer anderen Stelle?
+
+        data = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [self.get_lat(), self.get_lon()]
+            },
+            "properties": {
+                "osm_node_id": self.get_osm_node_id(),
+                "geohash": self.get_geohash(),
+            }
+        }
+        return data
 
     def to_wkt(self):
         """:return: Gibt den Knoten im WKT-Format (als String) zurück."""
@@ -111,3 +123,17 @@ class Node:
 
     def __repr__(self):
         return "Node: <id: %s> <latLon: %s>" % (self.__id, self.__latLon)
+
+    def get_osm_node_id(self):
+        """
+        Returns the OSM Id of the Node
+        :return:
+        """
+        return self.get_id().osm_node_id
+
+    def get_geohash(self):
+        """
+        Returns the Node Geohash
+        :return:
+        """
+        return self.get_id().geohash

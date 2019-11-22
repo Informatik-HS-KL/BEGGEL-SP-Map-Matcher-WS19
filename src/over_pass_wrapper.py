@@ -21,8 +21,6 @@ from src.models.bounding_box import BoundingBox
 from . import CONFIG
 
 
-# Todo: Testen !!!
-
 class OverpassWrapper(ABC):
     """
     ABSTRACT BASE CLASS

@@ -167,8 +167,7 @@ class MapService:
 
     def get_links(self, way_id):
         """
-        ACHTUNG: DAS HIER IST NOCH NICHT PERFORMANT
-        TODO
+        Returns all Links in Way d
         :param way_id:
         :return: [Link, Link]
         """
