@@ -1,4 +1,6 @@
 from abc import ABC
+
+from src import CONFIG
 from src.models.link import Link
 from src.models.link_user import LinkUser
 
@@ -58,7 +60,7 @@ def point_to_point_dijkstra(initial, end):
         next_destinations = {node: shortest_paths[node] for node in shortest_paths if node not in visited}
 
         if not next_destinations:
-            return "Route Not Possible"
+            raise Exception("Route Not Possible")
         # next node is the destination with the lowest weight
         current_node = min(next_destinations, key=lambda k: next_destinations[k][1])
 
@@ -111,7 +113,7 @@ def link_to_link_dijkstra(initial, end_link, weight_function: WeightCalculator()
         next_destinations = {link: shortest_paths[link] for link in shortest_paths if link not in visited}
 
         if not next_destinations:
-            return "Route Not Possible"
+            raise Exception("Route Not Possible")
         # next link is the destination with the lowest weight
         current_link = min(next_destinations, key=lambda k: next_destinations[k][1])
 
@@ -144,9 +146,6 @@ def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_
     :return:
     """
     if start_link == end_link:
-        # TODO (SL 19.11.2019) Sonderfall noch nicht abgefangen:
-        #  Was ist wenn ich am ende in einer einbahnstraße (anfang nach ende) stehe und an den anfang will ?
-        #  (Bei meinem Navi kommt direkt ziel erreicht)
         return [start_link.get_start_node(), start_link.get_end_node()]
 
     start_length = weight_function.get_wight(start_link, (start_fraction if from_start_to_end else 1 - start_fraction))
@@ -158,10 +157,10 @@ def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_
     else:
         __update_first_way(possible_ways, start_link.get_links_at_start_node(link_user), weight_function, already_used)
     i = 0
-    while True:
+    while i < CONFIG.getint("DEFAULT", "max_dijkstra_iterations"):
         i = i + 1
         if len(possible_ways) == 0:
-            return "No Way Found"
+            return Exception("Route Not Possible")
         possible_ways = sorted(possible_ways, key=lambda pw: pw[0])
         destinations = [link for link in possible_ways[0][1][-1].get_links_at_start_node(link_user)] + \
                        [link for link in possible_ways[0][1][-1].get_links_at_end_node(link_user)]
