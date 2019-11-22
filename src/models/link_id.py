@@ -29,5 +29,18 @@ class LinkId:
         """Getter Startnode
         :return: Nodeid
         """
-
         return self.start_node_id
+
+    def get_osm_way_id(self):
+        """
+        Returns the osm way id
+        :return:
+        """
+        return self.osm_way_id
+
+    def get_geohash(self):
+        """
+        Returns the geohash
+        :return:
+        """
+        return self.geohash

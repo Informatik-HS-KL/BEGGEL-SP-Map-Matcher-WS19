@@ -5,7 +5,6 @@ information, e.g. the shortest distance between the point and the link or the ne
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz"""
 
-
 from src.geo_utils import great_circle
 import math
 
@@ -61,7 +60,7 @@ class LinkDistance:
         for seg in link_segments:
             if seg == involved_segment:
                 distance += great_circle(seg[0], self._matched_point)
-                return distance/self.link.get_length()
+                return distance / self.link.get_length()
 
             else:
                 distance += great_circle(seg[0], seg[1])
@@ -120,7 +119,7 @@ class LinkDistance:
         else:
             c_lat = a_lat + factor * delta_lat
             c_lon = a_lon + factor * delta_lon
-            matched_point = (c_lat, c_lon/shrink_factor)
+            matched_point = (c_lat, c_lon / shrink_factor)
 
         return matched_point
 
@@ -146,3 +145,9 @@ class LinkDistance:
 
         self._matched_point = matched_point
         self.fraction = self._calc_fraction(link_segments, involved_segment)
+
+    def get_link(self):
+        return self.link
+
+    def get_point(self):
+        return self._lat_lon

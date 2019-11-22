@@ -34,7 +34,6 @@ class Link:
         """
         self.__start_node_id = node_ids[0]
         self.__end_node_id = node_ids[len(node_ids) - 1]
-        self.__outs = []
         self.__link_id = link_id
         self.__geometry = geometry  # contains the (lat, lon)-tupel of all nodes of the link
         self.__node_ids = node_ids
@@ -121,7 +120,7 @@ class Link:
     def set_tags(self, tags: dict):
         self.__tags = tags
 
-    def get_link_id(self):
+    def get_id(self):
         """
         :return: LinKId Object
         """
@@ -131,7 +130,7 @@ class Link:
         """
         :return: Osm Way id of self
         """
-        return self.__link_id.osm_way_id
+        return self.get_id().get_osm_way_id()
 
     def __repr__(self):
         return "Link: <link_id: %s> <geometry: %s> <node_ids: %s>" % (self.__link_id, self.__geometry, self.__node_ids)
@@ -157,8 +156,8 @@ class Link:
             "properties": {
                 "osm_way_id": self.get_way_osm_id(),
                 "start_node": {
-                    "geohash": self.get_link_id().get_start_node_id().geohash,
-                    "id": self.get_link_id().get_start_node_id().osm_node_id
+                    "geohash": self.get_id().get_start_node_id().geohash,
+                    "id": self.get_id().get_start_node_id().osm_node_id
                 }
             }
         }
@@ -212,3 +211,6 @@ class Link:
 
     def get_node_ids(self):
         return self.__node_ids
+
+    def get_geohash(self):
+        return self.get_id().get_geohash()

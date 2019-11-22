@@ -4,31 +4,7 @@ for example to convert the geometry of a Node-Object into several geo-formats, a
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
-
-
-class NodeId:
-    def __init__(self, osm_node_id, geohash):
-        """:param geohash: geohash wird in voller Länge (als String) angegeben."""
-        self.osm_node_id = osm_node_id
-        self.geohash = geohash
-
-    def __eq__(self, other):
-        if type(other) is not NodeId:
-            return False
-        assert (isinstance(other, NodeId))
-
-        return other.osm_node_id == self.osm_node_id and other.geohash == self.geohash
-
-    def __ne__(self, other):
-        return not (self is other)
-
-    def __repr__(self):
-        return "NodeId: <osm_node_id: %s> <geohash: %s>" % (self.osm_node_id, self.geohash)
-
-    def __hash__(self):
-        # ToDo(22.11.19 LF): Muss überarbeitet werden. Hashes sind derzeit noch eindeutig. Vielleicht einfach self.osm_node_id % p
-        #  (wobei p eine ausreichend große Primzahl ist).
-        return self.osm_node_id
+from src.models.node_id import NodeId
 
 
 class Node:
@@ -38,7 +14,6 @@ class Node:
         :param id: id from OSM Overpass API
         :param lat_lon: tuple with the float position values lat and lon
         """
-
         self.__id = node_id
         self.__latLon = lat_lon
         self.__tags = {}

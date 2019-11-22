@@ -51,17 +51,17 @@ def get_smaller_tile(tile, smaller_geohash_str):
 
         if (s_node_id.geohash[:len(smaller_geohash_str)] == smaller_geohash_str or
                 e_node_id.geohash[:len(smaller_geohash_str)] == smaller_geohash_str):
-            way_ids.add(link.get_link_id().osm_way_id)
-            links[link.get_link_id()] = link
+            way_ids.add(link.get_id().osm_way_id)
+            links[link.get_id()] = link
         else:  # wenn Link nur mit einem Node zwischen Start und ende im Tile liegen
             for n_id in link.get_node_ids():
                 if n_id in nodes:
-                    links[link.get_link_id()] = link
+                    links[link.get_id()] = link
                     break
 
     for link in gt_links:  # alle Links, die auf einem Weg im Tile liegen
         if link not in links and link.get_way_osm_id() in way_ids:
-            links[link.get_link_id()] = link
+            links[link.get_id()] = link
 
     for link in gt_links:  # Alle nodes aus den nachgeladenen Links
         for node_id in link.get_node_ids():
