@@ -45,6 +45,16 @@ class Tile:
 
         return self.__nodes.get(nodeid, None)
 
+    def get_node_from_osm_id(self, osmid):
+        """
+        :param osmid: int
+        :return: Node Object
+        """
+        res = list(filter(lambda n: n.osm_node_id == osmid, self.__nodes))
+        if len(res) == 1:
+            return self.__nodes.get(res[0])
+        return None
+
     def get_nodes(self):
         """
         :return: list [node,..]

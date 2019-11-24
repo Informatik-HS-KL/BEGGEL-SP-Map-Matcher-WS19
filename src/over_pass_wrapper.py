@@ -310,8 +310,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
                 link_geometry.append(node_pos)
                 link_node_ids.append(node_id)
 
-                if (
-                        node_id.osm_node_id in crossings):  # or way_nodes_ids[-1] == node_id.osm_node_id) and i != 0:  # Wenn Kreuzung oder Ende des
+                if node_id.osm_node_id in crossings or way_nodes_ids[-1] == node_id.osm_node_id and i != 0:  # Wenn Kreuzung oder Ende des
                     # Ways erreicht. Ausnahme: wir befinden uns noch am Anfang des Links (closed link)!!!
                     link_id = LinkId(way["id"], link_node_ids[0])
                     link = Link(link_id, link_geometry, link_node_ids)

@@ -5,7 +5,7 @@ for example to convert the geometry of a Node-Object into several geo-formats, a
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 from src.models.node_id import NodeId
-
+from shapely.geometry import Point
 
 class Node:
 
@@ -74,7 +74,7 @@ class Node:
         """
         self.__links.append(link)
 
-    def to_geo_json(self):
+    def to_geojson(self):
         """
         returns Node as geojson feature
         """
@@ -94,7 +94,8 @@ class Node:
 
     def to_wkt(self):
         """:return: Gibt den Knoten im WKT-Format (als String) zurück."""
-        return "POINT(%s %s)" % (self.get_lat(), self.get_lon())
+        lat, lon = self.get_latlon()
+        return Point(lon, lat).wkt
 
     def __repr__(self):
         return "Node: <id: %s> <latLon: %s>" % (self.__id, self.__latLon)

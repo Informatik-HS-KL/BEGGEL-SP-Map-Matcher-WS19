@@ -161,6 +161,7 @@ class Link:
                 }
             }
         }
+
         return data
 
     def to_wkt(self):
