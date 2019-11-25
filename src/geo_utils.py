@@ -38,8 +38,10 @@ def convert_meter_2_lat(meter):
     Convert meter to latitude difference
     :return: lat-difference in float
     """
+    # Todo(13.11.2019, Lukas Felzmann): Diese Berechnungen stimmen vermutlich nicht mehr (vielleicht shrinking_factor
+    #  miteinbeziehen). Also überprüfen!
 
-    meter_per_lat = great_circle((0, 0), (1, 0)) * 1000
+    meter_per_lat = great_circle((0, 0), (1, 0))
     lat_per_meter = 1 / meter_per_lat
     return meter * lat_per_meter
 
@@ -49,7 +51,10 @@ def convert_meter_2_lon(meter):
     Convert meter to latitude difference
     :return: lat-difference in float
     """
-    meter_per_lon = great_circle((0, 0), (0, 1)) * 1000
+    # Todo(13.11.2019, Lukas Felzmann): Diese Berechnungen stimmen vermutlich nicht mehr (vielleicht shrinking_factor
+    #  miteinbeziehen). Also überprüfen!
+
+    meter_per_lon = great_circle((0, 0), (0, 1))
     lon_per_meter = 1 / meter_per_lon
     return meter * lon_per_meter
 
@@ -215,51 +220,3 @@ def vectors_have_same_direction(a: tuple, b: tuple) -> bool:
 #
 # print(vector_norm(vector_subtraction(mpoint, sn)))
 # print(vector_norm(vector_subtraction(pos, mpoint)))
-
-def dijsktra(initial, end, weight_prop="length"):
-    # shortest paths is a dict of nodes
-    # whose value is a tuple of (previous node, weight)
-
-    initial = initial.get_start_node()
-    end = end.get_end_node()
-
-    shortest_paths = {initial: (None, 0)}
-    current_node = initial
-    visited = set()
-
-    while current_node != end:
-        print(current_node.get_id().geohash)
-        visited.add(current_node)
-        destinations = [link.get_end_node() for link in current_node.get_links()] + [link.get_start_node() for link in current_node.get_links()]
-        destinations = list(filter(lambda n: n != current_node, list(destinations)))
-        weight_to_current_node = shortest_paths[current_node][1]
-
-        for next_node in destinations:
-            #node.get_parent_link().get(weight_prop) # "length" as weigh factor
-            weight = 1 + weight_to_current_node # graph.get[(current_node, next_node)] + weight_to_current_node
-            if next_node not in shortest_paths:
-                shortest_paths[next_node] = (current_node, weight)
-            else:
-                current_shortest_weight = shortest_paths[next_node][1]
-                if current_shortest_weight > weight:
-                    shortest_paths[next_node] = (current_node, weight)
-
-        next_destinations = {node: shortest_paths[node] for node in shortest_paths if node not in visited}
-
-        if not next_destinations:
-            return "Route Not Possible"
-        # next node is the destination with the lowest weight
-        current_node = min(next_destinations, key=lambda k: next_destinations[k][1])
-
-    # Work back through destinations in shortest path
-    path = []
-    while current_node is not None:
-        path.append(current_node)
-        next_node = shortest_paths[current_node][0]
-        current_node = next_node
-        print(current_node)
-    # Reverse path
-    path = path[::-1]
-
-    return path
-

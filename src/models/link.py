@@ -6,9 +6,6 @@ For WKT see: (https://en.wikipedia.org/wiki/Well-known_text_representation_of_ge
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-
-
-
 # """
 # Part of street where there is no intersection and that has a fixed set of properties.
 # A link might have a non-linear geometry. Geometry of a link is a LINESTRING!
@@ -21,15 +18,9 @@ from .node import NodeId
 from .link_id import LinkId
 import src.map_service
 from src.geo_utils import great_circle
-from enum import Enum
 import src.models.bounding_box
-from shapely.geometry import  LineString
-
-
-class LinkUser(Enum):
-    PEDESTRIAN = 1
-    CYCLIST = 2
-    CAR = 3
+from shapely.geometry import LineString
+from src.models.link_user import LinkUser
 
 
 class Link:
@@ -42,7 +33,7 @@ class Link:
         :param endNode: Node End of this Link
         """
         self.__start_node_id = node_ids[0]
-        self.__end_node_id = node_ids[len(node_ids)-1]
+        self.__end_node_id = node_ids[len(node_ids) - 1]
         self.__outs = []
         self.__link_id = link_id
         self.__geometry = geometry  # contains the (lat, lon)-tupel of all nodes of the link
@@ -57,6 +48,7 @@ class Link:
         :return: BoundingBox Object
         """
         s, w, n, e = LineString(self.get_geometry()).bounds
+
         return src.models.bounding_box.BoundingBox(s, w, n, e)
 
     def get_start_node(self):
@@ -76,24 +68,48 @@ class Link:
     # def get_links(self):
     #     return self.__startNode.get_links().extend(self.__endNode.get_links())
 
-    def get_links_at_start_node(self):
+    def get_links_at_start_node(self, link_user: LinkUser = None):
         """
         Gibt alle vom Startknoten ausgehende Links zurück (exclusive self).
         :return: Liste von Link-Objekten
-        """
-        nodelinks = self.get_start_node().get_links()
-        links = filter(lambda l: l!=self, nodelinks)
-        return list(links)
 
-    def get_links_at_end_node(self):
+        """
+
+        node_links = self.get_start_node().get_links()
+        links = list(filter(lambda i: i != self, node_links))
+
+        if link_user is None:
+            return links
+        else:
+            for link in links:
+                if self.get_start_node() == link.get_start_node():
+                    if not link.is_navigatable_from_start(link_user):
+                        links.remove(link)
+                elif self.get_start_node() == link.get_end_node():
+                    if not link.is_navigatable_to_start(link_user):
+                        links.remove(link)
+            return links
+
+    def get_links_at_end_node(self, link_user: LinkUser = None):
         """
         Gibt alle vom Endknoten ausgehende Links zurück (exclusive self).
         :return: Liste von Link-Objekten
         """
 
         nodelinks = self.get_end_node().get_links()
-        links = filter(lambda l: l != self, nodelinks)
-        return list(links)
+        links = list(filter(lambda l: l != self, nodelinks))
+
+        if link_user is None:
+            return links
+        else:
+            for link in links:
+                if self.get_end_node() == link.get_start_node():
+                    if not link.is_navigatable_from_start(link_user):
+                        links.remove(link)
+                elif self.get_end_node() == link.get_end_node():
+                    if not link.is_navigatable_to_start(link_user):
+                        links.remove(link)
+            return links
 
     def get_tags(self):
         """
@@ -157,7 +173,7 @@ class Link:
         :return:
         """
         return "LINESTRING (%s %s, %s %s)" % (self.get_start_node().get_lat(), self.get_start_node().get_lon(), \
-                                                     self.get_end_node().get_lat(), self.get_end_node().get_lon())
+                                              self.get_end_node().get_lat(), self.get_end_node().get_lon())
 
     def get_length(self):
         """
@@ -165,127 +181,38 @@ class Link:
         """
         return great_circle(self.get_start_node().get_latlon(), self.get_end_node().get_latlon())
 
-    def is_from_start(self):
+    def is_navigatable_from_start(self, link_user: LinkUser) -> bool:
         """
-        :return:
+        Indicates, whether the specified user is permitted to use the link from the start-node to the end-node.
+        :param link_user:
+        :return: bool
         """
-        pass
+        return link_user.can_navigate_from_start(self)
 
-    def is_to_start(self):
-        pass
-
-    def is_usable_by(self) -> list:
+    def is_navigatable_to_start(self, link_user: LinkUser) -> bool:
         """
-        Returns a list, which contains all kinds of permitted users for this link
-        :return: list, which contains LinkUser-Objects or is empty
+        Indicates, whether the specified user is permitted to use the link from the end-node to the start-node.
+        :param link_user:
+        :return: bool
         """
-        permitted_link_users = list()
-        if self.is_usable_by_pedestrians():
-            permitted_link_users.append(LinkUser.PEDESTRIAN)
-        if self.is_usable_by_cyclists():
-            permitted_link_users.append(LinkUser.CYCLISTI)
-        if self.is_usable_by_cars():
-            permitted_link_users.append(LinkUser.CAR)
+        return link_user.can_navigate_to_start(self)
 
-    def is_usable_by_pedestrians(self) -> bool:
+    def get_link_segments(self) -> list:
         """
-        Checks whether pedestrians are permitted to use the link.
+        Splits a link into segments, each consisting of two positions/coordinates.
+
+        :return: list, containing the segments
         """
-        highway_val = self.__tags.get("highway")
-        foot_val = self.__tags.get("foot")
+        segments = list()
 
-        if highway_val is not None:
-            if highway_val in {"residential", "living_street", "bridleway", "path"}:
-                if foot_val not in {None, "no"}:
-                    return True
+        for i in range(len(self.__geometry) - 1):
+            segment = (self.__geometry[i], self.__geometry[i + 1])
+            segments.append(segment)
 
-            elif highway_val in {"pedestrian", "footway", "steps"}:
-                return True
-
-        sidewalk_val = self.__tags.get("sidewalk")
-        if sidewalk_val in {"both", "left", "right"}:
-            if foot_val not in {None, "no"}:
-                return True
-
-        if foot_val in {"yes", "designated", "permissive"}:
-            return True
-
-        return False
-
-    def is_usable_by_cyclists(self) -> bool:
-        """
-        Checks whether cyclists are permitted to use the link.
-        """
-        highway_val = self.__tags.get("highway")
-        bicycle_val = self.__tags.get("bicycle")
-
-        if bicycle_val == "no":
-            return False
-
-        if highway_val is not None:
-
-            if highway_val in {"residential", "cycleway", "bridleway", "path"}:
-                return True
-
-            elif highway_val == "steps":
-                if self.__tags.get("ramp:bicycle") == "yes":
-                    return True
-
-        if bicycle_val is not None:
-            if bicycle_val in {"yes", "designated", "use_sidepath", "permissive", "destination"}:
-                return True
-
-        if self.__tags.get("cycleway") not in {None, "no"}:
-            return True
-
-        if self.__tags.get("bicycle_road") == "yes":
-            return True
-
-        if self.__tags.get("cyclestreet") == "yes":
-            return True
-
-        return False
-
-    def is_usable_by_cars(self) -> bool:
-        """
-        Checks whether cars are permitted to use the link.
-        """
-        highway_val = self.__tags.get("highway")
-        motor_vehicle_val = self.__tags.get("motor_vehicle")
-        motorcar_val = self.__tags.get("motorcar")
-
-        if highway_val is not None:
-            if highway_val in {"motorway", "trunk", "primary", "secondary", "tertiary", "motorway_link", "trunk_link", "primary_link", "secondary_link", "tertiary_link"}:
-                return True
-            elif highway_val in {"unclassified", "residential", "living_street"} and motor_vehicle_val != "no" and motorcar_val != "no":
-                return True
-
-        if motor_vehicle_val == "yes" or motorcar_val == "yes":
-            return True
-
-        return False
+        return segments
 
     def get_geometry(self):
         return self.__geometry
 
     def get_node_ids(self):
         return self.__node_ids
-
-    # beggel-changes
-    # def isNavFromStart(self, vehicleType):
-    #     """
-    #     Kann der Link vom Startknoten zum Endknoten befahren werden.
-    #
-    #     :param _self:
-    #     :return:
-    #     """
-    #     return 0
-    #
-    # def isNavToStart(self):
-    #     """
-    #     Kann der Link vom Endknoten zum StartKnoten befahren werden.
-    #
-    #     :param _self:
-    #     :return:
-    #     """
-    #     return 0

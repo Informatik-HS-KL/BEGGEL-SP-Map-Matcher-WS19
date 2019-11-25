@@ -3,15 +3,16 @@ Description: This file defines the endpoints of the REST-API.
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
+import time
 
 from flask import jsonify
-from flask import Response, request, Blueprint
+from flask import request, Blueprint
 from src.map_service import MapService
 from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
-from src.models.node import NodeId, Node
-from src.models.link import Link
-from src.router import RouterDijkstra
+from src.models.node import NodeId
+from src.utils.router import RouterBaseDijkstra, RouterLinkDijkstra, RouterDijkstra
+from src.models.link_user import Car
 
 map_service = MapService()
 api = Blueprint('api', __name__)
@@ -76,6 +77,28 @@ def get_tiles():
 
     return _resp({"description": "All Cached Tiles", "tiles": data})
 
+@api.route('tiles/stats')
+def get_tiles_stats():
+    """ :return Statisiken zu allen tiles im cache
+    """
+
+    tiles = map_service.get_all_cached_tiles()
+
+    count_nodes = 0
+    count_links = 0
+    all_tiles = []
+
+    for k, v in tiles.items():
+        all_tiles.append(k)
+        count_links += len(v.get_links())
+        count_nodes += len(v.get_nodes())
+
+    data = {
+        "count:tiles": len(all_tiles),
+        "count:nodes": count_nodes,
+        "count:links": count_links
+    }
+    return _resp({"description": "All Cached Tiles", "tiles": data})
 
 @api.route('/geohashes', methods=["GET"])
 def get_geohashes():
@@ -192,16 +215,16 @@ def get_crossroads(geohash):
 
     tile = map_service.get_tile(geohash)
     data = []
-    for node_id in tile.crossings:
+    for node in tile.get_nodes():
+        if len(node.get_links()) > 2:
 
-        node = map_service.get_node(node_id)
-        point = {
-            "type": "Point",
-            "coordinates": list(node.get_latlon()),
-            "info": { "geohash": node.get_id().geohash,
-                  "osmid": node.get_id().osm_node_id}
-        }
-        data.append(point)
+            point = {
+                "type": "Point",
+                "coordinates": list(node.get_latlon()),
+                "info": { "geohash": node.get_id().geohash,
+                      "osmid": node.get_id().osm_node_id}
+            }
+            data.append(point)
 
     return _resp(data)
 
@@ -231,14 +254,17 @@ def route():
 
     data = []
     result_nodes = []
-    print(node_from.get_parent_link(), node_to.get_parent_link())
-    router = RouterDijkstra()
-    router.set_start_link(node_from.get_parent_link())
-    router.set_end_link(node_to.get_parent_link())
-    result_nodes = router.compute()
 
+    # router = RouterBaseDijkstra(Car())  # Mit Laden: ~11 ohne 1,21
+    # router = RouterLinkDijkstra(Car())  # Mit Laden: ~12 ohne 3,31
+    router = RouterDijkstra(Car())  # Mit Laden: ~13 ohne 0.85
+    start_time = time.time()
+    router.set_start_link(node_from.get_parent_links()[0])
+    router.set_end_link(node_to.get_parent_links()[0])
+    result_nodes = router.compute()
+    print("Zeit: ", time.time() - start_time)
+    print("Loaded Tiles:",map_service.get_all_cached_tiles())
     for node in result_nodes:
-        print(node)
         point = {
             "type": "Point",
             "coordinates": list(node.get_latlon())
@@ -269,14 +295,14 @@ def get__linkdistance():
     from src.models.link_distance import LinkDistance
 
     pos = float(request.args.get("lat")), float(request.args.get("lon"))
-    linkdists = map_service.get_linkdistances_in_radius(pos, 150)
+    linkdists = map_service.get_linkdistances_in_radius(pos, 80)
 
     data = []
     for ld in linkdists:
         ld_data = {
             "link": ld.link.to_geojson(),
             "distance": ld.get_distance(),
-            "fraction": ld.get_fraction(),
+            "fraction": ld.get_fraction()
         }
         data.append(ld_data)
 

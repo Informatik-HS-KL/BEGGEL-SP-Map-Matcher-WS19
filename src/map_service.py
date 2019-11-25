@@ -74,6 +74,7 @@ class MapService:
         """"""
         self.name = "A"
 
+
     def get_nodes_in_bounding_box(self, bbox: BoundingBox):
         """
         Knoten einer Boudingbox zurückgeben.
@@ -175,9 +176,8 @@ class MapService:
 
     # def get_linkdistances_in_radius(self, pos, max_distance, max_nbr=10):
     def get_linkdistances_in_radius(self, pos, max_distance):
-        """ Match wenn Link Bbox mit pos und radius überlappt
-            können nicht erreicht werden.
-            Liste wird nach tatsächer distance sortiert und nur die max_nbr geringen Abstände zurückgegeben.
+        """ Match wenn Link Bbox mit pos und radius überlappt können nicht erreicht werden. Liste wird nach tatsächer
+        distance sortiert und nur die max_nbr geringen Abstände zurückgegeben.
         :param pos:
         :param max_distance:
         :return:
@@ -185,7 +185,6 @@ class MapService:
 
         bbox = BoundingBox.get_bbox_from_point(pos, max_distance)
         links = self.get_links_in_bounding_box(bbox)
-        links = _get_links_in_circle(links, pos, max_distance)
         linkdists = []
         for link in links:
             linkdists.append(LinkDistance(pos, link))
