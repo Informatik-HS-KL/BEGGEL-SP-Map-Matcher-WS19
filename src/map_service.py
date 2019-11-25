@@ -56,7 +56,7 @@ def _get_smaller_tile(tile, smaller_geohash_str):
         if link not in links and link.get_way_osm_id() in osm_ids:
             links[link.get_link_id()] = link
 
-    for link in links:  # Alle nodes aus den nachgeladenen Links und Nodes
+    for link in links.values():  # Alle nodes aus den nachgeladenen Links und Nodes
         for node_id in link.get_node_ids():
             if node_id not in nodes:
                 nodes[node_id] = tile.get_node(node_id)
@@ -112,8 +112,6 @@ class MapService:
         if len(geohash_str) > self._geoHashLevel:
             tile = self.__get_tile(geohash_str[:self._geoHashLevel])
             small_tile = _get_smaller_tile(tile, geohash_str)
-            for node in small_tile.get_nodes():
-                print("Nodes: ",node.get_id().osm_node_id)
             return small_tile
 
         nodes = {}
