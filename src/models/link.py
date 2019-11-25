@@ -38,6 +38,7 @@ class Link:
         self.__geometry = geometry  # contains the (lat, lon)-tupel of all nodes of the link
         self.__node_ids = node_ids
         self.__tags = None
+        self.__length = None
 
         self._map_service = src.map_service.MapService()
 
@@ -173,9 +174,18 @@ class Link:
 
     def get_length(self):
         """
-        Todo: An neue Linkstruktur anpassen (verwenden wir hier shapely oder nicht?)!!!
+        Returns the length of the link
+        once the length is calculated we will use the result over and over again
+        :return:length in meter
         """
-        return great_circle(self.get_start_node().get_latlon(), self.get_end_node().get_latlon())
+        if self.__length is None:
+            self.__length = 0
+            nodes = self.get_node_ids()
+            for i in range(len(nodes) - 1):
+                node_start = self._map_service.get_node(nodes[i])
+                node_end = self._map_service.get_node(nodes[i + 1])
+                self.__length = self.__length + great_circle(node_start.get_latlon(), node_end.get_latlon())
+        return self.__length
 
     def is_navigatable_from_start(self, link_user: LinkUser) -> bool:
         """
