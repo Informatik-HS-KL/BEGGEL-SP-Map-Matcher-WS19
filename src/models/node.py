@@ -105,11 +105,11 @@ class Node:
         Returns the OSM Id of the Node
         :return:
         """
-        return self.get_id().osm_node_id
+        return self.get_id().get_osm_node_id()
 
     def get_geohash(self):
         """
         Returns the Node Geohash
         :return:
         """
-        return self.get_id().geohash
+        return self.get_id().get_geohash()
