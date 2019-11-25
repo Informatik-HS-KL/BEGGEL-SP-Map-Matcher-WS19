@@ -49,35 +49,28 @@ def _get_links_in_circle(links, circle_center_lat_lon, circle_radius):
     return links_in_circle
 
 
-def get_smaller_tile(tile, smaller_geohash_str):
-    gt_links = tile.get_links()
-    gt_nodes = tile.get_nodes()
+def _get_smaller_tile(tile, smaller_geohash_str):
+    all_links = tile.get_links()
+    all_nodes = tile.get_nodes()
     nodes = {}
     links = {}
-    way_ids = set()
-    for node in gt_nodes:  # alle Nodes, die direkt im Tile liegen
+    osm_ids = set()
+    for node in all_nodes:  # alle Nodes, die direkt im Tile liegen
         if node.get_id().geohash[:len(smaller_geohash_str)] == smaller_geohash_str:
             nodes[node.get_id()] = node
 
-    for link in gt_links:  # alle Links, die direkt im Tile liegen
-        s_node_id = link.get_node_ids()[0]
-        e_node_id = link.get_node_ids()[len(link.get_node_ids()) - 1]
+    for link in all_links:  # alle Links, die direkt im Tile liegen
+        for n_id in link.get_node_ids():
+            if n_id in nodes:
+                osm_ids.add(link.get_link_id().osm_way_id)
+                links[link.get_link_id()] = link
+                break
 
-        if (s_node_id.geohash[:len(smaller_geohash_str)] == smaller_geohash_str or
-                e_node_id.geohash[:len(smaller_geohash_str)] == smaller_geohash_str):
-            way_ids.add(link.get_id().osm_way_id)
-            links[link.get_id()] = link
-        else:  # wenn Link nur mit einem Node zwischen Start und ende im Tile liegen
-            for n_id in link.get_node_ids():
-                if n_id in nodes:
-                    links[link.get_id()] = link
-                    break
+    for link in all_links:  # alle Links, die auf einem Weg im Tile liegen
+        if link not in links and link.get_way_osm_id() in osm_ids:
+            links[link.get_link_id()] = link
 
-    for link in gt_links:  # alle Links, die auf einem Weg im Tile liegen
-        if link not in links and link.get_way_osm_id() in way_ids:
-            links[link.get_id()] = link
-
-    for link in gt_links:  # Alle nodes aus den nachgeladenen Links
+    for link in links.values():  # Alle nodes aus den nachgeladenen Links und Nodes
         for node_id in link.get_node_ids():
             if node_id not in nodes:
                 nodes[node_id] = tile.get_node(node_id)
@@ -133,7 +126,7 @@ class MapService:
 
         if len(geohash_str) > self._geoHashLevel:
             tile = self.__get_tile(geohash_str[:self._geoHashLevel])
-            small_tile = get_smaller_tile(tile, geohash_str)
+            small_tile = _get_smaller_tile(tile, geohash_str)
             return small_tile
 
         nodes = {}
@@ -181,7 +174,7 @@ class MapService:
 
     def get_links(self, way_id):
         """
-        Returns all Links in Way d
+        Returns all Links in way id
         :param way_id:
         :return: [Link, Link]
         """
