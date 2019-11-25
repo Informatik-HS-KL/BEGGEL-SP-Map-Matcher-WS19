@@ -1,5 +1,6 @@
 from src.map_service import MapService
 from src.models.bounding_box import BoundingBox
+from src.models.link import Link
 from src.models.link_user import Pedestrian, Cyclist, Car
 
 
@@ -21,27 +22,17 @@ def main():
 
 
     print("Tests zu LinkDirections:")
-    mapService.get_tile("u1557")
-    links = mapService.get_links(147444263)
+    mapService.get_tile("u0v93")
+    links = mapService.get_links(186360637)
+    users = [Pedestrian(), Cyclist(), Car()]
+
     print(len(links))
     for link in links:
         print(link)
-        print(link.is_navigatable_to_start(Pedestrian()))
-        print(link.is_navigatable_from_start(Pedestrian()))
-        print(link.is_navigatable_to_start(Cyclist()))
-        print(link.is_navigatable_from_start(Cyclist()))
-        print(link.is_navigatable_to_start(Car()))
-        print(link.is_navigatable_from_start(Car()))
-
-def main2():
-    mapService = MapService()
-
-    mapService.get_tile("u0v90")
-    mapService.get_tile("u0v91")
-    mapService.get_tile("u33dc")
-    mapService.get_tile("u33d")
-
-
+        for user in users:
+            print(link.get_link_id(),":",link.is_navigatable_to_start(user))
+            print(link.get_link_id(),":",link.is_navigatable_from_start(user))
+        print()
 
 from src.rest.app import app
 def start_server():
@@ -50,7 +41,6 @@ def start_server():
         print("localhost:5000/api")
         app.run(host="localhost", port=5000)
 
-main2()
-#main()
+main()
 start_server()
 
