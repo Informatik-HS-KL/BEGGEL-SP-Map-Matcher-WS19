@@ -194,11 +194,8 @@ def route():
     print("Zeit: ", time.time() - start_time)
     print("Loaded Tiles:",map_service.get_all_cached_tiles())
     for node in result_nodes:
-        point = {
-            "type": "Point",
-            "coordinates": list(node.get_latlon())
-        }
-        data.append(point)
+
+        data.append(node.to_geojson())
 
     return _resp(data)
 

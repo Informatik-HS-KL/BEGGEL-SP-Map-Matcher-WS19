@@ -39,7 +39,7 @@ function renderNodes(map, nodes, color){
             radius: 5
         })
         if(node["properties"] != undefined) {
-            circle.bindPopup(node["properties"]["geohash"] + " OSM:" + node["properties"]["osmid"]);
+            circle.bindPopup(node["properties"]["geohash"] + " OSM:" + node["properties"]["osm_node_id"]);
             circle.props = node["properties"];
         }
         start = false;
@@ -49,12 +49,12 @@ function renderNodes(map, nodes, color){
 
             if(!start){
                 map.app.router.geohashStart = props.geohash;
-                map.app.router.osmStart = props.osmid;
+                map.app.router.osmStart = props.osm_node_id;
                 start = true;
             }
             else{
                 map.app.router.geohashEnd = props.geohash;
-                map.app.router.osmEnd = props.osmid;
+                map.app.router.osmEnd = props.osm_node_id;
             }
         })
         circle.addTo(map);
