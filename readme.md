@@ -54,11 +54,12 @@ was ist mit den imports
 ## Models
 The following paragraph discusses the data model in the Map Service
 ### Nodes
-TODO
+Nodes are a reflection of the nodes of Overpass.
+They have an ID consisting of a Lvl 12 Geohash and the Node Id from Overpass Node.
+
 ### Links
-TODO
+
 ### Tiles
-TODO
 
 ## Functions
 Below is a list of the basic functions.  
