@@ -5,7 +5,6 @@ https://github.com/vinsci/geohash/
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-
 # """
 # https://github.com/vinsci/geohash/
 #
@@ -56,7 +55,7 @@ class GeoHashWrapper:
         # ist derzeit allerdings noch nicht implementiert.
         if bbox not in big_bounding_box:
             raise Exception("Die angegebene BoundingBox ist zu groß, da sie in keiner Kachel mit geohash_level = %s "
-                            "enthalten ist." %(level-1))
+                            "enthalten ist." % (level - 1))
 
         list_of_geo_hashes = []
         for b in self.base32:
@@ -65,11 +64,3 @@ class GeoHashWrapper:
                 list_of_geo_hashes.append(new_geohash)
 
         return list_of_geo_hashes
-
-    def is_first_bbox_larger_than_second_bbox(self, bbox1, bbox2):
-        """"""
-        # TODO wird noch benötigt ?
-
-    def get_bounding_box(self, geohash):
-        """implement with lib"""
-        # TODO wird noch benötigt ?

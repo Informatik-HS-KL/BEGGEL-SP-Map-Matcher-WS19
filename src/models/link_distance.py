@@ -5,7 +5,6 @@ information, e.g. the shortest distance between the point and the link or the ne
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz"""
 
-
 from src.geo_utils import great_circle
 import math
 
@@ -23,9 +22,6 @@ class LinkDistance:
         # Ortogonalprojektion von Punkt auf Link
         self._matched_point: tuple = None
 
-        # distance zw. punkt und ortogonalprojekton von Punkt auf Link
-        self.distance = None
-
         # Fraction beschreibt die Position auf dem Link. (latMatched, lonMatched)
         # liegt ja nämlich vielleicht  irgendwo in der Mitte des Links, z.B. F=0.5
         # F=0: StartKnoten, F=1: EndKnoten, F=0.5 : mitte des Links,....
@@ -34,28 +30,22 @@ class LinkDistance:
         # Das dazugehörige Link-Objekt
         self.link = link
 
-        # Gibt an, ob self schon vollständig initialisiert wurde (für weitere Details siehe _lazy_load(self))
-        self.init = False
-
-    # Todo (13.11.2019, Lukas Felzmann): _lazy_load kommt raus. Funktionalität muss in _init_ übernommen werden.
-    def _lazy_load(self):
-        """
-        Diese Methode schließt die Initialisierung ab.
-        :return: void
-        """
-        self.init = True
         self._initialize_matched_point_and_fraction()
+        # distance zw. punkt und ortogonalprojekton von Punkt auf Link
         self.distance = great_circle(self._matched_point, self._lat_lon)
 
     def get_distance(self):
-        if not self.init:
-            self._lazy_load()
+        """
+        Returns the calculated distance between Link and Point
+        :return:
+        """
         return self.distance
 
     def get_fraction(self):
-        if not self.init:
-            self._lazy_load()
-
+        """
+        Returns the next next position in percent on the link
+        :return:
+        """
         return self.fraction
 
     def _calc_fraction(self, link_segments, involved_segment):
@@ -70,7 +60,7 @@ class LinkDistance:
         for seg in link_segments:
             if seg == involved_segment:
                 distance += great_circle(seg[0], self._matched_point)
-                return distance/self.link.get_length()
+                return distance / self.link.get_length()
 
             else:
                 distance += great_circle(seg[0], seg[1])
@@ -129,17 +119,9 @@ class LinkDistance:
         else:
             c_lat = a_lat + factor * delta_lat
             c_lon = a_lon + factor * delta_lon
-            matched_point = (c_lat, c_lon/shrink_factor)
+            matched_point = (c_lat, c_lon / shrink_factor)
 
         return matched_point
-
-    def get_distance(self):
-        """
-        :return:
-        """
-        if not self.init:
-            self._lazy_load()
-        return self.distance
 
     def _initialize_matched_point_and_fraction(self):
         """
@@ -163,3 +145,9 @@ class LinkDistance:
 
         self._matched_point = matched_point
         self.fraction = self._calc_fraction(link_segments, involved_segment)
+
+    def get_link(self):
+        return self.link
+
+    def get_point(self):
+        return self._lat_lon

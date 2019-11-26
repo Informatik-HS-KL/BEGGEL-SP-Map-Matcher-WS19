@@ -31,15 +31,16 @@ function setView(map, coords) {
 }
 function renderNodes(map, nodes, color){
     nodes.forEach(function (node) {
-        var circle = L.circle(node["coordinates"], {
+
+        var circle = L.circle(node["geometry"]["coordinates"], {
             color: color,
             fillColor: color,
             fillOpacity: 0.5,
             radius: 5
         })
-        if(node["info"] != undefined) {
-            circle.bindPopup(node["info"]["geohash"] + " OSM:" + node["info"]["osmid"]);
-            circle.props = node["info"];
+        if(node["properties"] != undefined) {
+            circle.bindPopup(node["properties"]["geohash"] + " OSM:" + node["properties"]["osm_node_id"]);
+            circle.props = node["properties"];
         }
         start = false;
 
@@ -48,12 +49,12 @@ function renderNodes(map, nodes, color){
 
             if(!start){
                 map.app.router.geohashStart = props.geohash;
-                map.app.router.osmStart = props.osmid;
+                map.app.router.osmStart = props.osm_node_id;
                 start = true;
             }
             else{
                 map.app.router.geohashEnd = props.geohash;
-                map.app.router.osmEnd = props.osmid;
+                map.app.router.osmEnd = props.osm_node_id;
             }
         })
         circle.addTo(map);
@@ -148,12 +149,12 @@ var app = new Vue({
                     geoData = JSON.parse(xhr.responseText);
                     that.message = geoData
                     if(that.cmd == "nodes"){
-                        setView(that.map, geoData[0].coordinates)
+                        setView(that.map, geoData[0].geometry.coordinates)
                         renderNodes(that.map, geoData, '#ff0911')
                         that.logitems.push({line1: that.cmd + ": "+ that.geohash, line2: geoData.length, line3: that.geohash + that.cmd})
                     }
                     if(that.cmd == "crossings"){
-                        setView(that.map, geoData[0].coordinates)
+                        setView(that.map, geoData[0].geometry.coordinates)
                         renderNodes(that.map, geoData, '#1109ff')
                         that.logitems.push({line1: that.cmd + ": "+ that.geohash, line2: geoData.length, line3: that.geohash + that.cmd})
                     }

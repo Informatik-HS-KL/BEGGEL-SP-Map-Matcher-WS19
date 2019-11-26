@@ -5,7 +5,6 @@ the obtained data into the convenient model-objects.
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-
 import collections
 import time
 from abc import ABC, abstractmethod
@@ -20,8 +19,6 @@ from src.models.bounding_box import BoundingBox
 
 from src.config import CONFIG
 
-
-# Todo: Testen !!!
 
 class OverpassWrapper(ABC):
     """
@@ -260,7 +257,8 @@ class OverpassWrapperClientSide(OverpassWrapper):
 
         osm_nodes = list(filter(lambda e: e["type"] == "node", elements))
         osm_ways = list(filter(lambda e: e["type"] == "way", elements))
-        osm_id_nodes_dict = dict(map(lambda n: self.__create_node(n["id"], (n["lat"], n["lon"]), n.get("tags")), osm_nodes))
+        osm_id_nodes_dict = dict(
+            map(lambda n: self.__create_node(n["id"], (n["lat"], n["lon"]), n.get("tags")), osm_nodes))
 
         crossings_osm_ids = self._crossings(osm_ways)
 
@@ -288,7 +286,6 @@ class OverpassWrapperClientSide(OverpassWrapper):
         crossing_osm_ids = dict(filter(lambda i: i[1] > 1, collections.Counter(all).items()))
         return crossing_osm_ids
 
-
     def _build_link_dictionary(self, osm_ways: list, crossings: list, nodes: dict):
         """
         :param osm_ways: raw way data from overpass as dict
@@ -313,6 +310,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
                 link_node_ids.append(node_id)
 
                 if (node_id.osm_node_id in crossings or way_nodes_ids[-1] == node_id.osm_node_id) and i != 0:  # Wenn Kreuzung oder Ende des
+
                     # Ways erreicht. Ausnahme: wir befinden uns noch am Anfang des Links (closed link)!!!
                     link_id = LinkId(way["id"], link_node_ids[0])
                     link = Link(link_id, link_geometry, link_node_ids)
@@ -320,7 +318,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
                     links[link_id] = link
 
                     for nid in link_node_ids:
-                            nodes[nid.osm_node_id].add_parent_link(link)
+                        nodes[nid.osm_node_id].add_parent_link(link)
 
                     nodes[link_node_ids[0].osm_node_id].add_link(link)
                     nodes[link_node_ids[-1].osm_node_id].add_link(link)

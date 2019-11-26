@@ -17,53 +17,60 @@ from src.geo_utils import great_circle
 from src.config import MapServiceConfig
 from src.config import CONFIG
 
-def __one_of_the_nodes_in_circle(points, circle_center_latlon, circle_radius):
-    """Prüft ob eines der Nodes innerhalb des Zirkels sind"""
+def __one_node_in_circle(points, circle_center_lat_lon, circle_radius):
+    """
+    Check if one of the points in the circle
+    :param points: list of points like [(lat, lon),(lat, lon),...]
+    :param circle_center_lat_lon: the center of the circle as tuple (lat, lon)
+    :param circle_radius: radius of the circle (unit of measurement like great_circle() Method)
+    :return: True if one of the points inside the circle else False
+    """
     for point in points:
-        if abs(great_circle(point, circle_center_latlon)) <= circle_radius:
+        if abs(great_circle(point, circle_center_lat_lon)) <= circle_radius:
             return True
     return False
 
 
-def _get_links_in_circle(links, circle_center_latlon, circle_radius):
-    """ Sortiert Links, die nicht in dem Kreis sind aus"""
+def _get_links_in_circle(links, circle_center_lat_lon, circle_radius):
+    """
+    Returns a list with links inside the given circle (point and radius)
+    The Circle is geometric and no depict of the earth
+    :param links: a list with links that may be in a circle
+    :param circle_center_lat_lon: the center of the circle as tuple in (lat, lon)
+    :param circle_radius: radius of the circle (unit of measurement like great_circle() Method)
+    :return: returns a list of all links inside the circle
+    """
     links_in_circle = []
     for link in links:
         points = link.get_geometry()
-        if __one_of_the_nodes_in_circle(points, circle_center_latlon, circle_radius):
+        if __one_node_in_circle(points, circle_center_lat_lon, circle_radius):
             links_in_circle.append(link)
+            continue
     return links_in_circle
 
 
-def get_smaller_tile(tile, smaller_geohash_str):
-    gt_links = tile.get_links()
-    gt_nodes = tile.get_nodes()
+def _get_smaller_tile(tile, smaller_geohash_str):
+    all_links = tile.get_links()
+    all_nodes = tile.get_nodes()
     nodes = {}
     links = {}
-    way_ids = set()
-    for node in gt_nodes:  # alle Nodes, die direkt im Tile liegen
+    osm_ids = set()
+    for node in all_nodes:  # alle Nodes, die direkt im Tile liegen
         if node.get_id().geohash[:len(smaller_geohash_str)] == smaller_geohash_str:
             nodes[node.get_id()] = node
 
-    for link in gt_links:  # alle Links, die direkt im Tile liegen
-        s_node_id = link.get_node_ids()[0]
-        e_node_id = link.get_node_ids()[len(link.get_node_ids()) - 1]
+    for link in all_links:  # alle Links, die direkt im Tile liegen
+        for n_id in link.get_node_ids():
+            if n_id in nodes:
+                osm_ids.add(link.get_link_id().osm_way_id)
+                links[link.get_link_id()] = link
+                break
 
-        if (s_node_id.geohash[:len(smaller_geohash_str)] == smaller_geohash_str or
-                e_node_id.geohash[:len(smaller_geohash_str)] == smaller_geohash_str):
-            way_ids.add(link.get_link_id().osm_way_id)
-            links[link.get_link_id()] = link
-        else:  # wenn Link nur mit einem Node zwischen Start und ende im Tile liegen
-            for n_id in link.get_node_ids():
-                if n_id in nodes:
-                    links[link.get_link_id()] = link
-                    break
-
-    for link in gt_links:  # alle Links, die auf einem Weg im Tile liegen
-        if link not in links and link.get_way_osm_id() in way_ids:
+    for link in all_links:  # alle Links, die auf einem Weg im Tile liegen
+        if link not in links and link.get_way_osm_id() in osm_ids:
             links[link.get_link_id()] = link
 
-    for link in gt_links:  # Alle nodes aus den nachgeladenen Links
+    for link in links.values():  # Alle nodes aus den nachgeladenen Links und Nodes
         for node_id in link.get_node_ids():
             if node_id not in nodes:
                 nodes[node_id] = tile.get_node(node_id)
@@ -151,7 +158,7 @@ class MapService:
 
         if len(geohash_str) > self._geoHashLevel:
             tile = self.__get_tile(geohash_str[:self._geoHashLevel])
-            small_tile = get_smaller_tile(tile, geohash_str)
+            small_tile = _get_smaller_tile(tile, geohash_str)
             return small_tile
 
         nodes = {}
@@ -194,8 +201,7 @@ class MapService:
 
     def get_links(self, way_id):
         """
-        ACHTUNG: DAS HIER IST NOCH NICHT PERFORMANT
-        TODO
+        Returns all Links in way id
         :param way_id:
         :return: [Link, Link]
         """
@@ -219,6 +225,7 @@ class MapService:
 
         bbox = BoundingBox.get_bbox_from_point(pos, max_distance)
         links = self.get_links_in_bounding_box(bbox)
+        # links = _get_links_in_circle(links, pos, max_distance)
         linkdists = []
         for link in links:
             linkdists.append(LinkDistance(pos, link))
