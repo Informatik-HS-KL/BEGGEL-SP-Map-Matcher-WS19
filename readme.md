@@ -10,7 +10,7 @@ For a simpler check of the links and nodes, a website was created using [Leaflet
 
 1. Python: 3.7 [(download)](https://www.python.org/downloads/)
 2. shapely
-4. flask
+3. flask
 
 ## Installation
 1. Install shapely
@@ -24,9 +24,6 @@ The base configurations of the Project are in the src/config.ini file.
 In this configurations are 3 sections.
 1. DEFAULT Selection  
 In this selection are base parameters like overpass_url etc.
-2. HIGHWAY_FOOT Selection  
-In this selection you can choose the loaded street types for pedestrians.
-By Default all street types will loaded.
 2. HIGHWAY_CARS Selection  
 In this selection you can choose the loaded street types for vehicles.
 By Default all street types will loaded.  
@@ -54,6 +51,13 @@ was ist mit den imports
         
 
 
+## Models
+### Nodes
+TODO
+### Links
+TODO
+### Tiles
+TODO
 
 ## Functions
 Below is a list of the basic functions.  
@@ -115,7 +119,11 @@ Returns all already loaded Tiles.
             print("LinkDistance: ", ld.get_distance(),"m", "Fraction: ", ld.get_fraction())
 
 This example prints out all links with their distances around the first point (Node) in the Tile.
-        
+    
+## Own OverpassWrapper
+You're able to create Your Own OverpassWrapper Class.
+derive from the abstract OverpassWrapper and overwrite load_tile with your own 
+ 
 ## Data Visualisation (testing)
 After the start you have the opportunity to Visual your Links and Nodes. 
 We implement a test web page under [localhost](http://http://localhost:5000/). 
@@ -124,7 +132,7 @@ We implement a test web page under [localhost](http://http://localhost:5000/).
 In the Visualisation you can choose if you want to see all Nodes or Links in a Geohash.
 Set Nodes and Links are preserved.
 
-## Wrongdoer
+## Contributer
   
 Lukas F. , Sebastian L. , Kai P.  
 Supervisor:  
