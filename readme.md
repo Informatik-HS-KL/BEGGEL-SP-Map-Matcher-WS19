@@ -52,6 +52,7 @@ was ist mit den imports
 
 
 ## Models
+The following paragraph discusses the data model in the Map Service
 ### Nodes
 TODO
 ### Links
@@ -105,7 +106,33 @@ and return it as a Tile with nodes and Links.
 Returns all already loaded Tiles.
 
 ### Routing
-
+    
+    def routing():
+        mapService = MapService()
+        
+        # Init Router with Linkuser (Car, Cyclist or Pedestrian)
+        router = RouterDijkstra(Car())
+    
+        # set the start link
+        router.set_start_link(mapService.get_link(314409401, NodeId(258779029, "u0v9045fe6u1")))
+        ## optional fraction (position on link: 1>= fraction >= 0)
+        # router.set_start_link(mapService.get_link(314409401, NodeId(258779029, "u0v9045fe6u1")),0.0)
+        ## optional fraction and position (from_start_to_end as boolean)
+        # router.set_start_link(mapService.get_link(314409401, NodeId(258779029, "u0v9045fe6u1")),1.0, True)
+    
+        # set the end link
+        router.set_end_link(mapService.get_link(25779169, NodeId(281181557, "u0v922p75804")))
+        ## optional fraction (position on link: 1>= fraction >= 0)
+        # router.set_end_link(mapService.get_link(25779169, NodeId(281181557, "u0v922p75804")),0.0)
+        ## optional fraction and position (from_start_to_end as boolean)
+        # router.set_end_link(mapService.get_link(25779169, NodeId(281181557, "u0v922p75804")),1.0, True)
+    
+        # Calculates the shortest route and returns it as a list of nodes
+        result_nodes = router.compute()  # Returns a list of nodes as a way
+This example calculates the route using the Dijkstra. 
+The route is returned as a node list. 
+The Dijkstra also takes into account one-way streets. 
+    
 ### Distances
 
     def example()
