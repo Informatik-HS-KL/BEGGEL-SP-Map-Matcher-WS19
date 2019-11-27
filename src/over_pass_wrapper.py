@@ -310,18 +310,22 @@ class OverpassWrapperClientSide(OverpassWrapper):
                 link_geometry.append(node_pos)
                 link_node_ids.append(node_id)
 
-                if node_id.osm_node_id in crossings or way_nodes_ids[-1] == node_id.osm_node_id and i != 0:  # Wenn Kreuzung oder Ende des
+
+                if node_id.osm_node_id in crossings or (way_nodes_ids[-1] == node_id.osm_node_id and i != 0) or level5(node_id.geohash) != level5(nodes[way_nodes_ids[i+1]].geohash) :  # Wenn Kreuzung oder Ende des
                     # Ways erreicht. Ausnahme: wir befinden uns noch am Anfang des Links (closed link)!!!
                     link_id = LinkId(way["id"], link_node_ids[0])
                     link = Link(link_id, link_geometry, link_node_ids)
                     link.set_tags(way.get("tags"))
-                    links[link_id] = link
+                    if link is not completeley out of my tileId:
+                        links[link_id] = link
 
-                    for nid in link_node_ids:
-                        nodes[nid.osm_node_id].add_parent_link(link)
+                        for nid in link_node_ids:
+                            nodes[nid.osm_node_id].add_parent_link(link)
 
-                    nodes[link_node_ids[0].osm_node_id].add_link(link)
-                    nodes[link_node_ids[-1].osm_node_id].add_link(link)
+                        if nodes contains link_node_ids[0].osm_node_id:
+                            nodes[link_node_ids[0].osm_node_id].add_link(link)
+                        if nodes contains link_node_ids[-1].osm_node_id:
+                        nodes[link_node_ids[-1].osm_node_id].add_link(link)
 
                     #  Re-Initialization for the next link
                     link_geometry = [node_pos]
