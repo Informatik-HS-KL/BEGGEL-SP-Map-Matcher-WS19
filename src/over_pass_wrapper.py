@@ -310,29 +310,50 @@ class OverpassWrapperClientSide(OverpassWrapper):
                 link_geometry.append(node_pos)
                 link_node_ids.append(node_id)
 
-                lvl5_geohash_nid = node_id.geohash[:5]
-                lvl5_geohash_next_nid = None
+                lvl5_geohash_nid = node_id.geohash[:len(geohash)]
                 last_node = way_nodes_ids[-1]
 
                 if (node_id.osm_node_id in crossings and i != 0) or last_node == node_id.osm_node_id or \
-                        lvl5_geohash_nid != nodes[way_nodes_ids[i+1]].get_id().geohash[:5]:  # Wenn Kreuzung oder Ende des
-                    # Ways erreicht. Ausnahme: wir befinden uns noch am Anfang des Links (closed link)!!!
+                        lvl5_geohash_nid != nodes[way_nodes_ids[i+1]].get_id().geohash[:len(geohash)]:
+                    # Wenn Kreuzung oder Ende des Ways erreicht. Ausnahme: wir befinden
+                    # uns noch am Anfang des Links (closed link)!!!
 
-                    link_id = LinkId(way["id"], link_node_ids[0])
-                    link = Link(link_id, link_geometry, link_node_ids)
-                    link.set_tags(way.get("tags"))
+                    if link_node_ids[0].geohash[:len(geohash)] == geohash and \
+                            link_node_ids[-1].geohash[:len(geohash)] == geohash:  # If Link inside Geohash
 
-                    if link_node_ids[0].geohash[:len(geohash)] == geohash or link_node_ids[-1].geohash[:len(geohash)] == geohash:
-                    #if link is not completeley out of my tileId:
+                        link_id = LinkId(way["id"], link_node_ids[0])
+
+                    elif link_node_ids[-2].geohash[:len(geohash)] == geohash and \
+                            link_node_ids[-1].geohash[:len(geohash)] != geohash:  # If Link overhang
+
+                        link_id = LinkId(way["id"], link_node_ids[0])
+                        link = Link(link_id, link_geometry, link_node_ids)
+                        link.set_tags(way.get("tags"))
                         links[link_id] = link
 
-                        for nid in link_node_ids:
-                            nodes[nid.osm_node_id].add_parent_link(link)
+                        link_id = LinkId(way["id"], link_node_ids[-2])
+                        link_geometry = [link_geometry[-2], link_geometry[-1]]
+                        link_node_ids = [link_node_ids[-2], link_node_ids[-1]]
 
-                        if nodes.get(link_node_ids[0]):
-                            nodes[link_node_ids[0].osm_node_id].add_link(link)
-                        if nodes.get(link_node_ids[-1]):
-                            nodes[link_node_ids[-1].osm_node_id].add_link(link)
+                    elif link_node_ids[-2].geohash[:len(geohash)] != geohash and \
+                            link_node_ids[-1].geohash[:len(geohash)] == geohash:  # If Link protrude
+                        link_id = LinkId(way["id"], link_node_ids[-2])
+                        link_geometry = [link_geometry[-2], link_geometry[-1]]
+                        link_node_ids = [link_node_ids[-2], link_node_ids[-1]]
+                    else:
+                        continue
+
+                    link = Link(link_id, link_geometry, link_node_ids)
+                    link.set_tags(way.get("tags"))
+                    links[link_id] = link
+
+                    if nodes.get(link_node_ids[0]):
+                        nodes[link_node_ids[0].osm_node_id].add_link(link)
+                    if nodes.get(link_node_ids[-1]):
+                        nodes[link_node_ids[-1].osm_node_id].add_link(link)
+
+                    for nid in link_node_ids:
+                        nodes[nid.osm_node_id].add_parent_link(link)
 
                     #  Re-Initialization for the next link
                     link_geometry = [node_pos]
