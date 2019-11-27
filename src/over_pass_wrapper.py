@@ -263,7 +263,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
 
         crossings_osm_ids = self._crossings(osm_ways)
 
-        links = self._build_link_dictionary(osm_ways, crossings_osm_ids, osm_id_nodes_dict)
+        links = self._build_link_dictionary(geo_hash, osm_ways, crossings_osm_ids, osm_id_nodes_dict)
         nodes = dict(map(lambda n: (n.get_id(), n), osm_id_nodes_dict.values()))
 
         t = Tile(geo_hash, nodes, links)
@@ -287,7 +287,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
         crossing_osm_ids = dict(filter(lambda i: i[1] > 1, collections.Counter(all).items()))
         return crossing_osm_ids
 
-    def _build_link_dictionary(self, osm_ways: list, crossings: list, nodes: dict):
+    def _build_link_dictionary(self, geohash: str, osm_ways: list, crossings: list, nodes: dict):
         """
         :param osm_ways: raw way data from overpass as dict
         :param crossings: List of Nodeids represent crossings in street
@@ -310,22 +310,29 @@ class OverpassWrapperClientSide(OverpassWrapper):
                 link_geometry.append(node_pos)
                 link_node_ids.append(node_id)
 
+                lvl5_geohash_nid = node_id.geohash[:5]
+                lvl5_geohash_next_nid = None
+                last_node = way_nodes_ids[-1]
 
-                if node_id.osm_node_id in crossings or (way_nodes_ids[-1] == node_id.osm_node_id and i != 0) or level5(node_id.geohash) != level5(nodes[way_nodes_ids[i+1]].geohash) :  # Wenn Kreuzung oder Ende des
+                if (node_id.osm_node_id in crossings and i != 0) or last_node == node_id.osm_node_id or \
+                        lvl5_geohash_nid != nodes[way_nodes_ids[i+1]].get_id().geohash[:5]:  # Wenn Kreuzung oder Ende des
                     # Ways erreicht. Ausnahme: wir befinden uns noch am Anfang des Links (closed link)!!!
+
                     link_id = LinkId(way["id"], link_node_ids[0])
                     link = Link(link_id, link_geometry, link_node_ids)
                     link.set_tags(way.get("tags"))
-                    if link is not completeley out of my tileId:
+
+                    if link_node_ids[0].geohash[:len(geohash)] == geohash or link_node_ids[-1].geohash[:len(geohash)] == geohash:
+                    #if link is not completeley out of my tileId:
                         links[link_id] = link
 
                         for nid in link_node_ids:
                             nodes[nid.osm_node_id].add_parent_link(link)
 
-                        if nodes contains link_node_ids[0].osm_node_id:
+                        if nodes.get(link_node_ids[0]):
                             nodes[link_node_ids[0].osm_node_id].add_link(link)
-                        if nodes contains link_node_ids[-1].osm_node_id:
-                        nodes[link_node_ids[-1].osm_node_id].add_link(link)
+                        if nodes.get(link_node_ids[-1]):
+                            nodes[link_node_ids[-1].osm_node_id].add_link(link)
 
                     #  Re-Initialization for the next link
                     link_geometry = [node_pos]
