@@ -143,7 +143,7 @@ class MapService:
         so wird es erst noch geladen und im Cache gespeichert."""
 
         # from src.over_pass_wrapper import OverpassWrapperServerSide
-        from src.over_pass_wrapper import OverpassWrapperClientSide
+        from src.overpass_wrapper_client import OverpassWrapperClientSide
 
         full_geohash_level = CONFIG.getint("DEFAULT", "full_geohash_level")
         OVERPASS_URL = CONFIG.get("DEFAULT", "overpass_url")
