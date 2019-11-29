@@ -160,7 +160,7 @@ def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_
     while i < CONFIG.getint("DEFAULT", "max_dijkstra_iterations"):
         i = i + 1
         if len(possible_ways) == 0:
-            return Exception("Route Not Possible")
+            raise Exception("Route Not Possible")
         possible_ways = sorted(possible_ways, key=lambda pw: pw[0])
         destinations = [link for link in possible_ways[0][1][-1].get_links_at_start_node(link_user)] + \
                        [link for link in possible_ways[0][1][-1].get_links_at_end_node(link_user)]
