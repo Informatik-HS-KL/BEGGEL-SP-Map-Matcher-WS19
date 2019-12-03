@@ -102,7 +102,7 @@ def get_tile(geohash):
         return jsonify({"Error": "Level have to be >= 4"})
 
     msw = MapserviceWrapper(map_service)
-    data = msw.get_dict_tile()
+    data = msw.get_dict_tile(geohash)
     return _resp(data)
 
 
