@@ -16,6 +16,8 @@ from src.models.link_distance import LinkDistance
 from src.geo_utils import great_circle
 from src.config import MapServiceConfig
 from src.config import CONFIG
+from src.overpass_wrapper_client import OverpassWrapperClientSide
+
 
 def __one_node_in_circle(points, circle_center_lat_lon, circle_radius):
     """
@@ -62,13 +64,13 @@ def _get_smaller_tile(tile, smaller_geohash_str):
     for link in all_links:  # alle Links, die direkt im Tile liegen
         for n_id in link.get_node_ids():
             if n_id in nodes:
-                osm_ids.add(link.get_link_id().osm_way_id)
-                links[link.get_link_id()] = link
+                osm_ids.add(link.get_id().osm_way_id)
+                links[link.get_id()] = link
                 break
 
     for link in all_links:  # alle Links, die auf einem Weg im Tile liegen
         if link not in links and link.get_way_osm_id() in osm_ids:
-            links[link.get_link_id()] = link
+            links[link.get_id()] = link
 
     for link in links.values():  # Alle nodes aus den nachgeladenen Links und Nodes
         for node_id in link.get_node_ids():
@@ -85,7 +87,6 @@ class MapService:
 
     def __init__(self):
         """"""
-        from src.over_pass_wrapper import OverpassWrapperClientSide
 
         self.name = "A"
         self.config = CONFIG
@@ -174,6 +175,7 @@ class MapService:
         """Gibt das entprechende Tile zurück. Liegt es noch nicht im Tile-Cache,
         so wird es erst noch geladen und im Cache gespeichert."""
 
+        self.opw = OverpassWrapperClientSide(self.config)
 
         if geohash_str not in self._tileCache:
             self._tileCache[geohash_str] = self.overpass_wrapper.load_tile(geohash_str)

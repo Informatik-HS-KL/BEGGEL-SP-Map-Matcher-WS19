@@ -1,6 +1,5 @@
 from abc import ABC
 
-from src import CONFIG
 from src.models.link import Link
 from src.models.link_user import LinkUser
 
@@ -131,7 +130,7 @@ def link_to_link_dijkstra(initial, end_link, weight_function: WeightCalculator()
 
 
 def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_function, from_start_to_end,
-                     link_user: LinkUser):
+                     link_user: LinkUser, max_dijkstra_iterations=10000):
     """
     This Dijkstra also takes into account route options such as one-way streets
     Default a list of all start Nodes will return if no possible  route it returns a Error String
@@ -157,10 +156,10 @@ def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_
     else:
         __update_first_way(possible_ways, start_link.get_links_at_start_node(link_user), weight_function, already_used)
     i = 0
-    while i < CONFIG.getint("DEFAULT", "max_dijkstra_iterations"):
+    while i < max_dijkstra_iterations:
         i = i + 1
         if len(possible_ways) == 0:
-            return Exception("Route Not Possible")
+            raise Exception("Route Not Possible")
         possible_ways = sorted(possible_ways, key=lambda pw: pw[0])
         destinations = [link for link in possible_ways[0][1][-1].get_links_at_start_node(link_user)] + \
                        [link for link in possible_ways[0][1][-1].get_links_at_end_node(link_user)]

@@ -23,6 +23,15 @@ class Router(ABC):
         self.e_fraction = None
         self.s_from_start_to_end = None
         self.e_from_start_to_end = None
+        self.max_iterations = 10000
+
+    def set_max_iterations(self, val):
+        """
+        Maximale Iterationsschritte
+        :return:
+        """
+        self.max_iterations = val
+
 
     def set_start_link(self, link, fraction=0.0, from_start_to_end: bool = True):
         """

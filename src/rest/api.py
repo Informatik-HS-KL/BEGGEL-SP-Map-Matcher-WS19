@@ -102,7 +102,7 @@ def get_tile(geohash):
         return jsonify({"Error": "Level have to be >= 4"})
 
     msw = MapserviceWrapper(map_service)
-    data = msw.get_dict_tile()
+    data = msw.get_dict_tile(geohash)
     return _resp(data)
 
 
@@ -186,7 +186,9 @@ def route():
 
     # router = RouterBaseDijkstra(Car())  # Mit Laden: ~11 ohne 1,21
     # router = RouterLinkDijkstra(Car())  # Mit Laden: ~12 ohne 3,31
-    router = RouterDijkstra(Car())  # Mit Laden: ~13 ohne 0.85
+    router = RouterDijkstra(Car()) # Mit Laden: ~13 ohne 0.85
+    router.set_max_iterations(map_service.config.getint("DEFAULT", "max_dijkstra_iterations"))
+
     start_time = time.time()
     router.set_start_link(node_from.get_parent_links()[0])
     router.set_end_link(node_to.get_parent_links()[0])
