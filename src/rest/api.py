@@ -169,35 +169,29 @@ def route():
     ?geofrom=u0v90hsp01h2&geoto=u0v90jk7p21y&osmfrom=1298232519&osmto=266528360
     """
 
-    full_geohash_from = request.args.get("geofrom")
-    full_geohash_to = request.args.get("geoto")
+    pos1 = float(request.args.get("start_lat")), float(request.args.get("start_lon"))
+    start_link = map_service.get_linkdistances_in_radius(pos1, 10)[0].get_link()
 
-    osmid_from = request.args.get("osmfrom")
-    osmid_to = request.args.get("osmto")
-
-    node_id_from = NodeId(int(osmid_from), full_geohash_from)
-    node_id_to = NodeId(int(osmid_to), full_geohash_to)
-
-    node_from = map_service.get_node(node_id_from)
-    node_to = map_service.get_node(node_id_to)
+    pos2 = float(request.args.get("end_lat")), float(request.args.get("end_lon"))
+    end_link = map_service.get_linkdistances_in_radius(pos2, 10)[0].get_link()
 
     data = []
-    result_nodes = []
+    result_links = []
 
     # router = RouterBaseDijkstra(Car())  # Mit Laden: ~11 ohne 1,21
     # router = RouterLinkDijkstra(Car())  # Mit Laden: ~12 ohne 3,31
-    router = RouterDijkstra(Car()) # Mit Laden: ~13 ohne 0.85
+    router = RouterDijkstra(Car())  # Mit Laden: ~13 ohne 0.85
     router.set_max_iterations(map_service.config.getint("DEFAULT", "max_dijkstra_iterations"))
 
     start_time = time.time()
-    router.set_start_link(node_from.get_parent_links()[0])
-    router.set_end_link(node_to.get_parent_links()[0])
-    result_nodes = router.compute()
+    router.set_start_link(start_link)
+    router.set_end_link(end_link)
+    result_links = router.compute()
     print("Zeit: ", time.time() - start_time)
-    print("Loaded Tiles:",map_service.get_all_cached_tiles())
-    for node in result_nodes:
+    print("Loaded Tiles:", map_service.get_all_cached_tiles())
+    for link in result_links:
 
-        data.append(node.to_geojson())
+        data.append(link.to_geojson())
 
     return _resp(data)
 

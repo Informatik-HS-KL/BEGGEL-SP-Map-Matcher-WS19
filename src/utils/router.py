@@ -138,13 +138,9 @@ class RouterDijkstra(Router):
         """
         Computes Route with Dijkstra
         :param: weight_property = 0 are lenth as weight factor
-        :return: [nodes]
+        :return: (weight, list with links)
         """
 
         super().compute()
         s, n = self.get_start_link(), self.get_end_link()
-        nodes = dijkstra_routing(s, self.s_fraction, n, self.e_fraction, wight_function, True, self.link_user)
-        for node in nodes:
-            print(node.get_id())
-            print(",")
-        return nodes
+        return dijkstra_routing(s, self.s_fraction, n, wight_function, True, self.link_user, self.max_iterations)

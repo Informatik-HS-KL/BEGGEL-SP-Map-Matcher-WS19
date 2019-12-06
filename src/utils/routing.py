@@ -129,7 +129,7 @@ def link_to_link_dijkstra(initial, end_link, weight_function: WeightCalculator()
     return path
 
 
-def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_function, from_start_to_end,
+def dijkstra_routing(start_link, start_fraction, end_link, weight_function, from_start_to_end,
                      link_user: LinkUser, max_dijkstra_iterations=10000):
     """
     This Dijkstra also takes into account route options such as one-way streets
@@ -138,11 +138,10 @@ def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_
     :param start_link:
     :param start_fraction:
     :param end_link:
-    :param end_fraction:
     :param weight_function:
     :param from_start_to_end:
     :param link_user:
-    :return:
+    :return: (weight, list of Links)
     """
     if start_link == end_link:
         return [start_link.get_start_node(), start_link.get_end_node()]
@@ -178,10 +177,7 @@ def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_
             print(i)
             shortest_way = possible_ways[0][1][:]
             shortest_way.append(end_link)
-            list_nodes = []
-            for link in shortest_way:
-                list_nodes.append(link.get_start_node())
-            return list_nodes
+            return possible_ways[0][0], shortest_way
 
         __update_first_way(possible_ways, destinations, weight_function, already_used)
 
