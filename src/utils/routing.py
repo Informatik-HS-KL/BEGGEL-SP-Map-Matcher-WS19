@@ -152,9 +152,19 @@ def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_
     already_used = {start_link}
 
     if from_start_to_end:
-        __update_first_way(possible_ways, start_link.get_links_at_end_node(link_user), weight_function, already_used)
+        if len(start_link.get_links_at_end_node(link_user)) > 0:
+            __update_first_way(possible_ways, start_link.get_links_at_end_node(link_user), weight_function,
+                               already_used)
+        else:
+            __update_first_way(possible_ways, start_link.get_links_at_start_node(link_user), weight_function,
+                               already_used)
     else:
-        __update_first_way(possible_ways, start_link.get_links_at_start_node(link_user), weight_function, already_used)
+        if len(start_link.get_links_at_start_node(link_user)) > 0:
+            __update_first_way(possible_ways, start_link.get_links_at_start_node(link_user), weight_function,
+                               already_used)
+        else:
+            __update_first_way(possible_ways, start_link.get_links_at_end_node(link_user), weight_function,
+                               already_used)
     i = 0
     while i < max_dijkstra_iterations:
         i = i + 1
