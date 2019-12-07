@@ -24,7 +24,7 @@ function buildMap(startLocation){
 }
 
 
-function sendReq(url, cbfunc) {
+function sendReq(url, cbfunc, app) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url);
     xhr.setRequestHeader('Content-Type', 'application/json');
@@ -34,6 +34,11 @@ function sendReq(url, cbfunc) {
 
             if (data.hasOwnProperty("exception")) {
                console.log(data);
+               app.logitems.unshift({
+                    line1: "Fehler",
+                    line2: data.exception,
+                    itemstyle: "background-color: #ffcccc !important;"
+               })
                return;
             }
             cbfunc(data)
@@ -110,21 +115,13 @@ function renderLinks(map, links, color){
 
 window.onload = function(){
 
-// Define a new component called button-counter
-Vue.component('tile', {
-    props:["text","id", "count"],
-    data: function () { //must be function, because Vue
-        return {}
-    },
-    template: '<div class="tile"> <span class="tile-text">{{ text }}</span> <span class="tile-nodecount">{{ count }}</span></div>'
-});
-
 Vue.component('logitem', {
-    props:["line1","line2", "line3", "link"],
+    props:["line1","line2", "line3", "link", "itemstyle"],
     data: function () { //must be function, because Vue
-        return {}
+        return {
+        }
     },
-    template: '<div class="logitem"> ' +
+    template: '<div class="logitem" v-bind:style="itemstyle">' +
         '<span class="line">{{ line1 }}</span> ' +
         '<span class="line">{{ line2 }}</span>' +
         '<span class="line">{{ line3 }}</span>' +
@@ -167,7 +164,7 @@ var app = new Vue({
                     line2: "Anzahl:  "+ data.length
                 })
 
-            });
+            }, that);
         },
         loadLinks: function(res){
             var that = this
@@ -177,7 +174,7 @@ var app = new Vue({
                 that.logitems.unshift({
                     line1: "Links in "+ that.geohash,
                     line2: "Anzahl: " + data.length})
-            })
+            }, that)
         },
         loadCrossings: function(res){
             var that = this
@@ -189,7 +186,7 @@ var app = new Vue({
                     line1: "Kreuzungen in" + that.geohash,
                     line2: "Anzahl:     " + data.length
                 })
-            });
+            }, that);
 
         },
         loadRoute: function(res){
@@ -198,9 +195,9 @@ var app = new Vue({
 
             sendReq(url, function (data) {
                 renderLinks(that.map, data, "#11ff11")
-                that.logitems.unshift({line1: "Route" + that.geohash, line2: data.length, line3: data.length})
+                that.logitems.unshift({line1: "Route in " + that.geohash, line2: data.length, line3: data.length})
 
-            })
+            }, that)
         },
         loadLinkDist: function(res){
             var that = this
@@ -213,7 +210,7 @@ var app = new Vue({
                     that.logitems.push({line1: "Link: "+ l["link"]['properties']["start_node"]["geohash"]+" Distance:"+ l.distance + "  Fraction"+ l.fraction})
                 }
                 console.log(data)
-            })
+            }, that)
         },
         clearRoute: function (res) {
             map.removeLayer(this.router.start)
