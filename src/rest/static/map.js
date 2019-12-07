@@ -9,6 +9,7 @@ VIEW_SET = 0;
 accesstoken = "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw";
 providerurl = "https://api.tiles.mapbox.com/";
 
+
 function buildMap(startLocation){
     var mymap = L.map('mapid').setView(startLocation, 15);
 
@@ -22,6 +23,11 @@ function buildMap(startLocation){
 
     return mymap;
 }
+
+function isPosSet(pos){
+    return !(pos.lat == "" || pos.lon == "");
+}
+
 
 function setView(map, coords) {
     if(VIEW_SET === 0){
@@ -104,7 +110,8 @@ Vue.component('logitem', {
 });
 
 
-var map = buildMap([49.46112, 7.76316]);
+map = buildMap([49.46112, 7.76316]);
+
 var app = new Vue({
     el: '#app',
     data: {
@@ -139,8 +146,8 @@ var app = new Vue({
                crossings: "/api/tiles/" + that.geohash + "/nodes/crossroads",
                nodes: "/api/tiles/" + that.geohash + "/nodes",
                links: "/api/tiles/" + that.geohash + "/links",
-               route:  "/api/route?geofrom="+ that.router.geohashStart+
-                   "&geoto="+ that.router.geohashEnd+"&osmfrom="+ that.router.osmStart+"&osmto="+that.router.osmEnd,
+               route:  "/api/route?start_lat="+ that.router.start.lat+
+                   "&start_lon="+ that.router.start.lon+"&end_lat="+ that.router.end.lat+"&end_lon="+that.router.end.lon,
             }
             url = cmds[that.cmd]
             console.log(url)
@@ -151,6 +158,11 @@ var app = new Vue({
             xhr.onload = function () {
                 if (xhr.status === 200) {
                     geoData = JSON.parse(xhr.responseText);
+
+                    if(geoData.hasOwnProperty("exception")){
+                        console.log(geoData)
+                        return
+                    }
                     that.message = geoData
                     if(that.cmd == "nodes"){
                         setView(that.map, geoData[0].geometry.coordinates)
@@ -202,33 +214,43 @@ var app = new Vue({
     }
 });
 
+LAST_CIRCLE = null;
 map.app = app;
+
 map.on("click", function (evt) {
-    console.log(evt.latlng.lng)
 
-    if (map.app.router.start.lat == "" ||
-        map.app.router.start.lon == ""){
-       map.app.router.start.lat = evt.latlng.lat;
-       map.app.router.start.lon = evt.latlng.lng;
+    var current_lat = evt.latlng.lat;
+    var current_lon = evt.latlng.lng;
+    var circle = L.circle(evt.latlng, {
+        color: "yellow",
+        fillColor: "yellow",
+        fillOpacity: 0.5,
+        radius: 4
+    });
 
-    } else if (map.app.router.end.lat == "" ||
-               map.app.router.end.lon == ""){
-       map.app.router.end.lat = evt.latlng.lat;
-       map.app.router.end.lon = evt.latlng.lng;
-    } else {
+    if(map.app.cmd == "route") {
+        if (!isPosSet(map.app.router.start)) {
+            circle.addTo(map);
+            map.app.router.start.lat = current_lat;
+            map.app.router.start.lon = current_lon;
 
+        } else if (!isPosSet(map.app.router.end)) {
+            circle.addTo(map);
+            map.app.router.end.lat = current_lat;
+            map.app.router.end.lon = current_lon;
+        }
     }
 
-    map.app.linkdistance.lat = evt.latlng.lat;
-    map.app.linkdistance.lon = evt.latlng.lng;
+    if (map.app.cmd == "linkdistance") {
+        if (LAST_CIRCLE != null) {
+            map.removeLayer(LAST_CIRCLE);
+        }
+        LAST_CIRCLE = circle;
+        circle.addTo(map)
+        map.app.linkdistance.lat = current_lat;
+        map.app.linkdistance.lon = current_lon;
+    }
 
-    var circle = L.circle(evt.latlng, {
-            color: "yellow",
-            fillColor: "yellow",
-            fillOpacity: 0.5,
-            radius: 4
-    })
-    circle.addTo(map);
 })
 
 }

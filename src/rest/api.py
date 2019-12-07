@@ -169,11 +169,12 @@ def route():
     ?geofrom=u0v90hsp01h2&geoto=u0v90jk7p21y&osmfrom=1298232519&osmto=266528360
     """
 
-    pos1 = float(request.args.get("start_lat")), float(request.args.get("start_lon"))
-    pos2 = float(request.args.get("end_lat")), float(request.args.get("end_lon"))
+    start_pos = float(request.args.get("start_lat")), float(request.args.get("start_lon"))
+    end_pos = float(request.args.get("end_lat")), float(request.args.get("end_lon"))
+    print(start_pos, end_pos)
 
     msw = MapserviceWrapper(map_service)
-    data = msw.get_dict_linkdistances(pos1, pos2)
+    data = msw.get_list_route(start_pos, end_pos)
     return _resp(data)
 
 

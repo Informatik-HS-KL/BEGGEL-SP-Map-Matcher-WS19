@@ -193,9 +193,13 @@ class MapserviceWrapper:
         return data
 
     def get_list_route(self, pos1: tuple, pos2: tuple):
-        circle_size = 10
-        start_link = self.ms.get_linkdistances_in_radius(pos1, circle_size)[0].get_link()
-        end_link = self.ms.get_linkdistances_in_radius(pos2, circle_size)[0].get_link()
+        circle_size = 20
+
+        try:
+            start_link = self.ms.get_linkdistances_in_radius(pos1, circle_size)[0].get_link()
+            end_link = self.ms.get_linkdistances_in_radius(pos2, circle_size)[0].get_link()
+        except Exception:
+            return {"exception": "no link found"}
 
         # router = RouterBaseDijkstra(Car())  # Mit Laden: ~11 ohne 1,21
         # router = RouterLinkDijkstra(Car())  # Mit Laden: ~12 ohne 3,31

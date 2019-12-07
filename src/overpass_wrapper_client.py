@@ -127,6 +127,9 @@ class OverpassWrapperClientSide(OverpassWrapper):
 
                 if is_end or (not is_start and is_crossing):
 
+                    if len(link_node_ids) < 2:
+                        continue
+
                     link = self._init_link(link_geometry, link_node_ids, way, nodes)
 
                 elif self._is_entering_tile(nodes[way_nodes_ids[i]].get_id(),
