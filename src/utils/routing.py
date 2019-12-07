@@ -129,36 +129,42 @@ def link_to_link_dijkstra(initial, end_link, weight_function: WeightCalculator()
     return path
 
 
-def dijkstra_routing(start_link, start_fraction, end_link, weight_function, from_start_to_end,
+def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_function, from_start_to_end,
                      link_user: LinkUser, max_weight=10000):
     """
-    This Dijkstra also takes into account route options such as one-way streets
-    Default a list of all start Nodes will return if no possible  route it returns a Error String
+    This dijkstra uses the link User to determine if the next link can be used,
+    thereby also one-way streets are considered.
+    The inner structure ensures that new tiles are loaded, in this case it can lead to a longer execution time.
+    The output of the function is a tuple in which first the total weight and then a list with links of the route are.
+    The returned list also includes the start and end link.
 
-    :param start_link:
-    :param start_fraction:
-    :param end_link:
-    :param weight_function:
-    :param from_start_to_end:
-    :param link_user:
-    :param max_weight: (default 10'000)
+    :param start_link: Start link as Link
+    :param start_fraction: Number between 1 and 0. Shows the exactly position on Link
+    :param end_link: end link as Link
+    :param end_fraction: Number between 1 and 0. Shows the exactly position on Link
+    :param weight_function: class from abs class WeightCalculator in this module
+    :param from_start_to_end: boolean if start Link use Links at end (true) or start (false).
+                              If there are no paths at the end / beginning of the link,
+                              the paths on the other side are used
+    :param link_user: class from abs class LinkUser
+    :param max_weight: Number (default 10'000), routes with a higher weight will be deleted
     :return: (weight, list of Links)
     """
     if start_link == end_link:
         return [start_link.get_start_node(), start_link.get_end_node()]
 
     start_length = weight_function.get_wight(start_link, (start_fraction if from_start_to_end else 1 - start_fraction))
-    possible_ways = [(start_length, [start_link])]
-    already_used = {start_link}
+    possible_ways = [(start_length, [start_link])]  # A list of all the paths to be committed next
+    already_used = {start_link}  # You can't initialize the entire graph, so this var is needed
 
-    if from_start_to_end:
+    if from_start_to_end:  # Init all paths in the given direction
         __update_first_way(possible_ways, start_link.get_links_at_end_node(link_user), weight_function,
                            already_used, max_weight)
     else:
         __update_first_way(possible_ways, start_link.get_links_at_start_node(link_user), weight_function,
                            already_used, max_weight)
 
-    if len(possible_ways) == 1:  # no No further links at the end / beginning of the start link
+    if len(possible_ways) == 1:  # if no further links at the end of start link
         __update_first_way(possible_ways, start_link.get_links_at_start_node(link_user), weight_function,
                            already_used, max_weight)
         __update_first_way(possible_ways, start_link.get_links_at_end_node(link_user), weight_function,
@@ -167,13 +173,15 @@ def dijkstra_routing(start_link, start_fraction, end_link, weight_function, from
         if len(possible_ways) == 0:
             raise Exception("Route Not Possible")
         possible_ways = sorted(possible_ways, key=lambda pw: pw[0])
+
         destinations = [link for link in possible_ways[0][1][-1].get_links_at_start_node(link_user)] + \
                        [link for link in possible_ways[0][1][-1].get_links_at_end_node(link_user)]
 
         if end_link in destinations:
             shortest_way = possible_ways[0][1][:]
             shortest_way.append(end_link)
-            return possible_ways[0][0], shortest_way
+            end_link_weight = __get_wight(possible_ways[0][1][-1], end_link, end_fraction, weight_function)
+            return possible_ways[0][0] + end_link_weight, shortest_way
 
         __update_first_way(possible_ways, destinations, weight_function, already_used, max_weight)
 
@@ -187,7 +195,8 @@ def __update_first_way(possible_ways: list, next_links: list, weight_function, a
     :param next_links: List of all accessible routes from the first route in possible_ways
     :param weight_function: function to calculate the Link weight
     :param already_used: List with all already traveled links
-    :return:
+    :param max_weight: Number,  possible_ways with a higher weight will be not inserted
+    :return: possible_ways
     """
     for link in next_links:
         if link in already_used:
@@ -200,3 +209,19 @@ def __update_first_way(possible_ways: list, next_links: list, weight_function, a
             possible_ways.append((new_weight, new_way))
 
     del possible_ways[0]
+
+
+def __get_wight(last_link: Link, end_link: Link, end_fraction, weight_function):
+    """
+    Calculate the wight of the end_link.
+    :param last_link: Needed to determine from which direction you comes
+    :param end_link: Link from which the weight is calculated
+    :param end_fraction: fraction as Number (1 >= fraction >= 0).
+                         Is always the percentage between start Node and finish
+    :param weight_function: Function that calculates the wight
+    :return:
+    """
+    if last_link in end_link.get_links_at_start_node():
+        return weight_function.get_wight(end_link) * end_fraction
+    else:
+        return weight_function.get_wight(end_link) * (1 - end_fraction)
