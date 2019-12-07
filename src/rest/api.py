@@ -169,30 +169,11 @@ def route():
     ?geofrom=u0v90hsp01h2&geoto=u0v90jk7p21y&osmfrom=1298232519&osmto=266528360
     """
 
-    circle_size = 10
     pos1 = float(request.args.get("start_lat")), float(request.args.get("start_lon"))
-    start_link = map_service.get_linkdistances_in_radius(pos1, circle_size)[0].get_link()
-
     pos2 = float(request.args.get("end_lat")), float(request.args.get("end_lon"))
-    end_link = map_service.get_linkdistances_in_radius(pos2, circle_size)[0].get_link()
 
-
-    # router = RouterBaseDijkstra(Car())  # Mit Laden: ~11 ohne 1,21
-    # router = RouterLinkDijkstra(Car())  # Mit Laden: ~12 ohne 3,31
-    router = RouterDijkstra(Car())  # Mit Laden: ~13 ohne 0.85
-    router.set_max_iterations(map_service.config.getint("DEFAULT", "max_dijkstra_iterations"))
-
-    start_time = time.time()
-    router.set_start_link(start_link)
-    router.set_end_link(end_link)
-    result_links = router.compute()[1]
-    print("Zeit: ", time.time() - start_time)
-    print("Loaded Tiles:", map_service.get_all_cached_tiles())
-    data = []
-    for link in result_links:
-
-        data.append(link.to_geojson())
-
+    msw = MapserviceWrapper(map_service)
+    data = msw.get_dict_linkdistances(pos1, pos2)
     return _resp(data)
 
 

@@ -4,8 +4,11 @@ Wrapper Klass for Mapservice which will be used to get REST link access to Mapse
 
 from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
+from src.models.link_user import Car
+from src.utils.router import RouterDijkstra
 
-class MapserviceWrapper():
+
+class MapserviceWrapper:
 
     def __init__(self, mapservice):
 
@@ -105,8 +108,7 @@ class MapserviceWrapper():
 
         return data
 
-
-    def get_dict_node(self,geohash, osm_id):
+    def get_dict_node(self, geohash, osm_id):
         """
 
         :param nodeid:
@@ -119,7 +121,6 @@ class MapserviceWrapper():
             return {"error": "No Node with osm id:" + str(osm_id)}
 
         return node.to_geojson()
-
 
     def get_dict_links(self, geohash):
         """
@@ -188,5 +189,24 @@ class MapserviceWrapper():
                 "fraction": ld.get_fraction()
             }
             data.append(ld_data)
+
+        return data
+
+    def get_list_route(self, pos1: tuple, pos2: tuple):
+        circle_size = 10
+        start_link = self.ms.get_linkdistances_in_radius(pos1, circle_size)[0].get_link()
+        end_link = self.ms.get_linkdistances_in_radius(pos2, circle_size)[0].get_link()
+
+        # router = RouterBaseDijkstra(Car())  # Mit Laden: ~11 ohne 1,21
+        # router = RouterLinkDijkstra(Car())  # Mit Laden: ~12 ohne 3,31
+        router = RouterDijkstra(Car())  # Mit Laden: ~13 ohne 0.85
+        router.set_max_iterations(self.ms.config.getint("DEFAULT", "max_dijkstra_iterations"))
+
+        router.set_start_link(start_link)
+        router.set_end_link(end_link)
+        result_links = router.compute()[1]
+        data = []
+        for link in result_links:
+            data.append(link.to_geojson())
 
         return data
