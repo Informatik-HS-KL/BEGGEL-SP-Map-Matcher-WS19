@@ -35,26 +35,25 @@ def great_circle(point1: tuple, point2: tuple):
 
 def convert_meter_2_lat(meter):
     """
-    Convert meter to latitude difference
-    :return: lat-difference in float
+    Converts a range in meter into a range in latitude-degrees.
+    :param meter:
+    :return: lat-range in float
     """
-    # Todo(13.11.2019, Lukas Felzmann): Diese Berechnungen stimmen vermutlich nicht mehr (vielleicht shrinking_factor
-    #  miteinbeziehen). Also überprüfen!
 
     meter_per_lat = great_circle((0, 0), (1, 0))
     lat_per_meter = 1 / meter_per_lat
     return meter * lat_per_meter
 
 
-def convert_meter_2_lon(meter):
+def convert_meter_2_lon(meter, lat):
     """
-    Convert meter to latitude difference
-    :return: lat-difference in float
+    Converts a range in meter into a range in longitude-degrees.
+    :param meter:
+    :param lat:
+    :return: lon-range in float
     """
-    # Todo(13.11.2019, Lukas Felzmann): Diese Berechnungen stimmen vermutlich nicht mehr (vielleicht shrinking_factor
-    #  miteinbeziehen). Also überprüfen!
 
-    meter_per_lon = great_circle((0, 0), (0, 1))
+    meter_per_lon = great_circle((lat, 0), (lat, 1))
     lon_per_meter = 1 / meter_per_lon
     return meter * lon_per_meter
 

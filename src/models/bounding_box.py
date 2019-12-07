@@ -107,7 +107,7 @@ class BoundingBox:
 
         lat, lon = pos
         radius_as_lat = ut.convert_meter_2_lat(radius)
-        radius_as_lon = ut.convert_meter_2_lon(radius)
+        radius_as_lon = ut.convert_meter_2_lon(radius, lat)
 
         return BoundingBox(lat - radius_as_lat, lon - radius_as_lon, lat + radius_as_lat, lon + radius_as_lon)
 
