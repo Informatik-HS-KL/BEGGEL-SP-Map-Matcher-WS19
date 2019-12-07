@@ -25,6 +25,9 @@ function buildMap(startLocation){
 }
 
 function isPosSet(pos){
+    if (pos == null){
+        return false;
+    }
     return !(pos.lat == "" || pos.lon == "");
 }
 
@@ -67,9 +70,10 @@ function renderNodes(map, nodes, color){
     });
 }
 
-function renderLinks(map, links){
+function renderLinks(map, links, color){
+
     var style = {
-        "color": "#ff7800",
+        "color": color,
         "weight": 5,
         "opacity": 0.2
     };
@@ -128,6 +132,10 @@ var app = new Vue({
         cmd: "nodes",
         showRouting: false,
         router: {
+            start: null,
+            end: null
+        },
+        routerX: {
             start:{
              lat: "",
              lon: ""
@@ -146,9 +154,14 @@ var app = new Vue({
                crossings: "/api/tiles/" + that.geohash + "/nodes/crossroads",
                nodes: "/api/tiles/" + that.geohash + "/nodes",
                links: "/api/tiles/" + that.geohash + "/links",
-               route:  "/api/route?start_lat="+ that.router.start.lat+
-                   "&start_lon="+ that.router.start.lon+"&end_lat="+ that.router.end.lat+"&end_lon="+that.router.end.lon,
             }
+
+
+            if(that.cmd == "route") {
+                cmds.route =  "/api/route?start_lat=" + that.router.start.lat +
+                "&start_lon=" + that.router.start.lon + "&end_lat=" + that.router.end.lat + "&end_lon=" + that.router.end.lon
+            }
+
             url = cmds[that.cmd]
             console.log(url)
 
@@ -160,29 +173,30 @@ var app = new Vue({
                     geoData = JSON.parse(xhr.responseText);
 
                     if(geoData.hasOwnProperty("exception")){
-                        console.log(geoData)
+                        console.log(geoData);
                         return
                     }
-                    that.message = geoData
+                    that.message = geoData;
                     if(that.cmd == "nodes"){
                         setView(that.map, geoData[0].geometry.coordinates)
                         renderNodes(that.map, geoData, '#ff0911')
-                        that.logitems.push({line1: that.cmd + ": "+ that.geohash, line2: geoData.length, line3: that.geohash + that.cmd})
+                        that.logitems.unshift({line1: that.cmd + ": "+ that.geohash, line2: geoData.length, line3: that.geohash + that.cmd})
                     }
                     if(that.cmd == "crossings"){
                         setView(that.map, geoData[0].geometry.coordinates)
                         renderNodes(that.map, geoData, '#1109ff')
-                        that.logitems.push({line1: that.cmd + ": "+ that.geohash, line2: geoData.length, line3: that.geohash + that.cmd})
+                        that.logitems.unshift({line1: that.cmd + ": "+ that.geohash, line2: geoData.length, line3: that.geohash + that.cmd})
+
                     }
 
                     if(that.cmd == "links"){
 
-                        renderLinks(that.map, geoData)
-                        that.logitems.push({line1: that.geohash, line2: geoData.length, line3: that.geohash, link: "#"})
+                        renderLinks(that.map, geoData, "#ff7800")
+                        that.logitems.unshift({line1: that.geohash, line2: geoData.length, line3: that.geohash, link: "#"})
                     }
                     if(that.cmd == "route"){
-                        renderNodes(that.map, geoData, "#11ff06")
-                        that.logitems.push({line1: "Route", line2: geoData.length, line3: geoData.length})
+                        renderLinks(that.map, geoData, "#11ff11")
+                        that.logitems.unshift({line1: "Route", line2: geoData.length, line3: geoData.length})
                     }
                 }
             };
@@ -204,12 +218,16 @@ var app = new Vue({
                         l = geoData[i];
                         that.logitems.push({line1: "Link: "+ l["link"]['properties']["start_node"]["geohash"]+" Distance:"+ l.distance + "  Fraction"+ l.fraction})
                     }
-
                     console.log(geoData)
-
                 }
             }
             xhr.send();
+        },
+        clearRoute: function (res) {
+            map.removeLayer(this.router.start)
+            map.removeLayer(this.router.end)
+            this.router.start = null;
+            this.router.end = null;
         }
     }
 });
@@ -231,13 +249,21 @@ map.on("click", function (evt) {
     if(map.app.cmd == "route") {
         if (!isPosSet(map.app.router.start)) {
             circle.addTo(map);
-            map.app.router.start.lat = current_lat;
-            map.app.router.start.lon = current_lon;
+            //map.app.router.start.lat = current_lat;
+            //map.app.router.start.lon = current_lon;
+            circle.lat = current_lat;
+            circle.lon = current_lon;
+
+            map.app.router.start = circle;
 
         } else if (!isPosSet(map.app.router.end)) {
             circle.addTo(map);
-            map.app.router.end.lat = current_lat;
-            map.app.router.end.lon = current_lon;
+            //map.app.router.end.lat = current_lat;
+            //map.app.router.end.lon = current_lon;
+            circle.lat = current_lat;
+            circle.lon = current_lon;
+            map.app.router.end = circle;
+
         }
     }
 

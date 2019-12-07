@@ -42,8 +42,11 @@
 
                             <input v-if="cmd != 'route' && cmd != 'linkdistance'" v-on:keyup.enter="loaddata" v-model="geohash"  type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="button-addon2">
 
-                            <input v-if="cmd == 'route'"  v-model="router.geohashStart" value="router.geohashStart" type="text" name="start" placeholder="startgeohash" class="form-control"/>
-                            <input v-if="cmd == 'route'"  v-model="router.geohashEnd" value="router.geohashEnd" type="text" name="end" placeholder="end" class="form-control"/>
+                            <input v-if="cmd == 'route' && router.start != null"  v-model="router.start.lat" value="router.start.lat" type="text" name="start" placeholder="startlat" class="form-control"/>
+                            <input v-if="cmd == 'route' && router.start != null"  v-model="router.start.lon" value="router.start.lon" type="text" name="end" placeholder="startlon" class="form-control"/>
+                            <input v-if="cmd == 'route' && router.end != null"  v-model="router.end.lat" value="router.end.lat" type="text" name="start" placeholder="endlat" class="form-control"/>
+                            <input v-if="cmd == 'route' && router.end != null"  v-model="router.end.lon" value="router.end.lon" type="text" name="end" placeholder="endlon" class="form-control"/>
+                            <button v-if="cmd == 'route'" v-on:click="clearRoute" type="button" name="clear" value="clear" class="btn btn-outline-secondary">clear</button>
 
                             <div class="input-group-append">
                                 <button v-if="cmd != 'linkdistance'" v-on:click="loaddata" class="btn btn-outline-secondary" type="button" id="button-addon2">Load</button>
@@ -53,7 +56,7 @@
 
                         </div >
 
-                        <div>
+                        <div id="logitems">
                             <logitem v-for="item in logitems" v-bind:line1="item.line1" v-bind:line2="item.line2" v-bind:line3="item.line3"></logitem>
                         </div>
 

@@ -22,3 +22,20 @@
 .logitem .line{
     display: block;
 }
+
+#logitems{
+    overflow: auto;
+    height: 450px;
+}
+#logitems::-webkit-scrollbar {
+    width: 1em;
+}
+
+#logitems::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
+}
+
+#logitems > :first-child{
+    background-color: #fff7a0;
+}
