@@ -174,17 +174,14 @@ class Link:
 
     def get_length(self):
         """
-        Returns the length of the link
-        once the length is calculated we will use the result over and over again
-        :return:length in meter
+        Returns the length of the link.
+        The calculation of the length is done on demand and then saved in the corresponding attribute.
+        :return: length in meter
         """
         if self.__length is None:
             self.__length = 0
-            nodes = self.get_node_ids()
-            for i in range(len(nodes) - 1):
-                node_start = self._map_service.get_node(nodes[i])
-                node_end = self._map_service.get_node(nodes[i + 1])
-                self.__length = self.__length + great_circle(node_start.get_latlon(), node_end.get_latlon())
+            for i in range(len(self.__geometry) - 1):
+                self.__length += great_circle(self.__geometry[i], self.__geometry[i + 1])
         return self.__length
 
     def is_navigatable_from_start(self, link_user: LinkUser) -> bool:
