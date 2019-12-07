@@ -9,7 +9,6 @@ VIEW_SET = 0;
 accesstoken = "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw";
 providerurl = "https://api.tiles.mapbox.com/";
 
-
 function buildMap(startLocation){
     var mymap = L.map('mapid').setView(startLocation, 15);
 
@@ -24,6 +23,25 @@ function buildMap(startLocation){
     return mymap;
 }
 
+
+function sendReq(url, cbfunc) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            data = JSON.parse(xhr.responseText);
+
+            if (data.hasOwnProperty("exception")) {
+               console.log(data);
+               return;
+            }
+            cbfunc(data)
+        }
+    }
+    xhr.send();
+}
+
 function isPosSet(pos){
     if (pos == null){
         return false;
@@ -31,13 +49,13 @@ function isPosSet(pos){
     return !(pos.lat == "" || pos.lon == "");
 }
 
-
 function setView(map, coords) {
     if(VIEW_SET === 0){
-        map.setView(coords, 15)
+        map.setView(coords, 14)
         VIEW_SET = 1;
     }
 }
+
 function renderNodes(map, nodes, color){
     nodes.forEach(function (node) {
 
@@ -73,9 +91,10 @@ function renderNodes(map, nodes, color){
 function renderLinks(map, links, color){
 
     var style = {
-        "color": color,
-        "weight": 5,
-        "opacity": 0.2
+        color: color,
+        fillColor: color,
+        weight: 5,
+        opacity: 0.2
     };
 
     links.forEach(function (link) {
@@ -124,104 +143,77 @@ var app = new Vue({
             lat: "", // wird zur laufzeit von der Karte von einem klick event gefüllt
             lon: ""
         },
-        rootUrl: "/api/tiles/",
-        currentUrl: "/nodes",
-        geohash: "u0v90",
-        message: "",
+        geohash: "u0v92",
         map: map,
         cmd: "nodes",
-        showRouting: false,
         router: {
             start: null,
             end: null
         },
-        routerX: {
-            start:{
-             lat: "",
-             lon: ""
-            },
-            end:{
-             lat: "",
-             lon: ""
-            },
-        }
     },
 
     methods: {
-        loaddata: function(resource) {
-            that = this;
-            cmds = {
-               crossings: "/api/tiles/" + that.geohash + "/nodes/crossroads",
-               nodes: "/api/tiles/" + that.geohash + "/nodes",
-               links: "/api/tiles/" + that.geohash + "/links",
-            }
+        loadNodes: function(res){
+            var that = this
+            url = "/api/tiles/" + that.geohash + "/nodes",
 
+            sendReq(url,function (data) {
 
-            if(that.cmd == "route") {
-                cmds.route =  "/api/route?start_lat=" + that.router.start.lat +
-                "&start_lon=" + that.router.start.lon + "&end_lat=" + that.router.end.lat + "&end_lon=" + that.router.end.lon
-            }
+                that.message = data;
+                setView(that.map, data[0].geometry.coordinates)
+                renderNodes(that.map, data, '#ff0911')
+                that.logitems.unshift({
+                    line1: "Nodes in " + that.geohash,
+                    line2: "Anzahl:  "+ data.length
+                })
 
-            url = cmds[that.cmd]
-            console.log(url)
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', url);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    geoData = JSON.parse(xhr.responseText);
-
-                    if(geoData.hasOwnProperty("exception")){
-                        console.log(geoData);
-                        return
-                    }
-                    that.message = geoData;
-                    if(that.cmd == "nodes"){
-                        setView(that.map, geoData[0].geometry.coordinates)
-                        renderNodes(that.map, geoData, '#ff0911')
-                        that.logitems.unshift({line1: that.cmd + ": "+ that.geohash, line2: geoData.length, line3: that.geohash + that.cmd})
-                    }
-                    if(that.cmd == "crossings"){
-                        setView(that.map, geoData[0].geometry.coordinates)
-                        renderNodes(that.map, geoData, '#1109ff')
-                        that.logitems.unshift({line1: that.cmd + ": "+ that.geohash, line2: geoData.length, line3: that.geohash + that.cmd})
-
-                    }
-
-                    if(that.cmd == "links"){
-
-                        renderLinks(that.map, geoData, "#ff7800")
-                        that.logitems.unshift({line1: that.geohash, line2: geoData.length, line3: that.geohash, link: "#"})
-                    }
-                    if(that.cmd == "route"){
-                        renderLinks(that.map, geoData, "#11ff11")
-                        that.logitems.unshift({line1: "Route", line2: geoData.length, line3: geoData.length})
-                    }
-                }
-            };
-            xhr.send();
+            });
         },
-        calcLinkDist: function (resource) {
-            var that = this;
-            url =  "/api/linkdistance?lat="+ that.linkdistance.lat +"&lon="+ that.linkdistance.lon;
-            console.log(url)
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', url);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    geoData = JSON.parse(xhr.responseText);
-                    links = geoData.map(x => x["link"])
-                    renderLinks(map, links);
-                    for(i = 0 ; i < geoData.length; i++){
-                        l = geoData[i];
-                        that.logitems.push({line1: "Link: "+ l["link"]['properties']["start_node"]["geohash"]+" Distance:"+ l.distance + "  Fraction"+ l.fraction})
-                    }
-                    console.log(geoData)
+        loadLinks: function(res){
+            var that = this
+            url = "/api/tiles/" + that.geohash + "/links";
+            sendReq(url, function (data) {
+                renderLinks(that.map, data, "#ff7800")
+                that.logitems.unshift({
+                    line1: "Links in "+ that.geohash,
+                    line2: "Anzahl: " + data.length})
+            })
+        },
+        loadCrossings: function(res){
+            var that = this
+            url = "/api/tiles/" + that.geohash + "/nodes/crossroads";
+            sendReq(url, function (data) {
+                setView(that.map, data[0].geometry.coordinates)
+                renderNodes(that.map, data, '#1109ff')
+                that.logitems.unshift({
+                    line1: "Kreuzungen in" + that.geohash,
+                    line2: "Anzahl:     " + data.length
+                })
+            });
+
+        },
+        loadRoute: function(res){
+            var that = this
+            url = "/api/route?start_lat=" + that.router.start.lat + "&start_lon=" + that.router.start.lon + "&end_lat=" + that.router.end.lat + "&end_lon=" + that.router.end.lon;
+
+            sendReq(url, function (data) {
+                renderLinks(that.map, data, "#11ff11")
+                that.logitems.unshift({line1: "Route" + that.geohash, line2: data.length, line3: data.length})
+
+            })
+        },
+        loadLinkDist: function(res){
+            var that = this
+            url = "/api/linkdistance?lat="+ that.linkdistance.lat +"&lon="+ that.linkdistance.lon;
+            sendReq(url, function (data) {
+                links = data.map(x => x["link"])
+                renderLinks(map, links);
+                for(i = 0 ; i < data.length; i++){
+                    l = data[i];
+                    that.logitems.push({line1: "Link: "+ l["link"]['properties']["start_node"]["geohash"]+" Distance:"+ l.distance + "  Fraction"+ l.fraction})
                 }
-            }
-            xhr.send();
+                console.log(data)
+            })
         },
         clearRoute: function (res) {
             map.removeLayer(this.router.start)
@@ -276,7 +268,6 @@ map.on("click", function (evt) {
         map.app.linkdistance.lat = current_lat;
         map.app.linkdistance.lon = current_lon;
     }
-
 })
 
 }
