@@ -35,7 +35,7 @@ function renderNodes(map, nodes, color){
         var circle = L.circle(node["geometry"]["coordinates"], {
             color: color,
             fillColor: color,
-            fillOpacity: 0.5,
+            fillOpacity: 0.2,
             radius: 5
         })
         if(node["properties"] != undefined) {
@@ -65,7 +65,7 @@ function renderLinks(map, links){
     var style = {
         "color": "#ff7800",
         "weight": 5,
-        "opacity": 0.65
+        "opacity": 0.2
     };
 
     links.forEach(function (link) {
@@ -121,10 +121,14 @@ var app = new Vue({
         cmd: "nodes",
         showRouting: false,
         router: {
-            geohashStart: "",
-            geohashEnd:"",
-            osmStart:"",
-            osmEnd:""
+            start:{
+             lat: "",
+             lon: ""
+            },
+            end:{
+             lat: "",
+             lon: ""
+            },
         }
     },
 
@@ -201,8 +205,23 @@ var app = new Vue({
 map.app = app;
 map.on("click", function (evt) {
     console.log(evt.latlng.lng)
+
+    if (map.app.router.start.lat == "" ||
+        map.app.router.start.lon == ""){
+       map.app.router.start.lat = evt.latlng.lat;
+       map.app.router.start.lon = evt.latlng.lng;
+
+    } else if (map.app.router.end.lat == "" ||
+               map.app.router.end.lon == ""){
+       map.app.router.end.lat = evt.latlng.lat;
+       map.app.router.end.lon = evt.latlng.lng;
+    } else {
+
+    }
+
     map.app.linkdistance.lat = evt.latlng.lat;
     map.app.linkdistance.lon = evt.latlng.lng;
+
     var circle = L.circle(evt.latlng, {
             color: "yellow",
             fillColor: "yellow",

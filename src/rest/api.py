@@ -160,7 +160,7 @@ def get_crossroads(geohash):
 
 @api.route('/route')
 def route():
-    """ ?geofrom=geohash&geoto=geohash&osmfrom=osmid&osmto=osmid
+    """ ?geofrom=geohash&geoto=geohash&start_lat=[Number]&start_lon=[Number]&end_lat=[Number]&end_lon=[Number]
 
     u0v90hsp01h2 OSM:1298232519
 
