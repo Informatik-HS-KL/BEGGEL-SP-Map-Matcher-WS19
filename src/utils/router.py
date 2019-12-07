@@ -143,4 +143,5 @@ class RouterDijkstra(Router):
 
         super().compute()
         s, n = self.get_start_link(), self.get_end_link()
-        return dijkstra_routing(s, self.s_fraction, n, wight_function, True, self.link_user, self.max_iterations)
+        return dijkstra_routing(s, self.s_fraction, n, self.e_fraction, wight_function,
+                                True, self.link_user, self.max_iterations)
