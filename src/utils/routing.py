@@ -130,7 +130,7 @@ def link_to_link_dijkstra(initial, end_link, weight_function: WeightCalculator()
 
 
 def dijkstra_routing(start_link, start_fraction, end_link, weight_function, from_start_to_end,
-                     link_user: LinkUser, max_dijkstra_iterations=10000):
+                     link_user: LinkUser, max_weight=10000):
     """
     This Dijkstra also takes into account route options such as one-way streets
     Default a list of all start Nodes will return if no possible  route it returns a Error String
@@ -141,6 +141,7 @@ def dijkstra_routing(start_link, start_fraction, end_link, weight_function, from
     :param weight_function:
     :param from_start_to_end:
     :param link_user:
+    :param max_weight: (default 10'000)
     :return: (weight, list of Links)
     """
     if start_link == end_link:
@@ -151,22 +152,18 @@ def dijkstra_routing(start_link, start_fraction, end_link, weight_function, from
     already_used = {start_link}
 
     if from_start_to_end:
-        if len(start_link.get_links_at_end_node(link_user)) > 0:
-            __update_first_way(possible_ways, start_link.get_links_at_end_node(link_user), weight_function,
-                               already_used)
-        else:
-            __update_first_way(possible_ways, start_link.get_links_at_start_node(link_user), weight_function,
-                               already_used)
+        __update_first_way(possible_ways, start_link.get_links_at_end_node(link_user), weight_function,
+                           already_used, max_weight)
     else:
-        if len(start_link.get_links_at_start_node(link_user)) > 0:
-            __update_first_way(possible_ways, start_link.get_links_at_start_node(link_user), weight_function,
-                               already_used)
-        else:
-            __update_first_way(possible_ways, start_link.get_links_at_end_node(link_user), weight_function,
-                               already_used)
-    i = 0
-    while i < max_dijkstra_iterations:
-        i = i + 1
+        __update_first_way(possible_ways, start_link.get_links_at_start_node(link_user), weight_function,
+                           already_used, max_weight)
+
+    if len(possible_ways) == 1:  # no No further links at the end / beginning of the start link
+        __update_first_way(possible_ways, start_link.get_links_at_start_node(link_user), weight_function,
+                           already_used, max_weight)
+        __update_first_way(possible_ways, start_link.get_links_at_end_node(link_user), weight_function,
+                           already_used, max_weight)
+    while True:
         if len(possible_ways) == 0:
             raise Exception("Route Not Possible")
         possible_ways = sorted(possible_ways, key=lambda pw: pw[0])
@@ -174,15 +171,14 @@ def dijkstra_routing(start_link, start_fraction, end_link, weight_function, from
                        [link for link in possible_ways[0][1][-1].get_links_at_end_node(link_user)]
 
         if end_link in destinations:
-            print(i)
             shortest_way = possible_ways[0][1][:]
             shortest_way.append(end_link)
             return possible_ways[0][0], shortest_way
 
-        __update_first_way(possible_ways, destinations, weight_function, already_used)
+        __update_first_way(possible_ways, destinations, weight_function, already_used, max_weight)
 
 
-def __update_first_way(possible_ways: list, next_links: list, weight_function, already_used: set):
+def __update_first_way(possible_ways: list, next_links: list, weight_function, already_used: set, max_weight):
     """
     This function add the neu Links for the first (shortest) way in possible_ways
     After the neu ways are inserted, the first way will dropped
@@ -197,8 +193,10 @@ def __update_first_way(possible_ways: list, next_links: list, weight_function, a
         if link in already_used:
             continue
         new_way = possible_ways[0][1][:]
-        new_way.append(link)
-        already_used.add(link)
-        possible_ways.append((possible_ways[0][0] + weight_function.get_wight(link), new_way))
+        new_weight = possible_ways[0][0] + weight_function.get_wight(link)
+        if new_weight < max_weight:
+            new_way.append(link)
+            already_used.add(link)
+            possible_ways.append((new_weight, new_way))
 
     del possible_ways[0]
