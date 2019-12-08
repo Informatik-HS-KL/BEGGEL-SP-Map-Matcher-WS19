@@ -155,7 +155,7 @@ def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_
 
     start_length = weight_function.get_wight(start_link, (start_fraction if from_start_to_end else 1 - start_fraction))
     possible_ways = [(start_length, [start_link])]  # A list of all the paths to be committed next
-    already_used = {start_link.get_id()}  # You can't initialize the entire graph, so this var is needed
+    already_used = {start_link: 0}  # You can't initialize the entire graph, so this var is needed
 
     if from_start_to_end:  # Init all paths in the given direction
         __update_first_way(possible_ways, start_link.get_links_at_end_node(link_user), weight_function,
@@ -164,20 +164,20 @@ def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_
         __update_first_way(possible_ways, start_link.get_links_at_start_node(link_user), weight_function,
                            already_used, max_weight)
 
-    if len(possible_ways) == 1:  # if no further links at the end of start link
-        __update_first_way(possible_ways, start_link.get_links_at_start_node(link_user), weight_function,
-                           already_used, max_weight)
-        __update_first_way(possible_ways, start_link.get_links_at_end_node(link_user), weight_function,
-                           already_used, max_weight)
+    if len(possible_ways) == 0:  # if no further links at the end/start of start link
+        destinations = [link for link in start_link.get_links_at_start_node(link_user)] + \
+                       [link for link in start_link.get_links_at_end_node(link_user)]
+        __update_first_way(possible_ways, destinations, weight_function, already_used, max_weight)
 
     while True:
+        print(possible_ways[0][1][-1].get_id())
         if len(possible_ways) == 0:
             raise Exception("Route Not Possible")
         possible_ways = sorted(possible_ways, key=lambda pw: pw[0])
 
         destinations = [link for link in possible_ways[0][1][-1].get_links_at_start_node(link_user)] + \
                        [link for link in possible_ways[0][1][-1].get_links_at_end_node(link_user)]
-
+        print(len(destinations))
         if end_link in destinations:
             shortest_way = possible_ways[0][1][:]
             shortest_way.append(end_link)
@@ -187,7 +187,7 @@ def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_
         __update_first_way(possible_ways, destinations, weight_function, already_used, max_weight)
 
 
-def __update_first_way(possible_ways: list, next_links: list, weight_function, already_used: set, max_weight):
+def __update_first_way(possible_ways: list, next_links: list, weight_function, already_used: dict, max_weight):
     """
     This function add the neu Links for the first (shortest) way in possible_ways
     After the neu ways are inserted, the first way will dropped
@@ -200,13 +200,13 @@ def __update_first_way(possible_ways: list, next_links: list, weight_function, a
     :return: possible_ways
     """
     for link in next_links:
-        if link.get_id() in already_used:
+        new_weight = possible_ways[0][0] + weight_function.get_wight(link)
+        if link in already_used and already_used[link] < new_weight:
             continue
         new_way = possible_ways[0][1][:]
-        new_weight = possible_ways[0][0] + weight_function.get_wight(link)
         if new_weight < max_weight:
             new_way.append(link)
-            already_used.add(link.get_id())
+            already_used[link] = new_weight
             possible_ways.append((new_weight, new_way))
 
     del possible_ways[0]

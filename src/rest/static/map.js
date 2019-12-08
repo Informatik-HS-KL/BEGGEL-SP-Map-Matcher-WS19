@@ -228,15 +228,13 @@ map.on("click", function (evt) {
 
     var current_lat = evt.latlng.lat;
     var current_lon = evt.latlng.lng;
-    var circle = L.circle(evt.latlng, {
-        color: "yellow",
-        fillColor: "yellow",
-        fillOpacity: 0.5,
-        radius: 4
-    });
 
     if(map.app.cmd == "route") {
+        var circle = L.marker(evt.latlng, {
+            title: 'start'
+        });
         if (!isPosSet(map.app.router.start)) {
+            circle.title = 'start';
             circle.addTo(map);
             //map.app.router.start.lat = current_lat;
             //map.app.router.start.lon = current_lon;
@@ -246,6 +244,7 @@ map.on("click", function (evt) {
             map.app.router.start = circle;
 
         } else if (!isPosSet(map.app.router.end)) {
+            circle.title = 'end';
             circle.addTo(map);
             //map.app.router.end.lat = current_lat;
             //map.app.router.end.lon = current_lon;
@@ -257,6 +256,12 @@ map.on("click", function (evt) {
     }
 
     if (map.app.cmd == "linkdistance") {
+        var circle = L.circle(evt.latlng, {
+            color: "yellow",
+            fillColor: "yellow",
+            fillOpacity: 0.5,
+            radius: 4
+        });
         if (LAST_CIRCLE != null) {
             map.removeLayer(LAST_CIRCLE);
         }
