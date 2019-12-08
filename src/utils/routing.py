@@ -167,17 +167,17 @@ def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_
     if len(possible_ways) == 0:  # if no further links at the end/start of start link
         destinations = [link for link in start_link.get_links_at_start_node(link_user)] + \
                        [link for link in start_link.get_links_at_end_node(link_user)]
+        if len(possible_ways) == 0:
+            raise Exception("Route Not Possible")
         __update_first_way(possible_ways, destinations, weight_function, already_used, max_weight)
 
     while True:
-        print(possible_ways[0][1][-1].get_id())
         if len(possible_ways) == 0:
             raise Exception("Route Not Possible")
         possible_ways = sorted(possible_ways, key=lambda pw: pw[0])
 
         destinations = [link for link in possible_ways[0][1][-1].get_links_at_start_node(link_user)] + \
                        [link for link in possible_ways[0][1][-1].get_links_at_end_node(link_user)]
-        print(len(destinations))
         if end_link in destinations:
             shortest_way = possible_ways[0][1][:]
             shortest_way.append(end_link)
@@ -201,14 +201,14 @@ def __update_first_way(possible_ways: list, next_links: list, weight_function, a
     """
     for link in next_links:
         new_weight = possible_ways[0][0] + weight_function.get_wight(link)
-        if link in already_used and already_used[link] < new_weight:
+        if link in already_used and already_used[link] <= new_weight:
             continue
-        new_way = possible_ways[0][1][:]
-        if new_weight < max_weight:
-            new_way.append(link)
-            already_used[link] = new_weight
-            possible_ways.append((new_weight, new_way))
+        already_used[link] = new_weight
 
+        if new_weight < max_weight:
+            new_way = possible_ways[0][1][:]
+            new_way.append(link)
+            possible_ways.append((new_weight, new_way))
     del possible_ways[0]
 
 
