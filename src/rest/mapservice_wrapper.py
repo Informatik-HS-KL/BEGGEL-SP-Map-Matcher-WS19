@@ -208,9 +208,16 @@ class MapserviceWrapper:
 
         router.set_start_link(start_link)
         router.set_end_link(end_link)
-        result_links = router.compute()[1]
-        data = []
-        for link in result_links:
-            data.append(link.to_geojson())
+        try:
+            result = router.compute()
+        except Exception as e:
+            return {"exception": str(e)}
+        print(result)
+        length = "{:.3f}".format(result[0]) + " " + result[1]
+        data = [length, []]
+        link_list = result[2]
+
+        for link in link_list:
+            data[1].append(link.to_geojson())
 
         return data

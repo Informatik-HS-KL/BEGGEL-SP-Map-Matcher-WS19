@@ -138,7 +138,7 @@ class RouterDijkstra(Router):
         """
         Computes Route with Dijkstra
         :param: weight_property = 0 are lenth as weight factor
-        :return: (weight, list with links)
+        :return: (weight, weight unit,  list of Links)
         """
 
         super().compute()

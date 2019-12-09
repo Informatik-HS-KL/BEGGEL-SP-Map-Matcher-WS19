@@ -8,10 +8,16 @@ class WeightCalculator(ABC):
     def get_wight(self, link: Link, fraction=1.0):
         pass
 
+    def get_wight_unit(self):
+        pass
+
 
 class ShortestPath(WeightCalculator):
     def get_wight(self, link: Link, fraction=1.0):
         return link.get_length() * fraction
+
+    def get_wight_unit(self):
+        return "meter"
 
 
 # class FastestPath(WeightCalculator):
@@ -148,10 +154,17 @@ def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_
                               the paths on the other side are used
     :param link_user: class from abs class LinkUser
     :param max_weight: Number (default 10'000), routes with a higher weight will be deleted
-    :return: (weight, list of Links)
+    :return: (weight, weight unit,  list of Links)
     """
+    # Special cases
     if start_link == end_link:
         return [start_link.get_start_node(), start_link.get_end_node()]
+
+    if not (start_link.is_navigatable_from_start(link_user) or start_link.is_navigatable_to_start(link_user)):
+        raise Exception("Route Not Possible, start link can't use")
+
+    if not (end_link.is_navigatable_from_start(link_user) or end_link.is_navigatable_to_start(link_user)):
+        raise Exception("Route Not Possible, end link can't use")
 
     start_length = weight_function.get_wight(start_link, (start_fraction if from_start_to_end else 1 - start_fraction))
     possible_ways = [(start_length, [start_link])]  # A list of all the paths to be committed next
@@ -182,7 +195,7 @@ def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_
             shortest_way = possible_ways[0][1][:]
             shortest_way.append(end_link)
             end_link_weight = __get_wight(possible_ways[0][1][-1], end_link, end_fraction, weight_function)
-            return possible_ways[0][0] + end_link_weight, shortest_way
+            return possible_ways[0][0] + end_link_weight, weight_function.get_wight_unit(), shortest_way
 
         __update_first_way(possible_ways, destinations, weight_function, already_used, max_weight)
 

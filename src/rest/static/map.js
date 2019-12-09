@@ -35,7 +35,7 @@ function sendReq(url, cbfunc, app) {
             if (data.hasOwnProperty("exception")) {
                console.log(data);
                app.logitems.unshift({
-                    line1: "Fehler",
+                    line1: "Fehler:",
                     line2: data.exception,
                     itemstyle: "background-color: #ffcccc !important;"
                })
@@ -194,8 +194,8 @@ var app = new Vue({
             url = "/api/route?start_lat=" + that.router.start.lat + "&start_lon=" + that.router.start.lon + "&end_lat=" + that.router.end.lat + "&end_lon=" + that.router.end.lon;
 
             sendReq(url, function (data) {
-                renderLinks(that.map, data, "#11ff11")
-                that.logitems.unshift({line1: "Route in " + that.geohash, line2: data.length, line3: data.length})
+                renderLinks(that.map, data[1], "#11ff11")
+                that.logitems.unshift({line1: "Route in " + that.geohash, line2: data[0], line3: "Anz. links:" + data[1].length})
 
             }, that)
         },
