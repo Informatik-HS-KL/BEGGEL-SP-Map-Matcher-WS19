@@ -61,13 +61,25 @@ function setView(map, coords) {
     }
 }
 
+LAST_CIRCLE_RADIUS = null;
+
+function setMarker(map, latlng, radius) {
+    if (LAST_CIRCLE_RADIUS != null) {
+        map.removeLayer(LAST_CIRCLE_RADIUS);
+    }
+    LAST_CIRCLE_RADIUS = L.circle(latlng, radius);
+    LAST_CIRCLE_RADIUS.addTo(map);
+}
+
 function renderNodes(map, nodes, color){
+    var circleList = [];
     nodes.forEach(function (node) {
 
         var circle = L.circle(node["geometry"]["coordinates"], {
             color: color,
             fillColor: color,
             fillOpacity: 0.2,
+            opacity: 0.4,
             radius: 5
         })
         if(node["properties"] != undefined) {
@@ -89,28 +101,30 @@ function renderNodes(map, nodes, color){
                 map.app.router.osmEnd = props.osm_node_id;
             }
         })
+        circleList.push(circle);
         circle.addTo(map);
     });
+    return circleList;
 }
 
 function renderLinks(map, links, color){
-
-    var style = {
-        color: color,
-        fillColor: color,
-        weight: 5,
-        opacity: 0.2
-    };
-
+    var polylineList = [];
     links.forEach(function (link) {
-        var leaflet_link = L.polyline(link.geometry.coordinates, {"style": style});
+        var leaflet_link = L.polyline(link.geometry.coordinates, {
+            color: color,
+            fillColor: color,
+            weight: 5,
+            opacity: 0.4
+        });
         var osmid = link["properties"].start_node.id
         var nodegeohash = link["properties"].start_node.geohash
         var wayid = link["properties"].osm_way_id
 
         leaflet_link.bindPopup(`Way: ${wayid}\nNodehash:${nodegeohash}\nNodeId:${osmid}`)
         leaflet_link.addTo(map);
+        polylineList.push(leaflet_link);
     });
+    return polylineList;
 }
 
 window.onload = function(){
@@ -131,6 +145,8 @@ Vue.component('logitem', {
 
 
 map = buildMap([49.46112, 7.76316]);
+DISTLINKS = null;
+ROUTLINKS = null;
 
 var app = new Vue({
     el: '#app',
@@ -194,7 +210,7 @@ var app = new Vue({
             url = "/api/route?start_lat=" + that.router.start.lat + "&start_lon=" + that.router.start.lon + "&end_lat=" + that.router.end.lat + "&end_lon=" + that.router.end.lon;
 
             sendReq(url, function (data) {
-                renderLinks(that.map, data[1], "#11ff11")
+                ROUTLINKS = renderLinks(that.map, data[1], "#11ff11")
                 that.logitems.unshift({line1: "Route in " + that.geohash, line2: data[0], line3: "Anz. links:" + data[1].length})
 
             }, that)
@@ -203,8 +219,15 @@ var app = new Vue({
             var that = this
             url = "/api/linkdistance?lat="+ that.linkdistance.lat +"&lon="+ that.linkdistance.lon;
             sendReq(url, function (data) {
+                setMarker(map, that.linkdistance, data[0])
+                data = data[1];
                 links = data.map(x => x["link"])
-                renderLinks(map, links);
+                if (DISTLINKS != null) {
+                    DISTLINKS.forEach(function (link) {
+                        map.removeLayer(link);
+                    });
+                }
+                DISTLINKS = renderLinks(map, links, "#32a852");
                 for(i = 0 ; i < data.length; i++){
                     l = data[i];
                     that.logitems.push({line1: "Link: "+ l["link"]['properties']["start_node"]["geohash"]+" Distance:"+ l.distance + "  Fraction"+ l.fraction})
@@ -217,6 +240,11 @@ var app = new Vue({
             map.removeLayer(this.router.end)
             this.router.start = null;
             this.router.end = null;
+            if (ROUTLINKS != null) {
+                    ROUTLINKS.forEach(function (link) {
+                        map.removeLayer(link);
+                    });
+            }
         }
     }
 });

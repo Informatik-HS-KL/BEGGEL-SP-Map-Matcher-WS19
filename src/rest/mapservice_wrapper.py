@@ -181,14 +181,14 @@ class MapserviceWrapper:
 
         linkdists = self.ms.get_linkdistances_in_radius(pos, radius)
 
-        data = []
+        data = [radius, []]
         for ld in linkdists:
             ld_data = {
                 "link": ld.link.to_geojson(),
                 "distance": ld.get_distance(),
                 "fraction": ld.get_fraction()
             }
-            data.append(ld_data)
+            data[1].append(ld_data)
 
         return data
 

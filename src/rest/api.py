@@ -195,7 +195,7 @@ def get__linkdistance():
     pos = float(request.args.get("lat")), float(request.args.get("lon"))
 
     msw = MapserviceWrapper(map_service)
-    data = msw.get_dict_linkdistances(pos, radius=100)
+    data = msw.get_dict_linkdistances(pos, radius=1000)
     return _resp(data)
 
 
