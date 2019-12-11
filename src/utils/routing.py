@@ -168,7 +168,7 @@ def dijkstra_routing(start_link, start_fraction, end_link, end_fraction, weight_
 
     start_length = weight_function.get_wight(start_link, (start_fraction if from_start_to_end else 1 - start_fraction))
     possible_ways = [(start_length, [start_link])]  # A list of all the paths to be committed next
-    already_used = {start_link: 0}  # You can't initialize the entire graph, so this var is needed
+    already_used = {}  # You can't initialize the entire graph, so this var is needed
 
     if from_start_to_end:  # Init all paths in the given direction
         __update_first_way(possible_ways, start_link.get_links_at_end_node(link_user), weight_function,
