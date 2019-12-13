@@ -47,23 +47,51 @@ class GeoHashWrapper:
         bbox_middle = ((bbox.south + bbox.north) / 2, (bbox.west + bbox.east) / 2)
         # Wir gehen ein geohash-Level höher:
         geohash_for_middle = self.get_geohash(bbox_middle, level - 1)
-        # bounding_box_big = geohash_for_middle[:-1]
-        # Wir bestimmen die BoundingBox, die der Kachel entspricht.
-        big_bounding_box = BoundingBox.from_geohash(geohash_for_middle)
 
         # Wenn bbox nicht in big_bounding_box liegt, dann müsste man eigentlich noch ein geohash-Level höher gehen. Das
         # ist derzeit allerdings noch nicht implementiert.
-        if bbox not in big_bounding_box:
-            raise Exception("Die angegebene BoundingBox ist zu groß, da sie in keiner Kachel mit geohash_level = %s "
-                            "enthalten ist." % (level - 1))
 
-        list_of_geo_hashes = []
-        for b in self.base32:
-            new_geohash = geohash_for_middle + b
-            if bbox.overlap(BoundingBox.from_geohash(new_geohash)):
-                list_of_geo_hashes.append(new_geohash)
+        base_geohashes = [geohash_for_middle]
 
-        return list_of_geo_hashes
+        if bbox not in BoundingBox.from_geohash(geohash_for_middle):
+            neighbors = self._get_neighbors(geohash_for_middle)
+
+            if bbox not in self._get_bounding_box_from_neighbors(neighbors):
+                raise Exception(
+                    "Die angegebene BoundingBox ist zu groß, da sie die Größe einer Kachel mit geohash_level = %s "
+                    "überschreitet." % (level - 1))
+            else:
+                base_geohashes.extend(list(neighbors.values()))
+
+        found_geohashes = []
+
+        for base_geohash in base_geohashes:
+
+            for b in self.base32:
+                new_geohash = base_geohash + b
+                if bbox.overlap(BoundingBox.from_geohash(new_geohash)):
+                    found_geohashes.append(new_geohash)
+
+        return found_geohashes
+
+    def _get_bounding_box_from_neighbors(self, neighbors: dict):
+
+        west = BoundingBox.from_geohash(neighbors["west"]).west
+        east = BoundingBox.from_geohash(neighbors["east"]).east
+
+        south = None
+        if neighbors.get("south"):
+            south = BoundingBox.from_geohash(neighbors["south"]).south
+        else:
+            south = BoundingBox.from_geohash(neighbors["east"]).south
+
+        north = None
+        if neighbors.get("north"):
+            north = BoundingBox.from_geohash(neighbors["north"]).north
+        else:
+            north = BoundingBox.from_geohash(neighbors["east"]).north
+
+        return BoundingBox(south, west, north, east)
 
     def _get_neighbors(self, geohash_string):
         """
