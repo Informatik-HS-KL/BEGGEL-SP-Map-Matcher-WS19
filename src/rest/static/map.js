@@ -207,6 +207,8 @@ var app = new Vue({
         },
         loadRoute: function(res){
             var that = this
+            that.logitems.unshift({line1: "Route:", line2: "von Punkt (" + that.router.start.lat +", "+that.router.start.lon+")",
+                                   line3: "nach Punkt (" + that.router.end.lat +", "+that.router.end.lon+")"})
             url = "/api/route?start_lat=" + that.router.start.lat + "&start_lon=" + that.router.start.lon + "&end_lat=" + that.router.end.lat + "&end_lon=" + that.router.end.lon;
 
             sendReq(url, function (data) {
@@ -236,14 +238,28 @@ var app = new Vue({
             }, that)
         },
         clearRoute: function (res) {
-            map.removeLayer(this.router.start)
-            map.removeLayer(this.router.end)
+            if(this.router.start != null) {
+                map.removeLayer(this.router.start)
+            }
+            if(this.router.end != null) {
+                map.removeLayer(this.router.end)
+            }
             this.router.start = null;
             this.router.end = null;
             if (ROUTLINKS != null) {
                     ROUTLINKS.forEach(function (link) {
                         map.removeLayer(link);
                     });
+            }
+        },
+        clearLinkDist: function (res) {
+            if (LAST_CIRCLE_RADIUS != null) {
+                map.removeLayer(LAST_CIRCLE_RADIUS);
+            }
+            if (DISTLINKS != null) {
+                DISTLINKS.forEach(function (link) {
+                    map.removeLayer(link);
+                });
             }
         }
     }
