@@ -64,3 +64,45 @@ class GeoHashWrapper:
                 list_of_geo_hashes.append(new_geohash)
 
         return list_of_geo_hashes
+
+    def _get_neighbors(self, geohash_string):
+        """
+        Adapted/copied from https://github.com/tammoippen/geohash-hilbert/blob/master/geohash_hilbert/_utils.py
+        :param geohash_string:
+        :return:
+        """
+        lat, lon, lat_err, lon_err = geohash.decode_exactly(geohash_string)
+        precision = len(geohash_string)
+
+        north = lat + 2 * lat_err
+
+        south = lat - 2 * lat_err
+
+        east = lon + 2 * lon_err
+        if east > 180:
+            east -= 360
+
+        west = lon - 2 * lon_err
+        if west < -180:
+            west += 360
+
+        neighbours_dict = {
+            'east': geohash.encode(lat, east,  precision),
+            'west': geohash.encode(lat, west, precision),
+        }
+
+        if north <= 90:  # input cell not already at the north pole
+            neighbours_dict.update({
+                'north': geohash.encode(north, lon, precision),
+                'north-east': geohash.encode(north, east, precision),
+                'north-west': geohash.encode(north, west, precision),
+            })
+
+        if south >= -90:  # input cell not already at the south pole
+            neighbours_dict.update({
+                'south': geohash.encode(south, lon, precision),
+                'south-east': geohash.encode(south, east, precision),
+                'south-west': geohash.encode(south, west, precision),
+            })
+
+        return neighbours_dict
