@@ -5,7 +5,6 @@ is managing the obtainment and caching of Tiles, the latter for improving the pe
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
-import os
 
 from src.geo_hash_wrapper import GeoHashWrapper
 from .models.bounding_box import BoundingBox
@@ -16,7 +15,12 @@ from src.models.link_distance import LinkDistance
 from src.geo_utils import great_circle
 from src.config import MapServiceConfig
 from src.config import CONFIG
-from src.overpass_wrapper_client import OverpassWrapperClientSide
+from src.utils.overpass_wrapper import OverpassWrapperServerSide
+from src.utils.overpass_wrapper import OverpassWrapperClientSide
+
+
+# from src.utils.overpass_wrapper.overpass_wrapper_client import OverpassWrapperClientSide
+# from src.utils.overpass_wrapper.server_side import OverpassWrapperServerSide
 
 
 def __one_node_in_circle(points, circle_center_lat_lon, circle_radius):
@@ -92,6 +96,7 @@ class MapService:
         self.config = CONFIG
         self._geoHashLevel = self.config.getint("DEFAULT", "geohashlevel")
         self.overpass_wrapper = OverpassWrapperClientSide(self.config)
+        # self.overpass_wrapper = OverpassWrapperServerSide(self.config)
 
     def set_config(self, config_path):
         """
