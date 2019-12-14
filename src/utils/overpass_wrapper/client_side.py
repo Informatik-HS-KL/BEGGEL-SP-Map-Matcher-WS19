@@ -10,6 +10,7 @@ from src.models.link import Link
 from src.models.bounding_box import BoundingBox
 from src.utils.overpass_wrapper.overpass_wrapper import OverpassWrapper
 
+
 class OverpassWrapperClientSide(OverpassWrapper):
     """
         Subclass of OverpassWrapper which determines the intersections of ways on the client-side.
@@ -32,7 +33,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
         for way in osm_ways:
             all.extend(way["nodes"])
 
-        crossing_osm_ids = list(filter(lambda i: i[1] > 1, collections.Counter(all).items()))
+        crossing_osm_ids = list(map(lambda x: x[0], filter(lambda i: i[1] > 1, collections.Counter(all).items())))
         return crossing_osm_ids
 
     def _build_query(self, geohash, q_filter: str):

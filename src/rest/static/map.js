@@ -277,11 +277,13 @@ var app = new Vue({
         clearNodes: function (res) {
             if(CACHE.nodelayer != null){
                 map.removeLayer(CACHE.nodelayer);
+                CACHE.nodelayer = null;
             }
         },
         clearLinks: function (res) {
             if(CACHE.linklayer != null){
                 map.removeLayer(CACHE.linklayer);
+                CACHE.linklayer = null;
             }
         }
     }
