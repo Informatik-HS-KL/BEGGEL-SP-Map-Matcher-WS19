@@ -9,6 +9,16 @@ VIEW_SET = 0;
 accesstoken = "pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw";
 providerurl = "https://api.tiles.mapbox.com/";
 
+CACHE = {
+    linklayer: L.layerGroup(),
+    nodelayer: L.layerGroup(),
+    view_set: 0,
+    LAST_CIRCLE_RADIUS: null,
+    DISTLINKS: null,
+    ROUTLINKS: null,
+    LAST_CIRCLE: null,
+}
+
 function buildMap(startLocation){
     var mymap = L.map('mapid').setView(startLocation, 15);
 
@@ -55,23 +65,22 @@ function isPosSet(pos){
 }
 
 function setView(map, coords) {
-    if(VIEW_SET === 0){
+    if(CACHE.view_set === 0){
         map.setView(coords, 14)
-        VIEW_SET = 1;
+        CACHE.view_set = 1;
     }
 }
 
-LAST_CIRCLE_RADIUS = null;
-
 function setMarker(map, latlng, radius) {
-    if (LAST_CIRCLE_RADIUS != null) {
-        map.removeLayer(LAST_CIRCLE_RADIUS);
+    if (CACHE.LAST_CIRCLE_RADIUS != null) {
+        map.removeLayer(CACHE.LAST_CIRCLE_RADIUS);
     }
-    LAST_CIRCLE_RADIUS = L.circle(latlng, radius);
-    LAST_CIRCLE_RADIUS.addTo(map);
+    CACHE.LAST_CIRCLE_RADIUS = L.circle(latlng, radius);
+    CACHE.LAST_CIRCLE_RADIUS.addTo(map);
 }
 
 function renderNodes(map, nodes, color){
+    nodelayer = CACHE.nodelayer;
     var circleList = [];
     nodes.forEach(function (node) {
 
@@ -102,13 +111,16 @@ function renderNodes(map, nodes, color){
             }
         })
         circleList.push(circle);
-        circle.addTo(map);
+        nodelayer.addLayer(circle);
     });
+    nodelayer.addTo(map)
     return circleList;
 }
 
 function renderLinks(map, links, color){
     var polylineList = [];
+    linklayer = CACHE.linklayer;
+
     links.forEach(function (link) {
         var leaflet_link = L.polyline(link.geometry.coordinates, {
             color: color,
@@ -121,9 +133,10 @@ function renderLinks(map, links, color){
         var wayid = link["properties"].osm_way_id
 
         leaflet_link.bindPopup(`Way: ${wayid}\nNodehash:${nodegeohash}\nNodeId:${osmid}`)
-        leaflet_link.addTo(map);
+        linklayer.addLayer(leaflet_link);
         polylineList.push(leaflet_link);
     });
+    linklayer.addTo(map);
     return polylineList;
 }
 
@@ -145,8 +158,6 @@ Vue.component('logitem', {
 
 
 map = buildMap([49.46112, 7.76316]);
-DISTLINKS = null;
-ROUTLINKS = null;
 
 var app = new Vue({
     el: '#app',
@@ -224,12 +235,12 @@ var app = new Vue({
                 setMarker(map, that.linkdistance, data[0])
                 data = data[1];
                 links = data.map(x => x["link"])
-                if (DISTLINKS != null) {
-                    DISTLINKS.forEach(function (link) {
+                if (CACHE.DISTLINKS != null) {
+                    CACHE.DISTLINKS.forEach(function (link) {
                         map.removeLayer(link);
                     });
                 }
-                DISTLINKS = renderLinks(map, links, "#32a852");
+                CACHE.DISTLINKS = renderLinks(map, links, "#32a852");
                 for(i = 0 ; i < data.length; i++){
                     l = data[i];
                     that.logitems.push({line1: "Link: "+ l["link"]['properties']["start_node"]["geohash"]+" Distance:"+ l.distance + "  Fraction"+ l.fraction})
@@ -238,6 +249,7 @@ var app = new Vue({
             }, that)
         },
         clearRoute: function (res) {
+
             if(this.router.start != null) {
                 map.removeLayer(this.router.start)
             }
@@ -246,26 +258,35 @@ var app = new Vue({
             }
             this.router.start = null;
             this.router.end = null;
-            if (ROUTLINKS != null) {
-                    ROUTLINKS.forEach(function (link) {
+            if (CACHE.ROUTLINKS != null) {
+                    CACHE.ROUTLINKS.forEach(function (link) {
                         map.removeLayer(link);
                     });
             }
         },
         clearLinkDist: function (res) {
-            if (LAST_CIRCLE_RADIUS != null) {
-                map.removeLayer(LAST_CIRCLE_RADIUS);
+            if (CACHE.LAST_CIRCLE_RADIUS != null) {
+                map.removeLayer(CACHE.LAST_CIRCLE_RADIUS);
             }
-            if (DISTLINKS != null) {
-                DISTLINKS.forEach(function (link) {
+            if (CACHE.DISTLINKS != null) {
+                CACHE.DISTLINKS.forEach(function (link) {
                     map.removeLayer(link);
                 });
+            }
+        },
+        clearNodes: function (res) {
+            if(CACHE.nodelayer != null){
+                map.removeLayer(CACHE.nodelayer);
+            }
+        },
+        clearLinks: function (res) {
+            if(CACHE.linklayer != null){
+                map.removeLayer(CACHE.linklayer);
             }
         }
     }
 });
 
-LAST_CIRCLE = null;
 map.app = app;
 
 map.on("click", function (evt) {
@@ -306,10 +327,10 @@ map.on("click", function (evt) {
             fillOpacity: 0.5,
             radius: 4
         });
-        if (LAST_CIRCLE != null) {
-            map.removeLayer(LAST_CIRCLE);
+        if (CACHE.LAST_CIRCLE != null) {
+            map.removeLayer(CACHE.LAST_CIRCLE);
         }
-        LAST_CIRCLE = circle;
+        CACHE.LAST_CIRCLE = circle;
         circle.addTo(map)
         map.app.linkdistance.lat = current_lat;
         map.app.linkdistance.lon = current_lon;

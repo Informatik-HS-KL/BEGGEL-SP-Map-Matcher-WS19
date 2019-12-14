@@ -44,6 +44,8 @@
 
                             <button v-if="cmd == 'route'" v-on:click="clearRoute" type="button" name="clear" value="clear" class="btn btn-outline-secondary">clear</button>
                             <button v-if="cmd == 'linkdistance'" v-on:click="clearLinkDist" type="button" name="clear" value="clear" class="btn btn-outline-secondary">clear</button>
+                            <button v-if="cmd == 'nodes'" v-on:click="clearNodes" type="button" name="clear" value="clear" class="btn btn-outline-secondary">clear</button>
+                            <button v-if="cmd == 'links'" v-on:click="clearLinks" type="button" name="clear" value="clear" class="btn btn-outline-secondary">clear</button>
 
                             <div class="input-group-append">
                                 <button v-if="cmd == 'nodes'" v-on:click="loadNodes" class="btn btn-outline-secondary" type="button" id="btn-node">Load</button>
