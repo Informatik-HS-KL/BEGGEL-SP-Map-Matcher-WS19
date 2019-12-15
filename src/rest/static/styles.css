@@ -39,3 +39,7 @@
 #logitems > :first-child{
     background-color: #fff7a0;
 }
+
+.linkdistlog > span{
+    padding-top: 10px;
+}

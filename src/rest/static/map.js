@@ -12,6 +12,8 @@ providerurl = "https://api.tiles.mapbox.com/";
 CACHE = {
     linklayer: L.layerGroup(),
     nodelayer: L.layerGroup(),
+    linkDistLayer: L.layerGroup(),
+    routingLayer: L.layerGroup(),
     view_set: 0,
     LAST_CIRCLE_RADIUS: null,
     DISTLINKS: null,
@@ -71,16 +73,7 @@ function setView(map, coords) {
     }
 }
 
-function setMarker(map, latlng, radius) {
-    if (CACHE.LAST_CIRCLE_RADIUS != null) {
-        map.removeLayer(CACHE.LAST_CIRCLE_RADIUS);
-    }
-    CACHE.LAST_CIRCLE_RADIUS = L.circle(latlng, radius);
-    CACHE.LAST_CIRCLE_RADIUS.addTo(map);
-}
-
-function renderNodes(map, nodes, color){
-    nodelayer = CACHE.nodelayer;
+function renderNodes(map, nodes, color, layer){
     var circleList = [];
     nodes.forEach(function (node) {
 
@@ -111,15 +104,14 @@ function renderNodes(map, nodes, color){
             }
         })
         circleList.push(circle);
-        nodelayer.addLayer(circle);
+        layer.addLayer(circle);
     });
-    nodelayer.addTo(map)
+    layer.addTo(map)
     return circleList;
 }
 
-function renderLinks(map, links, color){
+function renderLinks(map, links, color, layer){
     var polylineList = [];
-    linklayer = CACHE.linklayer;
 
     links.forEach(function (link) {
         var leaflet_link = L.polyline(link.geometry.coordinates, {
@@ -133,10 +125,10 @@ function renderLinks(map, links, color){
         var wayid = link["properties"].osm_way_id
 
         leaflet_link.bindPopup(`Way: ${wayid}\nNodehash:${nodegeohash}\nNodeId:${osmid}`)
-        linklayer.addLayer(leaflet_link);
+        layer.addLayer(leaflet_link);
         polylineList.push(leaflet_link);
     });
-    linklayer.addTo(map);
+    layer.addTo(map);
     return polylineList;
 }
 
@@ -148,8 +140,8 @@ Vue.component('logitem', {
         return {
         }
     },
-    template: '<div class="logitem" v-bind:style="itemstyle">' +
-        '<span class="line">{{ line1 }}</span> ' +
+    template: '<div class="logitem" v-bind:class="itemstyle">' +
+        '<span class="line">{{ line1 }}</span>' +
         '<span class="line">{{ line2 }}</span>' +
         '<span class="line">{{ line3 }}</span>' +
         '<a v-if="link" href="link"></a>'+
@@ -165,7 +157,8 @@ var app = new Vue({
         logitems:[],
         linkdistance:{
             lat: "", // wird zur laufzeit von der Karte von einem klick event gefüllt
-            lon: ""
+            lon: "",
+            radius: 200
         },
         geohash: "u0v92",
         map: map,
@@ -185,7 +178,7 @@ var app = new Vue({
 
                 that.message = data;
                 setView(that.map, data[0].geometry.coordinates)
-                renderNodes(that.map, data, '#ff0911')
+                renderNodes(that.map, data, '#ff0911', CACHE.nodelayer)
                 that.logitems.unshift({
                     line1: "Nodes in " + that.geohash,
                     line2: "Anzahl:  "+ data.length
@@ -197,18 +190,18 @@ var app = new Vue({
             var that = this
             url = "/api/tiles/" + that.geohash + "/links";
             sendReq(url, function (data) {
-                renderLinks(that.map, data, "#ff7800")
+                renderLinks(that.map, data, "#ff7800", CACHE.linklayer)
                 that.logitems.unshift({
                     line1: "Links in "+ that.geohash,
                     line2: "Anzahl: " + data.length})
             }, that)
         },
         loadCrossings: function(res){
-            var that = this
+            var that = this;
             url = "/api/tiles/" + that.geohash + "/nodes/crossroads";
             sendReq(url, function (data) {
                 setView(that.map, data[0].geometry.coordinates)
-                renderNodes(that.map, data, '#1109ff')
+                renderNodes(that.map, data, '#1109ff', CACHE.nodelayer)
                 that.logitems.unshift({
                     line1: "Kreuzungen in" + that.geohash,
                     line2: "Anzahl:     " + data.length
@@ -223,67 +216,58 @@ var app = new Vue({
             url = "/api/route?start_lat=" + that.router.start.lat + "&start_lon=" + that.router.start.lon + "&end_lat=" + that.router.end.lat + "&end_lon=" + that.router.end.lon;
 
             sendReq(url, function (data) {
-                ROUTLINKS = renderLinks(that.map, data[1], "#11ff11")
+                ROUTLINKS = renderLinks(that.map, data[1], "#11ff11", CACHE.routingLayer)
                 that.logitems.unshift({line1: "Route in " + that.geohash, line2: data[0], line3: "Anz. links:" + data[1].length})
 
             }, that)
         },
         loadLinkDist: function(res){
             var that = this
-            url = "/api/linkdistance?lat="+ that.linkdistance.lat +"&lon="+ that.linkdistance.lon;
+            url = "/api/linkdistance?lat="+ that.linkdistance.lat +"&lon="+ that.linkdistance.lon + "&radius="+ that.linkdistance.radius;
             sendReq(url, function (data) {
-                setMarker(map, that.linkdistance, data[0])
+
                 data = data[1];
                 links = data.map(x => x["link"])
-                if (CACHE.DISTLINKS != null) {
-                    CACHE.DISTLINKS.forEach(function (link) {
-                        map.removeLayer(link);
-                    });
-                }
-                CACHE.DISTLINKS = renderLinks(map, links, "#32a852");
+
+                CACHE.linkDistLayer.remove();
+                CACHE.linkDistLayer = L.layerGroup();
+                console.log(that.linkdistance.radius)
+                var marker = L.circle([that.linkdistance.lat, that.linkdistance.lon], parseInt(that.linkdistance.radius));
+                marker.addTo(CACHE.linkDistLayer)
+
+                CACHE.DISTLINKS = renderLinks(map, links, "#32a852", CACHE.linkDistLayer);
+
                 for(i = 0 ; i < data.length; i++){
                     l = data[i];
-                    that.logitems.push({line1: "Link: "+ l["link"]['properties']["start_node"]["geohash"]+" Distance:"+ l.distance + "  Fraction"+ l.fraction})
+                    entry = {line1: "Link: "+ l["link"]['properties']["start_node"]["geohash"]+" Distance:"+ l.distance + "  Fraction"+ l.fraction};
+                    that.logitems.push(entry);
                 }
-                console.log(data)
             }, that)
         },
         clearRoute: function (res) {
 
-            if(this.router.start != null) {
-                map.removeLayer(this.router.start)
-            }
-            if(this.router.end != null) {
-                map.removeLayer(this.router.end)
-            }
-            this.router.start = null;
-            this.router.end = null;
-            if (CACHE.ROUTLINKS != null) {
-                    CACHE.ROUTLINKS.forEach(function (link) {
-                        map.removeLayer(link);
-                    });
+            if(CACHE.routingLayer != null){
+                map.removeLayer(CACHE.routingLayer);
+                CACHE.routingLayer = L.layerGroup();
             }
         },
         clearLinkDist: function (res) {
-            if (CACHE.LAST_CIRCLE_RADIUS != null) {
-                map.removeLayer(CACHE.LAST_CIRCLE_RADIUS);
-            }
-            if (CACHE.DISTLINKS != null) {
-                CACHE.DISTLINKS.forEach(function (link) {
-                    map.removeLayer(link);
-                });
+            if(CACHE.linkDistLayer != null){
+                map.removeLayer(CACHE.linkDistLayer);
+                CACHE.linkDistLayer = L.layerGroup();
             }
         },
         clearNodes: function (res) {
             if(CACHE.nodelayer != null){
                 map.removeLayer(CACHE.nodelayer);
-                CACHE.nodelayer = null;
+                CACHE.nodelayer = L.layerGroup();
+
             }
         },
         clearLinks: function (res) {
             if(CACHE.linklayer != null){
                 map.removeLayer(CACHE.linklayer);
-                CACHE.linklayer = null;
+                CACHE.linklayer = L.layerGroup();
             }
         }
     }
@@ -302,7 +286,7 @@ map.on("click", function (evt) {
         });
         if (!isPosSet(map.app.router.start)) {
             circle.title = 'start';
-            circle.addTo(map);
+            circle.addTo(CACHE.routingLayer);
             //map.app.router.start.lat = current_lat;
             //map.app.router.start.lon = current_lon;
             circle.lat = current_lat;
@@ -312,7 +296,7 @@ map.on("click", function (evt) {
 
         } else if (!isPosSet(map.app.router.end)) {
             circle.title = 'end';
-            circle.addTo(map);
+            circle.addTo(CACHE.routingLayer);
             //map.app.router.end.lat = current_lat;
             //map.app.router.end.lon = current_lon;
             circle.lat = current_lat;
@@ -320,6 +304,7 @@ map.on("click", function (evt) {
             map.app.router.end = circle;
 
         }
+        CACHE.routingLayer.addTo(map)
     }
 
     if (map.app.cmd == "linkdistance") {

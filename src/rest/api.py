@@ -193,9 +193,10 @@ def get__linkdistance():
     from src.models.link_distance import LinkDistance
 
     pos = float(request.args.get("lat")), float(request.args.get("lon"))
+    radius = int(request.args.get("radius"))
 
     msw = MapserviceWrapper(map_service)
-    data = msw.get_dict_linkdistances(pos, radius=1000)
+    data = msw.get_dict_linkdistances(pos, radius=radius)
     return _resp(data)
 
 

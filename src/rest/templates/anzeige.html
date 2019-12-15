@@ -41,26 +41,29 @@
                             </div>
 
                             <input v-if="cmd != 'route' && cmd != 'linkdistance'" v-on:keyup.enter="loaddata" v-model="geohash"  type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="button-addon2">
+                            <input v-if="cmd == 'linkdistance'" v-model="linkdistance.radius"  type="text" class="form-control" placeholder="" aria-label="" aria-describedby="">
 
-                            <button v-if="cmd == 'route'" v-on:click="clearRoute" type="button" name="clear" value="clear" class="btn btn-outline-secondary">clear</button>
-                            <button v-if="cmd == 'linkdistance'" v-on:click="clearLinkDist" type="button" name="clear" value="clear" class="btn btn-outline-secondary">clear</button>
-                            <button v-if="cmd == 'nodes' || cmd == 'crossings'" v-on:click="clearNodes" type="button" name="clear" value="clear" class="btn btn-outline-secondary">clear</button>
-                            <button v-if="cmd == 'links'" v-on:click="clearLinks" type="button" name="clear" value="clear" class="btn btn-outline-secondary">clear</button>
 
                             <div class="input-group-append">
+                                <button v-if="cmd == 'nodes' || cmd == 'crossings'" v-on:click="clearNodes" type="button" name="clear" value="clear" class="btn btn-outline-secondary">clear</button>
                                 <button v-if="cmd == 'nodes'" v-on:click="loadNodes" class="btn btn-outline-secondary" type="button" id="btn-node">Load</button>
+
+                                <button v-if="cmd == 'links'" v-on:click="clearLinks" type="button" name="clear" value="clear" class="btn btn-outline-secondary">clear</button>
                                 <button v-if="cmd == 'links'" v-on:click="loadLinks" class="btn btn-outline-secondary" type="button" id="btn-link">Load</button>
                                 <button v-if="cmd == 'crossings'" v-on:click="loadCrossings" class="btn btn-outline-secondary" type="button" id="btn-cross">Load</button>
+
+                                <button v-if="cmd == 'route'" v-on:click="clearRoute" type="button" name="clear" value="clear" class="btn btn-outline-secondary">clear</button>
                                 <button v-if="cmd == 'route'" v-on:click="loadRoute" class="btn btn-outline-secondary" type="button" id="btn-route">Load</button>
+
+                                <button v-if="cmd == 'linkdistance'" v-on:click="clearLinkDist" type="button" name="clear" value="clear" class="btn btn-outline-secondary">clear</button>
                                 <button v-if="cmd == 'linkdistance'" v-on:click="loadLinkDist" class="btn btn-outline-secondary" type="button" id="btn-linkdist">Load</button>
 
-                                <span v-if="cmd=='linkdistance'">Klicke in Karte, um Punkt zu wählen</span>
                             </div>
-
+                                <span v-if="cmd=='linkdistance'">Klicke in Karte, um Punkt zu wählen</span>
                         </div >
 
                         <div id="logitems">
-                            <logitem v-for="item in logitems" v-bind:line1="item.line1" v-bind:line2="item.line2" v-bind:line3="item.line3"></logitem>
+                            <logitem v-for="item in logitems" v-bind:line1="item.line1" v-bind:line2="item.line2" v-bind:line3="item.line3" v-bind:itemstyle="item.itemstyle"></logitem>
                         </div>
 
                     </div>
