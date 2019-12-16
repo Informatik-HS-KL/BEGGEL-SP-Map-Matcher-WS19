@@ -66,10 +66,10 @@ class OverpassWrapper(ABC):
         """
         pass
 
-    def _build_link_dictionary(self, geohash: str, osm_ways: list, crossings: list, nodes: dict):
+    def _build_link_dictionary(self, geohash: str, osm_ways: list, intersections: list, nodes: dict):
         """
         :param osm_ways: raw way data from overpass as dict
-        :param crossings: List of Nodeids represent crossings in street
+        :param intersections: List of Nodeids represent intersections in street
         :param nodes: List of Node Objects
         :return: dict {LinkId: Link}
         """
@@ -91,11 +91,11 @@ class OverpassWrapper(ABC):
 
                 is_end = way_nodes_ids[-1] == way_nodes_ids[i]
                 is_start = way_nodes_ids[0] == way_nodes_ids[i]
-                is_crossing = way_nodes_ids[i] in crossings
+                is_intersection = way_nodes_ids[i] in intersections
 
                 link = None
 
-                if is_end or (not is_start and is_crossing):
+                if is_end or (not is_start and is_intersection):
 
                     if len(link_node_ids) < 2:
                         continue

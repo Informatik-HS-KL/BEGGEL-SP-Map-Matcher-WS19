@@ -27,7 +27,7 @@ def documentation():
         {"url":"/api/tiles/<geohash>/", "description": "get tile infos of given geohash"},
         { "url":"/api/tiles/<geohash>/nodes", "description":"get nodes of given tile"},
         { "url":"/api/tiles/<geohash>/nodes/1", "description":"get specific node of tile"},
-        { "url": "/api/tiles/<geohash>/crossroads", "description":"get crossroads of tile"},
+        { "url": "/api/tiles/<geohash>/intersections", "description":"get intersections of tile"},
         { "url": "/api/geohashes?bbox=south,west,north,east", "description": "Liste aller geohashes, die von dieser bbox betroffen sind"}
     ]
     return data
@@ -143,10 +143,10 @@ def get_links(geohash):
     return _resp(msw.get_dict_links(geohash))
 
 
-@api.route('/tiles/<string:geohash>/nodes/crossroads')
-def get_crossroads(geohash):
+@api.route('/tiles/<string:geohash>/nodes/intersections')
+def get_intersections(geohash):
     """
-    Nodes wich represents a Crossing
+    Nodes wich represents a intersections
     :param geohash:
     :return: json
     """

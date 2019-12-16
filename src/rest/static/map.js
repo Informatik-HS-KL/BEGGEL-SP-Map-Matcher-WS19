@@ -196,9 +196,9 @@ var app = new Vue({
                     line2: "Anzahl: " + data.length})
             }, that)
         },
-        loadCrossings: function(res){
+        loadIntersections: function(res){
             var that = this;
-            url = "/api/tiles/" + that.geohash + "/nodes/crossroads";
+            url = "/api/tiles/" + that.geohash + "/nodes/intersections";
             sendReq(url, function (data) {
                 setView(that.map, data[0].geometry.coordinates)
                 renderNodes(that.map, data, '#1109ff', CACHE.nodelayer)

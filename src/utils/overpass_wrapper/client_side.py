@@ -20,7 +20,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
         """"""
         super(OverpassWrapperClientSide, self).__init__(config)
 
-    def _crossings(self, osm_ways):
+    def _get_intersections(self, osm_ways):
         """
         Search for Crossings in osm Ways and returns them as Nodes
         :param osm_nodes: raw osm nodes data parsed from json
@@ -61,7 +61,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
         osm_id_nodes_dict = dict(
             map(lambda n: self._create_node(n["id"], (n["lat"], n["lon"]), n.get("tags")), osm_nodes))
 
-        crossings_osm_ids = self._crossings(osm_ways)
+        crossings_osm_ids = self._get_intersections(osm_ways)
 
         links = self._build_link_dictionary(geo_hash, osm_ways, crossings_osm_ids, osm_id_nodes_dict)
         # nodes = dict(map(lambda n: (n.get_id(), n), filter(lambda x: x.get_geohash()[:len(geo_hash)] == geo_hash,
