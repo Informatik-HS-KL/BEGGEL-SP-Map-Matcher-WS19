@@ -19,10 +19,10 @@ class OverpassWrapper(ABC):
     """
 
     def __init__(self, config):
-        self.ghw = GeoHashWrapper()
-        self.full_geohash_level = config.getint("DEFAULT", "full_geohash_level")
-        self.OVERPASS_URL = config.get("DEFAULT", "overpass_url")
-        self.config = config
+        self._ghw = GeoHashWrapper()
+        self._full_geohash_level = config.getint("DEFAULT", "full_geohash_level")
+        self._overpass_url = config.get("DEFAULT", "overpass_url")
+        self._config = config
 
     def load_tile(self, geo_hash):
         """
@@ -30,8 +30,8 @@ class OverpassWrapper(ABC):
         geohash.
         """
 
-        q_filter = self._filter_query(self.config)
-        elements = self._download(self.OVERPASS_URL, geo_hash, q_filter)
+        q_filter = self._filter_query(self._config)
+        elements = self._download(self._overpass_url, geo_hash, q_filter)
 
         return self._create_tile(geo_hash, elements)
 
@@ -135,11 +135,11 @@ class OverpassWrapper(ABC):
         link = Link(link_id, link_geometry, link_node_ids)
         link.set_tags(way.get("tags"))
         for nid in link_node_ids:
-            nodes[nid.osm_node_id].add_parent_link(link)
-        if nodes.get(link_node_ids[0].osm_node_id):
-            nodes[link_node_ids[0].osm_node_id].add_link(link)
-        if nodes.get(link_node_ids[-1].osm_node_id):
-            nodes[link_node_ids[-1].osm_node_id].add_link(link)
+            nodes[nid.get_osm_id()].add_parent_link(link)
+        if nodes.get(link_node_ids[0].get_osm_id()):
+            nodes[link_node_ids[0].get_osm_id()].add_link(link)
+        if nodes.get(link_node_ids[-1].get_osm_id()):
+            nodes[link_node_ids[-1].get_osm_id()].add_link(link)
         return link
 
     def _is_entering_tile(self, node_id, next_node_id, geohash):
@@ -150,8 +150,8 @@ class OverpassWrapper(ABC):
         :param geohash:
         :return:
         """
-        akt_hash = node_id.geohash[:len(geohash)]
-        next_hash = next_node_id.geohash[:len(geohash)]
+        akt_hash = node_id.get_geohash()[:len(geohash)]
+        next_hash = next_node_id.get_geohash()[:len(geohash)]
         return akt_hash != geohash and next_hash == geohash
 
     def _is_leaving_tile(self, node_id, next_node_id, geohash):
@@ -162,8 +162,8 @@ class OverpassWrapper(ABC):
         :param geohash:
         :return:
         """
-        akt_hash = node_id.geohash[:len(geohash)]
-        next_hash = next_node_id.geohash[:len(geohash)]
+        akt_hash = node_id.get_geohash()[:len(geohash)]
+        next_hash = next_node_id.get_geohash()[:len(geohash)]
         return akt_hash == geohash and next_hash != geohash
 
     @abstractmethod
@@ -198,7 +198,7 @@ class OverpassWrapper(ABC):
         :param tags: dict
         :return: (int, Node-Object)
         """
-        node_id = NodeId(osm_id, self.ghw.get_geohash(pos, level=self.full_geohash_level))
+        node_id = NodeId(osm_id, self._ghw.get_geohash(pos, level=self._full_geohash_level))
         node = Node(node_id, pos)
         node.set_tags(tags)
         return osm_id, node

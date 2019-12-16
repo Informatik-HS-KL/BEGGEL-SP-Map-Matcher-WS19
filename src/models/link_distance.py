@@ -30,28 +30,28 @@ class LinkDistance:
         # Fraction beschreibt die Position auf dem Link. (latMatched, lonMatched)
         # liegt ja nämlich vielleicht  irgendwo in der Mitte des Links, z.B. F=0.5
         # F=0: StartKnoten, F=1: EndKnoten, F=0.5 : mitte des Links,....
-        self.fraction = None
+        self._fraction = None
 
         # Das dazugehörige Link-Objekt
-        self.link = link
+        self._link = link
 
         self._initialize_matched_point_and_fraction()
         # distance zw. punkt und ortogonalprojekton von Punkt auf Link
-        self.distance = great_circle(self._matched_point, self._lat_lon)
+        self._distance = great_circle(self._matched_point, self._lat_lon)
 
     def get_distance(self):
         """
         Returns the calculated distance between Link and Point
         :return: float
         """
-        return self.distance
+        return self._distance
 
     def get_fraction(self):
         """
         Returns the next next position in percent on the link
         :return: float
         """
-        return self.fraction
+        return self._fraction
 
     def _calc_fraction(self, link_segments, involved_segment):
         """
@@ -65,9 +65,9 @@ class LinkDistance:
         for seg in link_segments:
             if seg == involved_segment:
                 distance += great_circle(seg[0], self._matched_point)
-                if not self.link.get_length() == 0.0:
+                if not self._link.get_length() == 0.0:
                     # Links, die aus einem einzigen Punkt bestehen. (Falsche Daten Overpass)
-                    return distance / self.link.get_length()
+                    return distance / self._link.get_length()
                 return 0
             else:
                 distance += great_circle(seg[0], seg[1])
@@ -139,7 +139,7 @@ class LinkDistance:
         :return: None
         """
 
-        link_segments = self.link.get_link_segments()
+        link_segments = self._link.get_link_segments()
         min_distance = 20037000  # biggest range of earth: 40074000 Meter
         matched_point = None
         involved_segment = None
@@ -159,7 +159,7 @@ class LinkDistance:
         """
         :return: Link-Object
         """
-        return self.link
+        return self._link
 
     def get_point(self):
         """

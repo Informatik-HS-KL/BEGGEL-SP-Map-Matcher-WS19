@@ -181,7 +181,7 @@ class MapserviceWrapper:
         data = [radius, []]
         for ld in linkdists:
             ld_data = {
-                "link": ld.link.to_geojson(),
+                "link": ld.get_link().to_geojson(),
                 "distance": ld.get_distance(),
                 "fraction": ld.get_fraction()
             }

@@ -50,7 +50,7 @@ def point_to_point_dijkstra(initial, end):
     visited = set()
 
     while current_node != end:
-        print(current_node.get_id().geohash)
+        print(current_node.get_id().get_geohash())
         visited.add(current_node)
         destinations = [link.get_end_node() for link in current_node.get_links()] + [link.get_start_node() for link in
                                                                                      current_node.get_links()]

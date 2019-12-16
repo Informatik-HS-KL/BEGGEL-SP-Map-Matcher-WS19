@@ -53,7 +53,7 @@ def _get_smaller_tile(tile, smaller_geohash_str):
     links = {}
     osm_ids = set()
     for node in all_nodes:  # alle Nodes, die direkt im Tile liegen
-        if node.get_id().geohash[:len(smaller_geohash_str)] == smaller_geohash_str:
+        if node.get_geohash()[:len(smaller_geohash_str)] == smaller_geohash_str:
             nodes[node.get_id()] = node
 
     for link in all_links:  # alle Links, die direkt im Tile liegen
@@ -185,14 +185,14 @@ class MapService:
     def get_link_by_id(self, link_id: LinkId):
         """Gibt den Link mit der entsprechenden Id zurück."""
 
-        tile = self.get_tile(link_id.geohash[:self._geohash_level])
+        tile = self.get_tile(link_id.get_geohash()[:self._geohash_level])
         return tile.get_link(link_id)
 
     def get_link(self, way_id, start_node_id: NodeId):
         """Gibt den Link zurück, der den entsprechenden Knoten als Startknoten hat
         und Teil des entsprechenden Way's ist"""
 
-        tile = self.get_tile(start_node_id.geohash[:self._geohash_level])
+        tile = self.get_tile(start_node_id.get_geohash()[:self._geohash_level])
         return tile.get_link(LinkId(way_id, start_node_id))
 
     def get_links(self, way_id):
@@ -236,5 +236,5 @@ class MapService:
         :param nodeid:
         :return: Node-Object
         """
-        tile = self.get_tile(nodeid.geohash[:self._geohash_level])
+        tile = self.get_tile(nodeid.get_geohash()[:self._geohash_level])
         return tile.get_node(nodeid)

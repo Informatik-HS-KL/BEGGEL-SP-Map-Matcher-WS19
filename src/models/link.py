@@ -29,13 +29,13 @@ class Link:
         :param geometry: list(tuple)
         :param node_ids: list(NodeId-Objects)
         """
-        self.__start_node_id = node_ids[0]
-        self.__end_node_id = node_ids[len(node_ids) - 1]
-        self.__link_id = link_id
-        self.__geometry = geometry  # contains the (lat, lon)-tupel of all nodes of the link
-        self.__node_ids = node_ids
-        self.__tags = {}
-        self.__length = None
+        self._start_node_id = node_ids[0]
+        self._end_node_id = node_ids[len(node_ids) - 1]
+        self._link_id = link_id
+        self._geometry = geometry  # contains the (lat, lon)-tupel of all nodes of the link
+        self._node_ids = node_ids
+        self._tags = {}
+        self._length = None
 
         self._map_service = src.map_service.MapService()
 
@@ -53,12 +53,12 @@ class Link:
         :return Gibt den Startknoten (als Node) zurück.
         """
 
-        return self._map_service.get_node(self.__start_node_id)
+        return self._map_service.get_node(self._start_node_id)
 
     def get_end_node(self):
         """ :return Gibt den Endknoten (als Node) zurück.
         """
-        return self._map_service.get_node(self.__end_node_id)
+        return self._map_service.get_node(self._end_node_id)
 
     # def get_links(self):
     #     return self.__startNode.get_links().extend(self.__endNode.get_links())
@@ -113,7 +113,7 @@ class Link:
         Attributes of this Link
         :return: dict
         """
-        return self.__tags
+        return self._tags
 
     def set_tags(self, tags: dict):
         """
@@ -121,15 +121,15 @@ class Link:
         :return: None
         """
         if tags is None:
-            self.__tags = {}
+            self._tags = {}
         else:
-            self.__tags = tags
+            self._tags = tags
 
     def get_id(self):
         """
         :return: LinkId-Object
         """
-        return self.__link_id
+        return self._link_id
 
     def get_way_osm_id(self):
         """
@@ -138,10 +138,10 @@ class Link:
         return self.get_id().get_osm_way_id()
 
     def __repr__(self):
-        return "Link: <link_id: %s> <geometry: %s> <node_ids: %s>" % (self.__link_id, self.__geometry, self.__node_ids)
+        return "Link: <link_id: %s> <geometry: %s> <node_ids: %s>" % (self._link_id, self._geometry, self._node_ids)
 
     def __str__(self):
-        return "Link: <start_node_id: %s> <end_node_id: %s>" % (self.__start_node_id, self.__end_node_id)
+        return "Link: <start_node_id: %s> <end_node_id: %s>" % (self._start_node_id, self._end_node_id)
 
     def to_geojson(self):
         """
@@ -149,7 +149,7 @@ class Link:
         """
 
         line_string_coordinates = []
-        for p in self.__geometry:
+        for p in self._geometry:
             line_string_coordinates.append([p[0], p[1]])
 
         data = {
@@ -161,8 +161,8 @@ class Link:
             "properties": {
                 "osm_way_id": self.get_way_osm_id(),
                 "start_node": {
-                    "geohash": self.get_id().get_start_node_id().geohash,
-                    "id": self.get_id().get_start_node_id().osm_node_id
+                    "geohash": self.get_id().get_start_node_id().get_geohash(),
+                    "id": self.get_id().get_start_node_id().get_osm_id()
                 },
                 "tags": self.get_tags()
             }
@@ -183,12 +183,12 @@ class Link:
         The calculation of the length is done on demand and then saved in the corresponding attribute.
         :return: int length in meter
         """
-        if self.__length is None:
-            self.__length = 0
-            for i in range(len(self.__geometry) - 1):
-                self.__length += great_circle(self.__geometry[i], self.__geometry[i + 1])
+        if self._length is None:
+            self._length = 0
+            for i in range(len(self._geometry) - 1):
+                self._length += great_circle(self._geometry[i], self._geometry[i + 1])
 
-        return self.__length
+        return self._length
 
     def is_navigatable_from_start(self, link_user: LinkUser) -> bool:
         """
@@ -213,8 +213,8 @@ class Link:
         """
         segments = list()
 
-        for i in range(len(self.__geometry) - 1):
-            segment = (self.__geometry[i], self.__geometry[i + 1])
+        for i in range(len(self._geometry) - 1):
+            segment = (self._geometry[i], self._geometry[i + 1])
             segments.append(segment)
 
         return segments
@@ -223,13 +223,13 @@ class Link:
         """
         :return: list(tuple)
         """
-        return self.__geometry
+        return self._geometry
 
     def get_node_ids(self):
         """
         :return: list(NodeIds)
         """
-        return self.__node_ids
+        return self._node_ids
 
     def get_geohash(self):
         """
