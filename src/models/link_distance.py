@@ -60,8 +60,10 @@ class LinkDistance:
         for seg in link_segments:
             if seg == involved_segment:
                 distance += great_circle(seg[0], self._matched_point)
-                return distance / self.link.get_length()
-
+                if not self.link.get_length() == 0.0:
+                    # Links, die aus einem einzigen Punkt bestehen. (Falsche Daten Overpass)
+                    return distance / self.link.get_length()
+                return 0
             else:
                 distance += great_circle(seg[0], seg[1])
 

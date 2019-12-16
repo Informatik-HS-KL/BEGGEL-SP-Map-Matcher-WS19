@@ -12,7 +12,6 @@ class OverpassWrapperServerSide(OverpassWrapper):
 
     def __init__(self, config):
         super(OverpassWrapperServerSide, self).__init__(config)
-        self.counter = 0
 
     def _get_intersections(self, number_of_intersections, elements):
         intersections = list()

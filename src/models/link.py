@@ -182,6 +182,7 @@ class Link:
             self.__length = 0
             for i in range(len(self.__geometry) - 1):
                 self.__length += great_circle(self.__geometry[i], self.__geometry[i + 1])
+        if self.__length == 0: print(self.__length, self.get_id(), self.get_bbox())
         return self.__length
 
     def is_navigatable_from_start(self, link_user: LinkUser) -> bool:

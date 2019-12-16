@@ -19,7 +19,6 @@ class OverpassWrapperClientSide(OverpassWrapper):
     def __init__(self, config):
         """"""
         super(OverpassWrapperClientSide, self).__init__(config)
-        self.counter = 0
 
     def _crossings(self, osm_ways):
         """

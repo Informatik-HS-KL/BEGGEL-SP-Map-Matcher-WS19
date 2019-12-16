@@ -44,11 +44,9 @@ class OverpassWrapper(ABC):
         :return: list, which contains osm-elements
         """
 
-        self.counter += 1
-        print(self.counter, geo_hash)
-
         query_str = self._build_query(geo_hash, q_filter)
         url = host_endpoint + query_str
+        print(geo_hash)
         print(url)
 
         resp = requests.get(url)

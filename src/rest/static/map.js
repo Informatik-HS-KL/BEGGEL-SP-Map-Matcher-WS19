@@ -231,7 +231,7 @@ var app = new Vue({
 
                 CACHE.linkDistLayer.remove();
                 CACHE.linkDistLayer = L.layerGroup();
-                console.log(that.linkdistance.radius)
+
                 var marker = L.circle([that.linkdistance.lat, that.linkdistance.lon], parseInt(that.linkdistance.radius));
                 marker.addTo(CACHE.linkDistLayer)
 
