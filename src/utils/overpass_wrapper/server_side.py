@@ -13,9 +13,9 @@ class OverpassWrapperServerSide(OverpassWrapper):
 
     def _get_intersections(self, number_of_intersections, elements):
         """
-        :param number_of_intersections:
-        :param elements:
-        :return:
+        :param number_of_intersections: int
+        :param elements: dict
+        :return: list(osm_ids(int))
         """
         intersections = list()
 
@@ -28,7 +28,7 @@ class OverpassWrapperServerSide(OverpassWrapper):
         """
         :param geo_hash: geohash as str
         :param elements: raw dict data from overpass json api
-        :return: Tile Object
+        :return: Tile-Object
         """
 
         print("Build Datamodel ...")
@@ -57,6 +57,8 @@ class OverpassWrapperServerSide(OverpassWrapper):
         """
         Returns the URL to download the data, which is required to build the tile with the specified geohash.
         The intersections of ways are determined on server-side.
+        :param geohash: str
+        :param q_filter: str
         """
 
         bbox_str = "%s" % BoundingBox.from_geohash(geohash)

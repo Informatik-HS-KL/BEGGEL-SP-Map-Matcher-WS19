@@ -4,15 +4,13 @@ have a non-linear geometry. The geometry of a link is a LINESTRING.
 For WKT see: (https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry)
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
-"""
 
-# """
 # Part of street where there is no intersection and that has a fixed set of properties.
 # A link might have a non-linear geometry. Geometry of a link is a LINESTRING!
 # for WKT see:
 # https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
 #
-# """
+"""
 
 import src.map_service
 
@@ -27,10 +25,9 @@ class Link:
 
     def __init__(self, link_id, geometry: list, node_ids: list):
         """
-
-        :param link_id:
-        :param geometry:
-        :param node_ids:
+        :param link_id: LinkId-Object
+        :param geometry: list(tuple)
+        :param node_ids: list(NodeId-Objects)
         """
         self.__start_node_id = node_ids[0]
         self.__end_node_id = node_ids[len(node_ids) - 1]
@@ -40,12 +37,12 @@ class Link:
         self.__tags = {}
         self.__length = None
 
-        self._map_service = map_service.MapService()
+        self._map_service = src.map_service.MapService()
 
     def get_bbox(self):
         """
         bounding box of link resulted from geometry
-        :return: BoundingBox Object
+        :return: BoundingBox-Object
         """
         s, w, n, e = LineString(self.get_geometry()).bounds
 
@@ -55,8 +52,6 @@ class Link:
         """
         :return Gibt den Startknoten (als Node) zurück.
         """
-
-        # return self.__startNode
 
         return self._map_service.get_node(self.__start_node_id)
 
@@ -71,7 +66,8 @@ class Link:
     def get_links_at_start_node(self, link_user: LinkUser = None):
         """
         Gibt alle vom Startknoten ausgehende Links zurück (exclusive self).
-        :return: Liste von Link-Objekten
+        :param link_user: LinkUser-Object
+        :return: Liste von Link-Objects
 
         """
 
@@ -93,6 +89,7 @@ class Link:
     def get_links_at_end_node(self, link_user: LinkUser = None):
         """
         Gibt alle vom Endknoten ausgehende Links zurück (exclusive self).
+        :param link_user: LinkUser-Object
         :return: Liste von Link-Objekten
         """
 
@@ -119,6 +116,10 @@ class Link:
         return self.__tags
 
     def set_tags(self, tags: dict):
+        """
+        :param tags: dict
+        :return: None
+        """
         if tags is None:
             self.__tags = {}
         else:
@@ -126,7 +127,7 @@ class Link:
 
     def get_id(self):
         """
-        :return: LinKId Object
+        :return: LinkId-Object
         """
         return self.__link_id
 
@@ -172,7 +173,7 @@ class Link:
     def to_wkt(self):
         """
         return WKT String from self
-        :return:
+        :return: WKT-String
         """
         return LineString(self.get_geometry()).wkt
 
@@ -180,7 +181,7 @@ class Link:
         """
         Returns the length of the link.
         The calculation of the length is done on demand and then saved in the corresponding attribute.
-        :return: length in meter
+        :return: int length in meter
         """
         if self.__length is None:
             self.__length = 0
@@ -192,7 +193,7 @@ class Link:
     def is_navigatable_from_start(self, link_user: LinkUser) -> bool:
         """
         Indicates, whether the specified user is permitted to use the link from the start-node to the end-node.
-        :param link_user:
+        :param link_user: LinkUser-Object
         :return: bool
         """
         return link_user.can_navigate_from_start(self)
@@ -200,7 +201,7 @@ class Link:
     def is_navigatable_to_start(self, link_user: LinkUser) -> bool:
         """
         Indicates, whether the specified user is permitted to use the link from the end-node to the start-node.
-        :param link_user:
+        :param link_user: LinkUser-Object
         :return: bool
         """
         return link_user.can_navigate_to_start(self)
@@ -208,7 +209,6 @@ class Link:
     def get_link_segments(self) -> list:
         """
         Splits a link into segments, each consisting of two positions/coordinates.
-
         :return: list, containing the segments
         """
         segments = list()
@@ -220,10 +220,19 @@ class Link:
         return segments
 
     def get_geometry(self):
+        """
+        :return: list(tuple)
+        """
         return self.__geometry
 
     def get_node_ids(self):
+        """
+        :return: list(NodeIds)
+        """
         return self.__node_ids
 
     def get_geohash(self):
+        """
+        :return: str
+        """
         return self.get_id().get_geohash()

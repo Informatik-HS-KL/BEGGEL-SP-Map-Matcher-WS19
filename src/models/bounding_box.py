@@ -4,7 +4,7 @@ determining the (geometric) relation of  a BoundingBox to a node/link/other Boun
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz"""
 
-import geohash2 as Geohash
+import geohash2 as geohash
 import src.models.link as link
 
 from .node import Node
@@ -26,7 +26,7 @@ class BoundingBox:
             return self.contains_node(item)
         elif isinstance(item, BoundingBox):
             return self.contains_bbox(item)
-        elif isinstance(item, Link):
+        elif isinstance(item, link.Link):
             return self.contains_link(item)
 
         else:
@@ -34,19 +34,27 @@ class BoundingBox:
 
     def contains_link(self, link):
         """ if bbox of link and self bbox overlaps: true
-        :param link:
+        :param link: Link-Object
         :return: bool
         """
 
         return link.get_bbox().overlap(self)
 
     def contains_node(self, node: Node):
+        """
+        Node in BBox
+        :param node: Node-Object
+        :return: bool
+        """
         return (number_is_in_interval(node.get_lat(), (self.south, self.north), 90) and
                 number_is_in_interval(node.get_lon(), (self.west, self.east), 180))
 
     def contains_bbox(self, other):
         """Diese Methode überprüft, ob other eine Teilmenge von self ist.
-                Die Rückgabe erfolgt als boolean. Beachte: self == other liefert ebenfalls True."""
+           Die Rückgabe erfolgt als boolean. Beachte: self == other liefert ebenfalls True.
+           :param other: BoundingBox-Object
+           :return: bool
+        """
 
         if self == other:
             return True
@@ -78,7 +86,10 @@ class BoundingBox:
     def overlap(self, other_bbox):
         """Diese Methode überprüft, ob sich zwei Bounding-Boxen überlappen.
            Rückgabe erfolgt als boolean.
-           Beachte: Wenn die beiden Bounding-Boxen sich lediglich an ihren Rändern berühren, so zählt dies NICHT als Überlappung"""
+           Beachte: Wenn die beiden Bounding-Boxen sich lediglich an ihren Rändern berühren, so zählt dies NICHT als Überlappung
+        :param other_bbox: BoundingBox-Object
+        :return bool
+        """
         if self == other_bbox:
             return True
 
@@ -101,9 +112,9 @@ class BoundingBox:
     def get_bbox_from_point(pos, radius=1):
         """
         nimmt den punkt als mitte einer Bounding Box mit dem gegebenen "radius" in meter
-        :param pos:
-        :param radius:
-        :return:
+        :param pos: tuple
+        :param radius: int
+        :return: BoundingBox-Object
         """
 
         lat, lon = pos
@@ -114,5 +125,9 @@ class BoundingBox:
 
     @staticmethod
     def from_geohash(geo_hash: str):
+        """
+        :param geo_hash: str
+        :return: BoundingBox-Object
+        """
         bbox = geohash.decode_exactly(geo_hash)
         return BoundingBox(bbox[0] - bbox[2], bbox[1] - bbox[3], bbox[0] + bbox[2], bbox[1] + bbox[3])

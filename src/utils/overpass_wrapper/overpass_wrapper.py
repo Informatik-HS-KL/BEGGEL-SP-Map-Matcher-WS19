@@ -170,6 +170,8 @@ class OverpassWrapper(ABC):
     def _build_query(self, geohash, q_filter: str):
         """
         Returns the URL to download the data, which is required to build the tile with the specified geohash.
+        :param: str
+        :param: str
         """
         pass
 
@@ -191,10 +193,10 @@ class OverpassWrapper(ABC):
     def _create_node(self, osm_id, pos: tuple, tags=None):
         """
 
-        :param osm_id:
-        :param pos:
-        :param tags:
-        :return:
+        :param osm_id: int
+        :param pos: tuple
+        :param tags: dict
+        :return: (int, Node-Object)
         """
         node_id = NodeId(osm_id, self.ghw.get_geohash(pos, level=self.full_geohash_level))
         node = Node(node_id, pos)

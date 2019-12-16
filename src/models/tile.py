@@ -25,22 +25,29 @@ class Tile:
         self.__geohash = geohash
 
     def get_geohash(self):
+        """
+        :return: str
+        """
         return self.__geohash
 
     def add_node(self, node):
+        """
+        :param node: Node-Object
+        :return: None
+        """
         self.__nodes.update({node.get_id(): node})
 
     def add_link(self, link):
         """
-        :param link:
+        :param link: Link-Object
         :return:
         """
         self.__links.update({link.get_id(), link})
 
     def get_node(self, nodeid):
         """
-        :param nodeid: NodeId Object
-        :return: Node
+        :param nodeid: NodeId-Object
+        :return: Node-Object
         """
 
         return self.__nodes.get(nodeid, None)

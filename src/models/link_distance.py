@@ -13,6 +13,10 @@ from ..geo_utils import great_circle
 class LinkDistance:
 
     def __init__(self, pos: tuple, link):
+        """
+        :param pos: tuple
+        :param link: Link-Object
+        """
         # (lat, lon) beschreibt den Punkt, in dessen Umkreis Links gesucht werden.
         # Dabei werden die Abstände von (lat, lon) zu den jeweiligen Links mittels
         # Ortogonalprojektion bestimmt.
@@ -38,14 +42,14 @@ class LinkDistance:
     def get_distance(self):
         """
         Returns the calculated distance between Link and Point
-        :return:
+        :return: float
         """
         return self.distance
 
     def get_fraction(self):
         """
         Returns the next next position in percent on the link
-        :return:
+        :return: float
         """
         return self.fraction
 
@@ -72,7 +76,10 @@ class LinkDistance:
     def _calc_shrink_factor(a_lat_deg, b_lat_deg):
         """Taken from:
         https://github.com/graphhopper/graphhopper/blob/master/api/src/main/java/com/graphhopper/util
-        /DistanceCalcEarth.java """
+        /DistanceCalcEarth.java
+        :param a_lat_deg: float
+        :param b_lat_deg: float
+        """
         return math.cos(math.radians((a_lat_deg + b_lat_deg) / 2))
 
     # @staticmethod
@@ -129,7 +136,6 @@ class LinkDistance:
     def _initialize_matched_point_and_fraction(self):
         """
         Performs the initialization of the attributes _matched_point and _fraction.
-
         :return: None
         """
 
@@ -150,7 +156,13 @@ class LinkDistance:
         self.fraction = self._calc_fraction(link_segments, involved_segment)
 
     def get_link(self):
+        """
+        :return: Link-Object
+        """
         return self.link
 
     def get_point(self):
+        """
+        :return: tuple (lat, lon)
+        """
         return self._lat_lon

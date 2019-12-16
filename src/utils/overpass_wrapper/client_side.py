@@ -23,7 +23,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
 
         all_nodes = []
         for way in osm_ways:
-            all.extend(way["nodes"])
+            all_nodes.extend(way["nodes"])
 
         crossing_osm_ids = list(map(lambda x: x[0], filter(lambda i: i[1] > 1, collections.Counter(all_nodes).items())))
         return crossing_osm_ids
@@ -32,6 +32,8 @@ class OverpassWrapperClientSide(OverpassWrapper):
         """
         Returns the URL to download the data, which is required to build the tile with the specified geohash.
         The intersections of ways are NOT determined on server-side.
+        :param geohash: str
+        :param q_filter: str
         """
 
         bbox_str = "%s" % BoundingBox.from_geohash(geohash)

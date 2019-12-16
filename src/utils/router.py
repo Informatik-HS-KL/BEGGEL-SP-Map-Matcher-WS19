@@ -28,6 +28,7 @@ class Router(ABC):
     def set_max_iterations(self, val):
         """
         Maximale Iterationsschritte
+        :param val: int
         :return:
         """
         self.max_iterations = val

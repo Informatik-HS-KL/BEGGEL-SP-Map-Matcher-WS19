@@ -68,7 +68,9 @@ class Node:
         return self.__latLon[1]
 
     def set_tags(self, tags: dict):
-        """ set Tags to that Point"""
+        """ set Tags to that Point
+        :param tags dict
+        """
         self.__tags = tags
 
     def get_tags(self):
@@ -114,13 +116,13 @@ class Node:
     def get_osm_node_id(self):
         """
         Returns the OSM Id of the Node
-        :return:
+        :return: int
         """
         return self.get_id().get_osm_node_id()
 
     def get_geohash(self):
         """
         Returns the Node Geohash
-        :return:
+        :return:str
         """
         return self.get_id().get_geohash()

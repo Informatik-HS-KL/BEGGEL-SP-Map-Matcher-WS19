@@ -12,7 +12,7 @@
         <div class="container-fluid">
             <div class="row">
 {% raw %}
-                <div class="col-md-4 col-lg-4 col-sm-12" id="left">
+            <div class="col-md-4 col-lg-4 col-sm-12" id="left">
                     <div id="app">
                         <div class="input-group mb-3">
                             <div class="input-group-prepend">
@@ -65,10 +65,12 @@
                         <div id="logitems">
                             <logitem v-for="item in logitems" v-bind:line1="item.line1" v-bind:line2="item.line2" v-bind:line3="item.line3" v-bind:itemstyle="item.itemstyle"></logitem>
                         </div>
+
                     </div>
-                </div>
+
             </div>
 {% endraw %}
+
 
             <div id="mapid" class="col-md-8 col-lg-8 col-sm-12">
             </div>

@@ -4,6 +4,9 @@ from ..models import Link, LinkUser
 
 
 class WeightCalculator(ABC):
+    """
+    Weight for Dijkstra Router
+    """
     def get_wight(self, link: Link, fraction=1.0):
         pass
 
@@ -12,6 +15,9 @@ class WeightCalculator(ABC):
 
 
 class ShortestPath(WeightCalculator):
+    """
+    Weight for Dijkstra Router
+    """
     def get_wight(self, link: Link, fraction=1.0):
         return link.get_length() * fraction
 

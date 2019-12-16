@@ -30,7 +30,9 @@ class MapServiceConfig(ConfigParser):
 
 
 def get_config():
-    """"""
+    """
+    :return: MapServiceConfig-Objects
+    """
     conf = MapServiceConfig()
     conf.read(os.path.dirname(__file__) + "/config.ini")
 
