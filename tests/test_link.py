@@ -4,15 +4,11 @@ Description: This is a testfile for link.py
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-
 import unittest
 
-from src.models.link_distance import LinkDistance
-
-import src
 from src.map_service import MapService
-from src.geo_utils import vector_subtraction, scalar_multiplication, vector_addition, great_circle
 from src.models.node import NodeId
+
 
 class TestLinkDistance(unittest.TestCase):
 
@@ -49,7 +45,6 @@ class TestLinkDistance(unittest.TestCase):
         sn_links = set(link.get_links_at_start_node())
         self.assertSetEqual(sn_links, sn_links_test)
 
-
     def test_get_links_at_end_node(self):
         """
         Die Straßen sind real existierende Strasen in dem angegebenen Geohash
@@ -69,8 +64,8 @@ class TestLinkDistance(unittest.TestCase):
         link = service.get_link(263081703, nid)
 
         en_links_test = {
-            service.get_link(263081708 , NodeId(2687039625, "u0v9786ytguz")),
-            service.get_link(240764572 , NodeId(290512604, "u0v9786vztrm")),
+            service.get_link(263081708, NodeId(2687039625, "u0v9786ytguz")),
+            service.get_link(240764572, NodeId(290512604, "u0v9786vztrm")),
         }
         en_links = set(link.get_links_at_end_node())
 

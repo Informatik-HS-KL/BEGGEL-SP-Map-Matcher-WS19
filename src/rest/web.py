@@ -9,7 +9,6 @@ from flask import render_template, Blueprint
 
 bp_webpage = Blueprint('web', __name__)
 
-
 @bp_webpage.route('/')
 def root_page():
 

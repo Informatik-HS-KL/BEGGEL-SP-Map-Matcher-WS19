@@ -6,7 +6,7 @@ Description: This is a testfile for node.py
 
 
 import unittest
-from src.models import Node
+from src.models import Node, NodeId
 from src.models import Link
 
 
@@ -14,7 +14,7 @@ class TestNode(unittest.TestCase):
 
     def test(self):
         n = Node(1, (2.4, 2.5))
-        l = Link(n, Node(2, (47.4, 45.5)))
+        link = Link(NodeId(1, ""), Node(NodeId(2, ""), (47.4, 45.5)))
 
         self.assertEqual(n.get_id(), 1)
         self.assertEqual(n.get_lat(), 2.4)
@@ -22,5 +22,5 @@ class TestNode(unittest.TestCase):
         self.assertEqual(n.get_lon(), 2.5)
 
         self.assertEqual(n.get_latlon(), (2.4, 2.5))
-        n.add_link(l)
-        self.assertTrue(l in n.get_links())
+        n.add_link(link)
+        self.assertTrue(link in n.get_links())

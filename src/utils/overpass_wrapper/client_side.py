@@ -17,16 +17,15 @@ class OverpassWrapperClientSide(OverpassWrapper):
     def _get_intersections(self, osm_ways):
         """
         Search for Crossings in osm Ways and returns them as Nodes
-        :param osm_nodes: raw osm nodes data parsed from json
         :param osm_ways: raw osm way data parsed from json
         :return: List of NodeId
         """
 
-        all = []
+        all_nodes = []
         for way in osm_ways:
             all.extend(way["nodes"])
 
-        crossing_osm_ids = list(map(lambda x: x[0], filter(lambda i: i[1] > 1, collections.Counter(all).items())))
+        crossing_osm_ids = list(map(lambda x: x[0], filter(lambda i: i[1] > 1, collections.Counter(all_nodes).items())))
         return crossing_osm_ids
 
     def _build_query(self, geohash, q_filter: str):

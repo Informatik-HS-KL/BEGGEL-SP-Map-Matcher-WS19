@@ -58,8 +58,7 @@ class MapserviceWrapper:
 
     def get_dict_geohashes(self, bbox):
         """
-
-        :param bbox:
+        :param bbox: BoundingBox-Object
         :return: dict
         """
 
@@ -109,8 +108,8 @@ class MapserviceWrapper:
 
     def get_dict_node(self, geohash, osm_id):
         """
-
-        :param nodeid:
+        :param geohash str
+        :param osm_id: int osm id
         :return: dict
         """
 
@@ -160,8 +159,7 @@ class MapserviceWrapper:
 
     def get_dict_way_links(self, way_id):
         """
-
-        :param wayid:
+        :param way_id:
         :return: dict
         """
 
@@ -173,8 +171,8 @@ class MapserviceWrapper:
 
     def get_dict_linkdistances(self, pos, radius):
         """
-
-        :param point:
+        :param pos: tuple
+        :param radius: float
         :return: dict
         """
 

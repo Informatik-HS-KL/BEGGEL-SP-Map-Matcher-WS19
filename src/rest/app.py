@@ -12,4 +12,3 @@ app = Flask(__name__)
 
 app.register_blueprint(web.bp_webpage, url_prefix="/")
 app.register_blueprint(api.api, url_prefix="/api")
-

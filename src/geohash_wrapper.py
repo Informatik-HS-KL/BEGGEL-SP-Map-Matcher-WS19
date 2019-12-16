@@ -18,7 +18,10 @@ class GeoHashWrapper:
         pass
 
     def get_geohash(self, pos: tuple, level):
-        """Wrapper fpr Geohash Lib"""
+        """Wrapper fpr Geohash Lib
+        :param pos tuple
+        :param level int
+        """
         return geohash.encode(pos[0], pos[1], precision=level)
 
     def get_geohashes(self, bbox: BoundingBox, level: int):
@@ -51,7 +54,7 @@ class GeoHashWrapper:
         base_geohashes = [geohash_for_middle]
 
         if bbox not in BoundingBox.from_geohash(geohash_for_middle):
-            neighbors = self._get_neighbors(geohash_for_middle)
+            neighbors = self.get_neighbors(geohash_for_middle)
 
             if bbox not in self._get_bounding_box_from_neighbors(neighbors):
                 raise Exception(
@@ -73,7 +76,6 @@ class GeoHashWrapper:
 
     def _get_bounding_box_from_neighbors(self, neighbors: dict):
         """
-
         :param neighbors:
         :return:
         """
@@ -95,7 +97,7 @@ class GeoHashWrapper:
 
         return BoundingBox(south, west, north, east)
 
-    def _get_neighbors(self, geohash_string):
+    def get_neighbors(self, geohash_string):
         """
         Adapted/copied from https://github.com/tammoippen/geohash-hilbert/blob/master/geohash_hilbert/_utils.py
         :param geohash_string:

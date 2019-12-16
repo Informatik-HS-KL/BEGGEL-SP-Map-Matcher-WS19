@@ -7,11 +7,12 @@ for example to convert the geometry of a Node-Object into several geo-formats, a
 from .node_id import NodeId
 from shapely.geometry import Point
 
+
 class Node:
 
     def __init__(self, node_id: NodeId, lat_lon: tuple):
         """
-        :param id: id from OSM Overpass API
+        :param node_id: id from OSM Overpass API
         :param lat_lon: tuple with the float position values lat and lon
         """
         self.__id = node_id

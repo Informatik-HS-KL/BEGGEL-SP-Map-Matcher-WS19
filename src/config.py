@@ -8,6 +8,7 @@ see __init__.py für instanceiating during runtime
 import os
 from configparser import ConfigParser, NoSectionError
 
+
 class MapServiceConfig(ConfigParser):
 
     def __call__(self):
@@ -29,12 +30,12 @@ class MapServiceConfig(ConfigParser):
 
 
 def get_config():
+    """"""
+    conf = MapServiceConfig()
+    conf.read(os.path.dirname(__file__) + "/config.ini")
 
-    CONFIG = MapServiceConfig()
-    CONFIG.read(os.path.dirname(__file__) + "/config.ini")
+    return conf
 
-    return CONFIG
 
 CONFIG = get_config()
-
 print("config.py loaded")

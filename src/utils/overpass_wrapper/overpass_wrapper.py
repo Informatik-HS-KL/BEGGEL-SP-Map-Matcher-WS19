@@ -124,6 +124,13 @@ class OverpassWrapper(ABC):
         return links
 
     def _init_link(self, link_geometry, link_node_ids, way, nodes):
+        """
+        :param link_geometry:
+        :param link_node_ids:
+        :param way:
+        :param nodes:
+        :return:
+        """
         link_id = LinkId(way["id"], link_node_ids[0])
         link = Link(link_id, link_geometry, link_node_ids)
         link.set_tags(way.get("tags"))
@@ -136,11 +143,25 @@ class OverpassWrapper(ABC):
         return link
 
     def _is_entering_tile(self, node_id, next_node_id, geohash):
+        """
+
+        :param node_id:
+        :param next_node_id:
+        :param geohash:
+        :return:
+        """
         akt_hash = node_id.geohash[:len(geohash)]
         next_hash = next_node_id.geohash[:len(geohash)]
         return akt_hash != geohash and next_hash == geohash
 
     def _is_leaving_tile(self, node_id, next_node_id, geohash):
+        """
+
+        :param node_id:
+        :param next_node_id:
+        :param geohash:
+        :return:
+        """
         akt_hash = node_id.geohash[:len(geohash)]
         next_hash = next_node_id.geohash[:len(geohash)]
         return akt_hash == geohash and next_hash != geohash
@@ -155,6 +176,8 @@ class OverpassWrapper(ABC):
     def _filter_query(self, config, conf_section="HIGHWAY_CARS"):
         """
         Builds the query-filter depending on the specified config-section.
+        :param config
+        :param conf_section
         """
 
         query = "(if: "
@@ -166,6 +189,13 @@ class OverpassWrapper(ABC):
         return query[:-2] + ")"
 
     def _create_node(self, osm_id, pos: tuple, tags=None):
+        """
+
+        :param osm_id:
+        :param pos:
+        :param tags:
+        :return:
+        """
         node_id = NodeId(osm_id, self.ghw.get_geohash(pos, level=self.full_geohash_level))
         node = Node(node_id, pos)
         node.set_tags(tags)

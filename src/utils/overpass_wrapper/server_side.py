@@ -3,7 +3,6 @@ from src.models import Tile, BoundingBox
 from .overpass_wrapper import OverpassWrapper
 
 
-
 class OverpassWrapperServerSide(OverpassWrapper):
     """
     Subclass of OverpassWrapper which determines the intersections of osm-ways on the server-side.
@@ -13,6 +12,11 @@ class OverpassWrapperServerSide(OverpassWrapper):
         super(OverpassWrapperServerSide, self).__init__(config)
 
     def _get_intersections(self, number_of_intersections, elements):
+        """
+        :param number_of_intersections:
+        :param elements:
+        :return:
+        """
         intersections = list()
 
         for k in range(1, number_of_intersections + 1):

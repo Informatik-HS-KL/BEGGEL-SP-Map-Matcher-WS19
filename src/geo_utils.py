@@ -99,10 +99,15 @@ def first_interval_contains_second_interval(first_interval: tuple, second_interv
     a2, b2 = second_interval
 
     return number_is_in_interval(a2, first_interval, overflow_mark) and \
-           number_is_in_interval(b2, first_interval, overflow_mark)
+        number_is_in_interval(b2, first_interval, overflow_mark)
 
 
 def dot_product(a: tuple, b: tuple):
+    """
+    :param a:
+    :param b:
+    :return:
+    """
     if not len(a) == len(b):
         raise Exception('The Vectors have not the same length')
     if len(a) == 0:
@@ -112,6 +117,12 @@ def dot_product(a: tuple, b: tuple):
 
 
 def vector_addition(a: tuple, b: tuple):
+    """
+
+    :param a:
+    :param b:
+    :return:
+    """
     if not len(a) == len(b):
         raise Exception('The Vectors have not the same length')
     if len(a) == 0:
@@ -121,6 +132,12 @@ def vector_addition(a: tuple, b: tuple):
 
 
 def scalar_multiplication(scalar, vec):
+    """
+
+    :param scalar:
+    :param vec:
+    :return:
+    """
     if len(vec) == 0:
         raise Exception('The Vectors have no items')
     """Skalarmultiplikation"""
@@ -128,10 +145,22 @@ def scalar_multiplication(scalar, vec):
 
 
 def orthogonal_projection(vec_from, vec_to):
+    """
+
+    :param vec_from:
+    :param vec_to:
+    :return:
+    """
     return scalar_multiplication(dot_product(vec_from, vec_to) / dot_product(vec_to, vec_to), vec_to)
 
 
 def vector_subtraction(vector_a, vector_b):
+    """
+
+    :param vector_a:
+    :param vector_b:
+    :return:
+    """
     if not len(vector_a) == len(vector_b):
         raise Exception('The Vectors have not the same length')
     if len(vector_a) == 0:
@@ -140,13 +169,18 @@ def vector_subtraction(vector_a, vector_b):
 
 
 def vector_norm(v: tuple):
+    """
+
+    :param v:
+    :return:
+    """
     if len(v) == 0:
         raise Exception('The Vector has no items')
 
     return sqrt(dot_product(v, v))
 
 
-def is_nullvector(v:tuple) -> bool:
+def is_nullvector(v: tuple) -> bool:
     """Überprüft, ob v der Nullvektor ist.
     :return: bool"""
     for i in range(0, len(v)):
@@ -158,7 +192,10 @@ def is_nullvector(v:tuple) -> bool:
 
 def vectors_are_parallel(a: tuple, b: tuple) -> bool:
     """Überprüft, ob zwei Vektoren (gleicher Dimension) parallel zueinander sind.
-    :return: boolean"""
+    :param a:
+    :param b:
+    :return: boolean
+    """
     if not len(a) == len(b):
         raise Exception('The Vectors have not the same length')
     if len(a) == 0:
@@ -186,6 +223,8 @@ def vectors_are_parallel(a: tuple, b: tuple) -> bool:
 
 def vectors_have_same_direction(a: tuple, b: tuple) -> bool:
     """Überprüft, ob zwei Vektoren (gleicher Dimension) in die gleiche Richtung zeigen.
+    :param: a
+    :param: b
     :return: boolean
     :raises: wirft Exception, wenn a und b unterschiedliche Dimensionen oder Dimension 0 haben."""
 

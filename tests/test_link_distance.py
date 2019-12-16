@@ -4,7 +4,6 @@ Description: This is a testfile for link_distance.py
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-
 import unittest
 from src.models.link_distance import LinkDistance
 from src.map_service import MapService
@@ -51,13 +50,11 @@ class TestLinkDistance(unittest.TestCase):
         self.assertAlmostEqual(0.5, dist.get_fraction(), 10)
         self.assertAlmostEqual(0, dist.get_distance(), 10)
 
-
         # Test 4 Abstandsberechnung über Orthogonal proj.
         link = tile_links[0]
         # lat lon liegt immer auf der hälfte der Strecke + 0.5 lat durch Richtungsvector * 0.5 + (1,0)
-        richt_vect = scalar_multiplication(0.5,
-                                        vector_subtraction(link.get_end_node().get_latlon(),
-                                                           link.get_start_node().get_latlon()))
+        richt_vect = scalar_multiplication(0.5, vector_subtraction(link.get_end_node().get_latlon(),
+                                                                   link.get_start_node().get_latlon()))
 
         middle_of_link = vector_addition(link.get_start_node().get_latlon(), richt_vect)
         # Richtungsvector um 90 Grad drehen und zu matched_point addieren
@@ -65,7 +62,7 @@ class TestLinkDistance(unittest.TestCase):
 
         dist = LinkDistance(lat_lon, link)
         self.assertAlmostEqual(0.5, dist.get_fraction(), 10)
-        self.assertAlmostEqual(great_circle(middle_of_link,lat_lon), dist.get_distance(), 10)
+        self.assertAlmostEqual(great_circle(middle_of_link, lat_lon), dist.get_distance(), 10)
 
         # Test 5 Point auserhalb der Strecke ohne Orthogonal proj.
         link = tile_links[0]

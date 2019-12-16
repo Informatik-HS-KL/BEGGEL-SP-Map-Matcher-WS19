@@ -1,9 +1,10 @@
 """
-Description: Sometimes you want to find links within a certain radius around a certain position. In this context it is usually
-interesting to get further information about a link that was found. A LinkDistance-Object encapsulates all these
-information, e.g. the shortest distance between the point and the link or the nearest position on the link.
+Description: Sometimes you want to find links within a certain radius around a certain position. In this context it
+is usually interesting to get further information about a link that was found. A LinkDistance-Object encapsulates all
+these information, e.g. the shortest distance between the point and the link or the nearest position on the link.
 @date: 10/25/2019
-@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz"""
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
 
 import math
 from ..geo_utils import great_circle
@@ -20,7 +21,7 @@ class LinkDistance:
         self._lat_lon = pos
 
         # Ortogonalprojektion von Punkt auf Link
-        self._matched_point: tuple = None
+        self._matched_point = None
 
         # Fraction beschreibt die Position auf dem Link. (latMatched, lonMatched)
         # liegt ja nämlich vielleicht  irgendwo in der Mitte des Links, z.B. F=0.5

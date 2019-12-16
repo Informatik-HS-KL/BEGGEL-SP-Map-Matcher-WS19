@@ -32,7 +32,6 @@ class Router(ABC):
         """
         self.max_iterations = val
 
-
     def set_start_link(self, link, fraction=0.0, from_start_to_end: bool = True):
         """
         Setter start link
