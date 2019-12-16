@@ -1,7 +1,7 @@
 import collections
 import time
 import requests
-from src.geo_hash_wrapper import GeoHashWrapper
+from src.geohash_wrapper import GeoHashWrapper
 
 from src.models.tile import Tile
 from src.models.node import Node, NodeId

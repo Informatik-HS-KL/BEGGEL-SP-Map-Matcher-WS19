@@ -8,7 +8,7 @@ import collections
 import time
 from abc import ABC, abstractmethod
 import requests
-from src.geo_hash_wrapper import GeoHashWrapper
+from src.geohash_wrapper import GeoHashWrapper
 from src.models.tile import Tile
 from src.models.node import Node, NodeId
 from src.models.link_id import LinkId

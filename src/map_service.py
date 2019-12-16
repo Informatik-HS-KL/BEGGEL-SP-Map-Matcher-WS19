@@ -6,7 +6,7 @@ is managing the obtainment and caching of Tiles, the latter for improving the pe
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-from src.geo_hash_wrapper import GeoHashWrapper
+from .geohash_wrapper import GeoHashWrapper
 from .models.bounding_box import BoundingBox
 from src.models.link import LinkId
 from src.models.node import NodeId

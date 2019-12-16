@@ -5,7 +5,7 @@ from src.models.link_id import LinkId
 from src.models.link_user import Pedestrian, Cyclist, Car
 from src.models.node_id import NodeId
 from src.utils.router import RouterDijkstra
-from src.geo_hash_wrapper import GeoHashWrapper
+from src.geohash_wrapper import GeoHashWrapper
 
 def main():
     ghw = GeoHashWrapper()

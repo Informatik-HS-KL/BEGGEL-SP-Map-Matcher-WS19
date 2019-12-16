@@ -97,6 +97,7 @@ class Node:
             "properties": {
                 "osm_node_id": self.get_osm_node_id(),
                 "geohash": self.get_geohash(),
+                "tags": self.get_tags()
             }
         }
         return data

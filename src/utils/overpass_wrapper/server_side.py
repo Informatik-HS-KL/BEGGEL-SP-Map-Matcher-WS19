@@ -1,4 +1,4 @@
-from src.geo_hash_wrapper import GeoHashWrapper
+
 from src.models.bounding_box import BoundingBox
 from src.models.tile import Tile
 from src.utils.overpass_wrapper.overpass_wrapper import OverpassWrapper

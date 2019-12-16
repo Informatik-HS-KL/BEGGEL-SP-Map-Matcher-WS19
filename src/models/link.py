@@ -159,7 +159,8 @@ class Link:
                 "start_node": {
                     "geohash": self.get_id().get_start_node_id().geohash,
                     "id": self.get_id().get_start_node_id().osm_node_id
-                }
+                },
+                "tags": self.get_tags()
             }
         }
 

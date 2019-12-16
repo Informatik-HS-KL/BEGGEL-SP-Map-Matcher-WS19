@@ -8,7 +8,7 @@ import time
 from flask import jsonify
 from flask import request, Blueprint
 from src.map_service import MapService
-from src.geo_hash_wrapper import GeoHashWrapper
+from src.geohash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
 from src.models.node import NodeId
 from src.utils.router import RouterBaseDijkstra, RouterLinkDijkstra, RouterDijkstra
