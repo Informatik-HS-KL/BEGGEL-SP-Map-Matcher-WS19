@@ -7,8 +7,8 @@ Description: This is a testfile for bounding_box.py
 
 import unittest
 
-from src.models.bounding_box import BoundingBox
 from src.models import Node, NodeId
+from src.models import BoundingBox
 
 
 class TestBoundingBox(unittest.TestCase):

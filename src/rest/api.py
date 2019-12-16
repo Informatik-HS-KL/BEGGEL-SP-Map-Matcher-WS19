@@ -184,16 +184,20 @@ def get_way_links(way_id):
     data = msw.get_dict_way_links(way_id)
     return _resp(data)
 
+
 @api.route('/linkdistance', methods=["GET"])
-def get__linkdistance():
+def get_link_distance():
     """Calculate Link Distances Canidates"""
 
-    pos = float(request.args.get("lat")), float(request.args.get("lon"))
-    radius = int(request.args.get("radius"))
+    try:
+        pos = float(request.args.get("lat")), float(request.args.get("lon"))
+        radius = int(request.args.get("radius"))
 
-    msw = MapserviceWrapper(map_service)
-    data = msw.get_dict_linkdistances(pos, radius=radius)
-    return _resp(data)
+        msw = MapserviceWrapper(map_service)
+        data = msw.get_dict_linkdistances(pos, radius=radius)
+        return _resp(data)
+    except ValueError:
+        return _resp({"exception": "No position selected!"})
 
 
 @api.route('/samples', methods=["GET"])

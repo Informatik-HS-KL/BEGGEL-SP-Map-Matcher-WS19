@@ -5,8 +5,17 @@ from src.rest.app import app
 
 
 def main():
-    ghw = GeoHashWrapper()
-    print(ghw.get_neighbors("rzzz"))
+    from tests.test_map_service import TestMapService
+
+    t = TestMapService()
+    t.test_map_service()
+
+    from tests.test_bounding_box import TestBoundingBox
+    t = TestBoundingBox()
+    t.test_contains_bbox()
+    t.test_contains_node()
+    t.test_overlap()
+
 
 
 def start_server():
@@ -16,5 +25,5 @@ def start_server():
         app.run(host="localhost", port=5000)
 
 
-main()
+# main()
 start_server()

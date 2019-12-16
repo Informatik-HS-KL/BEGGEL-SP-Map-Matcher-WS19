@@ -43,7 +43,7 @@ class OverpassWrapper(ABC):
 
         query_str = self._build_query(geo_hash, q_filter)
         url = host_endpoint + query_str
-        print(geo_hash)
+        print(geo_hash, type(self))
         print(url)
 
         resp = requests.get(url)

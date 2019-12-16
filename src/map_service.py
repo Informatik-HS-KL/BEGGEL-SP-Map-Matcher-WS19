@@ -85,9 +85,9 @@ class MapService:
     def __init__(self):
         """"""
 
-        self.config = CONFIG
-        self._geohash_level = self.config.getint("DEFAULT", "geohashlevel")
-        self.overpass_wrapper = OverpassWrapperClientSide(self.config)
+        self._config = CONFIG
+        self._geohash_level = self._config.getint("DEFAULT", "geohashlevel")
+        self._overpass_wrapper = OverpassWrapperClientSide(self._config)
 
     def set_config(self, config_path):
         """
@@ -95,16 +95,16 @@ class MapService:
         :return:
         """
 
-        self.config = MapServiceConfig()
-        self.config.read(config_path)
-        self._geohash_level = self.config.getint("DEFAULT", "geohashlevel")
+        self._config = MapServiceConfig()
+        self._config.read(config_path)
+        self._geohash_level = self._config.getint("DEFAULT", "geohashlevel")
 
     def get_config(self):
         """ Getter
             :return: config Object vom MapServiceConfig
         """
 
-        return self.config
+        return self._config
 
     def set_overpass_wrapper(self, opw):
         """
@@ -112,7 +112,8 @@ class MapService:
         :param opw: Overpass Wrapper Object with custom Config
         :return: none
         """
-        self.overpass_wrapper = opw
+        self._overpass_wrapper = opw
+        print("Hat geklappt")
 
     def get_nodes_in_bounding_box(self, bbox: BoundingBox):
         """
@@ -172,7 +173,7 @@ class MapService:
         """
 
         if geohash_str not in self._tile_cache:
-            self._tile_cache[geohash_str] = self.overpass_wrapper.load_tile(geohash_str)
+            self._tile_cache[geohash_str] = self._overpass_wrapper.load_tile(geohash_str)
 
         return self._tile_cache[geohash_str]
 
@@ -205,7 +206,7 @@ class MapService:
         result = []
         for geohash, tile in self._tile_cache.items():
             for linksid, link in tile.get_links_with_keys().items():
-                if linksid.osm_way_id == way_id:
+                if linksid.get_osm_way_id == way_id:
                     result.append(link)
 
         return result
