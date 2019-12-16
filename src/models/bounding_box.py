@@ -26,7 +26,7 @@ class BoundingBox:
             return self.contains_node(item)
         elif isinstance(item, BoundingBox):
             return self.contains_bbox(item)
-        elif isinstance(item, link.Link):
+        elif isinstance(item, Link):
             return self.contains_link(item)
 
         else:
@@ -37,12 +37,12 @@ class BoundingBox:
         :param link:
         :return: bool
         """
-        #OLDlink.get_start_node() in self or link.get_end_node() in self
+
         return link.get_bbox().overlap(self)
 
     def contains_node(self, node: Node):
         return (number_is_in_interval(node.get_lat(), (self.south, self.north), 90) and
-                number_is_in_interval(node.get_lon(), (self.west, self.east),  180))
+                number_is_in_interval(node.get_lon(), (self.west, self.east), 180))
 
     def contains_bbox(self, other):
         """Diese Methode überprüft, ob other eine Teilmenge von self ist.
@@ -112,8 +112,7 @@ class BoundingBox:
 
         return BoundingBox(lat - radius_as_lat, lon - radius_as_lon, lat + radius_as_lat, lon + radius_as_lon)
 
-
     @staticmethod
-    def from_geohash(geohash):
-        bbox = Geohash.decode_exactly(geohash)
+    def from_geohash(geo_hash: str):
+        bbox = geohash.decode_exactly(geo_hash)
         return BoundingBox(bbox[0] - bbox[2], bbox[1] - bbox[3], bbox[0] + bbox[2], bbox[1] + bbox[3])

@@ -27,18 +27,20 @@ class Link:
 
     def __init__(self, link_id, geometry: list, node_ids: list):
         """
-        :param startNode: Node Start of this Link
-        :param endNode: Node End of this Link
+
+        :param link_id:
+        :param geometry:
+        :param node_ids:
         """
         self.__start_node_id = node_ids[0]
         self.__end_node_id = node_ids[len(node_ids) - 1]
         self.__link_id = link_id
         self.__geometry = geometry  # contains the (lat, lon)-tupel of all nodes of the link
         self.__node_ids = node_ids
-        self.__tags = None
+        self.__tags = {}
         self.__length = None
 
-        self._map_service = src.map_service.MapService()
+        self._map_service = map_service.MapService()
 
     def get_bbox(self):
         """
@@ -117,7 +119,10 @@ class Link:
         return self.__tags
 
     def set_tags(self, tags: dict):
-        self.__tags = tags
+        if tags is None:
+            self.__tags = {}
+        else:
+            self.__tags = tags
 
     def get_id(self):
         """
@@ -181,7 +186,7 @@ class Link:
             self.__length = 0
             for i in range(len(self.__geometry) - 1):
                 self.__length += great_circle(self.__geometry[i], self.__geometry[i + 1])
-        if self.__length == 0: print(self.__length, self.get_id(), self.get_bbox())
+
         return self.__length
 
     def is_navigatable_from_start(self, link_user: LinkUser) -> bool:

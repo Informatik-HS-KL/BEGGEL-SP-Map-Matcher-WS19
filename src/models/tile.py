@@ -39,7 +39,7 @@ class Tile:
 
     def get_node(self, nodeid):
         """
-        :param osm_id: int
+        :param nodeid: NodeId Object
         :return: Node
         """
 

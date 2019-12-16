@@ -31,10 +31,7 @@ class Pedestrian(LinkUser):
         if self._may_use(link):
 
             rules = [link.get_tags().get("oneway:foot") != "-1"]
-            if True in rules:
-                return True
-            else:
-                return False
+            return True in rules
 
         else:
             return False
@@ -43,30 +40,27 @@ class Pedestrian(LinkUser):
         if self._may_use(link):
 
             rules = [link.get_tags().get("oneway:foot") != "yes"]
-            if True in rules:
-                return True
-            else:
-                return False
+            return True in rules
 
         else:
             return False
 
     def _may_use(self, link) -> bool:
-
+        """
+        :param link: Link-Object
+        :return:
+        """
         tags = link.get_tags()
         highway_val = tags.get("highway")
         foot_val = tags.get("foot")
         sidewalk_val = tags.get("sidewalk")
-        rules = [highway_val is not None and highway_val in {"residential", "living_street", "bridleway", "path"} and foot_val != "no",
+        rules = [highway_val is not None and highway_val in {"residential", "living_street", "bridleway", "path"}
+                 and foot_val != "no",
                  highway_val is not None and highway_val in {"pedestrian", "footway", "steps"},
                  sidewalk_val in {"both", "left", "right"} and foot_val not in {None, "no"},
                  foot_val in {"yes", "designated", "permissive"}]
 
-        if True in rules:
-            return True
-        else:
-            return False
-
+        return True in rules
 
 class Cyclist(LinkUser):
     """Class representing a Cyclist as a link-user."""
@@ -81,11 +75,7 @@ class Cyclist(LinkUser):
             rules = [oneway_bicycle_val is None and oneway_val != "-1",
                      oneway_bicycle_val not in {None, "-1"}]
 
-            if True in rules:
-                return True
-            else:
-                return False
-
+            return True in rules
         else:
             return False
 
@@ -99,16 +89,15 @@ class Cyclist(LinkUser):
             rules = [oneway_bicycle_val is None and oneway_val != "yes",
                      oneway_bicycle_val not in {None, "yes"}]
 
-            if True in rules:
-                return True
-            else:
-                return False
-
+            return True in rules
         else:
             return False
 
     def _may_use(self, link) -> bool:
-
+        """
+        :param link: Link Object
+        :return:
+        """
         tags = link.get_tags()
 
         highway_val = tags.get("highway")
@@ -121,10 +110,8 @@ class Cyclist(LinkUser):
                  tags.get("cyclestreet") == "yes",
                  tags.get("cycleway:right") is not None or tags.get("cycleway:left") is not None or tags.get("cycleway:both") is not None]
 
-        if True in rules:
-            return True
-        else:
-            return False
+
+        return True in rules
 
 
 class Car(LinkUser):
@@ -136,10 +123,7 @@ class Car(LinkUser):
             oneway_val = link.get_tags().get("oneway")
             rules = [oneway_val != "-1"]
 
-            if True in rules:
-                return True
-            else:
-                return False
+            return True in rules
 
         else:
             return False
@@ -154,15 +138,16 @@ class Car(LinkUser):
 
             rules = [highway_val != "motorway" and (highway_val != "trunk" or oneway_val in {"no", "-1"}) and oneway_val != "yes"]
 
-            if True in rules:
-                return True
-            else:
-                return False
+            return True in rules
+
         else:
             return False
 
     def _may_use(self, link) -> bool:
-
+        """
+        :param link: Link-Object
+        :return:
+        """
         tags = link.get_tags()
         highway_val = tags.get("highway")
         motor_vehicle_val = tags.get("motor_vehicle")
@@ -171,7 +156,5 @@ class Car(LinkUser):
                  highway_val is not None and highway_val in {"unclassified", "residential", "living_street"} and motor_vehicle_val != "no" and motorcar_val != "no",
                  motor_vehicle_val == "yes" or motorcar_val == "yes"]
 
-        if True in rules:
-            return True
-        else:
-            return False
+
+        return True in rules

@@ -17,14 +17,15 @@ api = Blueprint('api', __name__)
 def documentation():
 
     data = [
-        { "url": "/api/tiles/","description":"Get all cached tiles infos"},
-        {"url":"/api/tiles/<geohash>/", "description": "get tile infos of given geohash"},
-        { "url":"/api/tiles/<geohash>/nodes", "description":"get nodes of given tile"},
-        { "url":"/api/tiles/<geohash>/nodes/1", "description":"get specific node of tile"},
-        { "url": "/api/tiles/<geohash>/intersections", "description":"get intersections of tile"},
-        { "url": "/api/geohashes?bbox=south,west,north,east", "description": "Liste aller geohashes, die von dieser bbox betroffen sind"}
+        {"url": "/api/tiles/", "description": "Get all cached tiles infos"},
+        {"url": "/api/tiles/<geohash>/", "description": "get tile infos of given geohash"},
+        {"url": "/api/tiles/<geohash>/nodes", "description": "get nodes of given tile"},
+        {"url": "/api/tiles/<geohash>/nodes/1", "description": "get specific node of tile"},
+        {"url": "/api/tiles/<geohash>/intersections", "description": "get intersections of tile"},
+        {"url": "/api/geohashes?bbox=south,west,north,east", "description": "Liste aller geohashes, die von dieser bbox betroffen sind"}
     ]
     return data
+
 
 def _resp(data):
     """ Response Wrapper
@@ -32,13 +33,13 @@ def _resp(data):
     :return:
     """
 
-    #return Response(response=, status=200, mimetype="text/html")
+    # return Response(response=, status=200, mimetype="text/html")
     jdata = None
     try:
         jdata = jsonify(data)
         return jdata
 
-    except Exception as e:
+    except:
         print(data)
 
     return jdata
@@ -50,6 +51,7 @@ def get_doc():
     """
     return _resp(documentation())
 
+
 @api.route('tiles')
 @api.route('tiles/')
 def get_tiles():
@@ -60,6 +62,7 @@ def get_tiles():
     data = msw.get_dict_tiles()
     return _resp({"description": "All Cached Tiles", "tiles": data})
 
+
 @api.route('tiles/stats')
 def get_tiles_stats():
     """ :return Statisiken zu allen tiles im cache
@@ -68,6 +71,7 @@ def get_tiles_stats():
     msw = MapserviceWrapper(map_service)
     data = msw.get_dict_stats()
     return _resp({"description": "All Cached Tiles", "tiles": data})
+
 
 @api.route('/geohashes', methods=["GET"])
 def get_geohashes():
@@ -83,7 +87,7 @@ def get_geohashes():
     bbox = BoundingBox(south, west, north, east)
 
     msw = MapserviceWrapper(map_service)
-    data = msw.get_dict_geohashes()
+    data = msw.get_dict_geohashes(bbox)
     return _resp(data)
 
 
@@ -177,14 +181,12 @@ def get_way_links(way_id):
     """Links eines Ways"""
 
     msw = MapserviceWrapper(map_service)
-    data = msw.get_dict_way_links()
+    data = msw.get_dict_way_links(way_id)
     return _resp(data)
 
 @api.route('/linkdistance', methods=["GET"])
 def get__linkdistance():
     """Calculate Link Distances Canidates"""
-
-    from src.models.link_distance import LinkDistance
 
     pos = float(request.args.get("lat")), float(request.args.get("lon"))
     radius = int(request.args.get("radius"))
@@ -197,11 +199,11 @@ def get__linkdistance():
 @api.route('/samples', methods=["GET"])
 def samples():
     data = {
-        "Homburg":{
+        "Homburg": {
             "bbox": "49.293105512,7.2850287149,49.3553136219,7.3705160806",
             "tiles": ["u0v0t", "u0v0y", "u0v0r"],
         },
-        "Köln":{
+        "Köln": {
             "bbox": "50.9099067349,6.9170473881,50.9700490766,7.0025347539",
             "tiles": ["u1hcv", "u1hcw", "u1hcz"]
         },
