@@ -1,8 +1,7 @@
-
-from src.models.bounding_box import BoundingBox
-from src.models.tile import Tile
-from src.utils.overpass_wrapper.overpass_wrapper import OverpassWrapper
 import time
+from src.models import Tile, BoundingBox
+from .overpass_wrapper import OverpassWrapper
+
 
 
 class OverpassWrapperServerSide(OverpassWrapper):

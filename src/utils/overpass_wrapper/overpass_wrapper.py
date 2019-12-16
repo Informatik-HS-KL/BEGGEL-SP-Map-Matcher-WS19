@@ -4,16 +4,13 @@ the obtained data into the convenient model-objects.
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
-import collections
-import time
-from abc import ABC, abstractmethod
+
 import requests
+from abc import ABC, abstractmethod
 from src.geohash_wrapper import GeoHashWrapper
-from src.models.tile import Tile
-from src.models.node import Node, NodeId
-from src.models.link_id import LinkId
-from src.models.link import Link
-from src.models.bounding_box import BoundingBox
+
+from src.models import Node, NodeId
+from src.models import Link, LinkId
 
 
 class OverpassWrapper(ABC):

@@ -3,12 +3,8 @@ Description: This files offers some mathematical and geographic-related methods.
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
+from math import radians, sin, cos, acos, sqrt, isclose
 
-
-# from src.models.tile import Tile
-from math import radians, degrees, sin, cos, asin, acos, sqrt, isclose
-from src.models.tile import Tile
-from src.models.node import Node
 
 def great_circle(point1: tuple, point2: tuple):
     """
@@ -208,14 +204,3 @@ def vectors_have_same_direction(a: tuple, b: tuple) -> bool:
                 return False
 
     return vectors_are_parallel(a, b)
-
-
-# Dieser Codesnipsel veranschaulicht, dass sich die spherische Geometrie nicht immer so verhält, wie man es erwartet.
-# sn = (49.4217069, 7.5606304)
-# mpoint = (49.421703949999994, 7.56109395)
-# pos = (49.42216749999999, 7.561096899999999)
-# print(great_circle(sn, mpoint))
-# print(great_circle(mpoint, pos))
-#
-# print(vector_norm(vector_subtraction(mpoint, sn)))
-# print(vector_norm(vector_subtraction(pos, mpoint)))

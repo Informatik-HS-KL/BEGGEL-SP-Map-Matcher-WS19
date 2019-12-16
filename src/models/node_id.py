@@ -18,8 +18,6 @@ class NodeId:
         return "NodeId: <osm_node_id: %s> <geohash: %s>" % (self.osm_node_id, self.geohash)
 
     def __hash__(self):
-        # ToDo(22.11.19 LF): Muss überarbeitet werden. Hashes sind derzeit noch eindeutig. Vielleicht einfach self.osm_node_id % p
-        #  (wobei p eine ausreichend große Primzahl ist).
         return self.osm_node_id
 
     def get_osm_node_id(self):

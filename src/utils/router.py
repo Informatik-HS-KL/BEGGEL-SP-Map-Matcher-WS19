@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from src.utils.routing import point_to_point_dijkstra, link_to_link_dijkstra, ShortestPath, WeightCalculator, \
     dijkstra_routing
-from src.models.link_user import LinkUser
+from ..models import LinkUser
 
 
 class RoutingException(Exception):

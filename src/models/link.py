@@ -14,18 +14,16 @@ For WKT see: (https://en.wikipedia.org/wiki/Well-known_text_representation_of_ge
 #
 # """
 
-from .node import NodeId
-from .link_id import LinkId
 import src.map_service
-from src.geo_utils import great_circle
-import src.models.bounding_box
+
 from shapely.geometry import LineString
-from src.models.link_user import LinkUser
+
+from .bounding_box import BoundingBox
+from .link_user import LinkUser
+from src.geo_utils import great_circle
 
 
 class Link:
-    # Links sollen nur noch Referenzen auf die Knoten (also die nodeIds) enthalten.
-    # In get_start_node bzw. get_end_node wird dann über mapService der entsprechende Knoten geladen.
 
     def __init__(self, link_id, geometry: list, node_ids: list):
         """
@@ -49,7 +47,7 @@ class Link:
         """
         s, w, n, e = LineString(self.get_geometry()).bounds
 
-        return src.models.bounding_box.BoundingBox(s, w, n, e)
+        return BoundingBox(s, w, n, e)
 
     def get_start_node(self):
         """

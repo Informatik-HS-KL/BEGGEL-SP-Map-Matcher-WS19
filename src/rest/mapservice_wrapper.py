@@ -2,10 +2,9 @@
 Wrapper Klass for Mapservice which will be used to get REST link access to Mapservice für Rest Api
 """
 
-from src.geohash_wrapper import GeoHashWrapper
-from src.models.bounding_box import BoundingBox
-from src.models.link_user import Car
-from src.utils.router import RouterDijkstra
+from ..models import BoundingBox, Car
+from ..geohash_wrapper import GeoHashWrapper
+from ..utils.router import RouterDijkstra
 
 
 class MapserviceWrapper:

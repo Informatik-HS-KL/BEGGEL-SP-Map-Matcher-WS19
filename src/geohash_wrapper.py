@@ -3,14 +3,11 @@ Description: The GeohashWrapper encapsulates the functionality of the following 
 https://github.com/vinsci/geohash/
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+https://github.com/vinsci/geohash/
 """
 
-# """
-# https://github.com/vinsci/geohash/
-#
-# """
 import geohash2 as geohash
-from src.models.bounding_box import BoundingBox
+from .models import BoundingBox
 
 
 class GeoHashWrapper:
@@ -75,6 +72,11 @@ class GeoHashWrapper:
         return found_geohashes
 
     def _get_bounding_box_from_neighbors(self, neighbors: dict):
+        """
+
+        :param neighbors:
+        :return:
+        """
 
         west = BoundingBox.from_geohash(neighbors["west"]).west
         east = BoundingBox.from_geohash(neighbors["east"]).east

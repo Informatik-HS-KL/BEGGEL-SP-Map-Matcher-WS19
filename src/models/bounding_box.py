@@ -4,12 +4,13 @@ determining the (geometric) relation of  a BoundingBox to a node/link/other Boun
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz"""
 
-
-from src.models.node import Node
+import geohash2 as Geohash
 import src.models.link as link
 
-import src.geo_utils as ut
-import geohash2 as Geohash
+from .node import Node
+
+from ..geo_utils import number_is_in_interval, first_interval_contains_second_interval
+from ..geo_utils import convert_meter_2_lon, convert_meter_2_lat, overlap_intervals
 
 
 class BoundingBox:
@@ -40,8 +41,8 @@ class BoundingBox:
         return link.get_bbox().overlap(self)
 
     def contains_node(self, node: Node):
-        return (ut.number_is_in_interval(node.get_lat(), (self.south, self.north), 90) and
-                ut.number_is_in_interval(node.get_lon(), (self.west, self.east),  180))
+        return (number_is_in_interval(node.get_lat(), (self.south, self.north), 90) and
+                number_is_in_interval(node.get_lon(), (self.west, self.east),  180))
 
     def contains_bbox(self, other):
         """Diese Methode überprüft, ob other eine Teilmenge von self ist.
@@ -53,13 +54,13 @@ class BoundingBox:
         lat_interval_1 = (self.south, self.north)
         lat_interval_2 = (other.south, other.north)
 
-        if not ut.first_interval_contains_second_interval(lat_interval_1, lat_interval_2, 90):
+        if not first_interval_contains_second_interval(lat_interval_1, lat_interval_2, 90):
             return False
 
         lon_interval_1 = (self.west, self.east)
         lon_interval_2 = (other.west, other.east)
 
-        if not ut.first_interval_contains_second_interval(lon_interval_1, lon_interval_2, 180):
+        if not first_interval_contains_second_interval(lon_interval_1, lon_interval_2, 180):
             return False
 
         return True
@@ -84,14 +85,14 @@ class BoundingBox:
         lat_interval_1 = (self.south, self.north)
         lat_interval_2 = (other_bbox.south, other_bbox.north)
 
-        if not ut.overlap_intervals(lat_interval_1, lat_interval_2, 90):
+        if not overlap_intervals(lat_interval_1, lat_interval_2, 90):
             # Hier wird wird nie ein overflow passieren
             return False
 
         lon_interval_1 = (self.west, self.east)
         lon_interval_2 = (other_bbox.west, other_bbox.east)
 
-        if not ut.overlap_intervals(lon_interval_1, lon_interval_2, 180):
+        if not overlap_intervals(lon_interval_1, lon_interval_2, 180):
             return False
 
         return True
@@ -106,8 +107,8 @@ class BoundingBox:
         """
 
         lat, lon = pos
-        radius_as_lat = ut.convert_meter_2_lat(radius)
-        radius_as_lon = ut.convert_meter_2_lon(radius, lat)
+        radius_as_lat = convert_meter_2_lat(radius)
+        radius_as_lon = convert_meter_2_lon(radius, lat)
 
         return BoundingBox(lat - radius_as_lat, lon - radius_as_lon, lat + radius_as_lat, lon + radius_as_lon)
 

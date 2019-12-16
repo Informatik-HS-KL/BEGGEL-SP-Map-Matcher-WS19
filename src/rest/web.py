@@ -5,10 +5,7 @@ Description: Main Entdpoints for HTML Delivery an web Frontend
 """
 
 
-from flask import Response, request, render_template, Blueprint
-
-from src.rest import api
-from src.map_service import MapService
+from flask import render_template, Blueprint
 
 bp_webpage = Blueprint('web', __name__)
 

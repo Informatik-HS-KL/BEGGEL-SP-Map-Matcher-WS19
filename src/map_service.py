@@ -8,19 +8,10 @@ is managing the obtainment and caching of Tiles, the latter for improving the pe
 
 from .geohash_wrapper import GeoHashWrapper
 from .models.bounding_box import BoundingBox
-from src.models.link import LinkId
-from src.models.node import NodeId
-from src.models.tile import Tile
-from src.models.link_distance import LinkDistance
+from src.models import LinkId, NodeId, Tile, LinkDistance
 from src.geo_utils import great_circle
-from src.config import MapServiceConfig
-from src.config import CONFIG
-from src.utils.overpass_wrapper import OverpassWrapperServerSide
+from src.config import MapServiceConfig, CONFIG
 from src.utils.overpass_wrapper import OverpassWrapperClientSide
-
-
-# from src.utils.overpass_wrapper.overpass_wrapper_client import OverpassWrapperClientSide
-# from src.utils.overpass_wrapper.server_side import OverpassWrapperServerSide
 
 
 def __one_node_in_circle(points, circle_center_lat_lon, circle_radius):
@@ -85,18 +76,18 @@ def _get_smaller_tile(tile, smaller_geohash_str):
 
 
 class MapService:
-    """"""
-    # maps geohash --> Tile class
-    _tileCache = {}
+    """
+    Access for API-User
+    """
+
+    _tileCache = {} # Structure {geohash:Tile class}
 
     def __init__(self):
         """"""
 
-        self.name = "A"
         self.config = CONFIG
         self._geoHashLevel = self.config.getint("DEFAULT", "geohashlevel")
         self.overpass_wrapper = OverpassWrapperClientSide(self.config)
-        # self.overpass_wrapper = OverpassWrapperServerSide(self.config)
 
     def set_config(self, config_path):
         """
@@ -123,12 +114,11 @@ class MapService:
         """
         self.overpass_wrapper = opw
 
-
     def get_nodes_in_bounding_box(self, bbox: BoundingBox):
         """
-        Knoten einer Boudingbox zurückgeben.
+        Knoten einer Boundingbox zurückgeben.
         Knoten werden aus den Tiles geladen
-        :param Boundingbox Object
+        :param bbox Object
         :return: List(Node-Object, ...)
         """
         ret = []

@@ -4,7 +4,7 @@ for example to convert the geometry of a Node-Object into several geo-formats, a
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
-from src.models.node_id import NodeId
+from .node_id import NodeId
 from shapely.geometry import Point
 
 class Node:

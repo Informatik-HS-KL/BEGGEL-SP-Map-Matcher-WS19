@@ -7,7 +7,7 @@ dimensions of such a tile, but also the Node- and Link-Objects which are located
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-from src.models.link_id import LinkId
+from .link_id import LinkId
 
 
 class Tile:

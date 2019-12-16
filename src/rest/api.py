@@ -3,17 +3,11 @@ Description: This file defines the endpoints of the REST-API.
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
-import time
 
 from flask import jsonify
 from flask import request, Blueprint
 from src.map_service import MapService
-from src.geohash_wrapper import GeoHashWrapper
-from src.models.bounding_box import BoundingBox
-from src.models.node import NodeId
-from src.utils.router import RouterBaseDijkstra, RouterLinkDijkstra, RouterDijkstra
-from src.models.link_user import Car
-
+from src.models import BoundingBox
 from .mapservice_wrapper import MapserviceWrapper
 
 map_service = MapService()

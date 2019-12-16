@@ -1,7 +1,6 @@
 from abc import ABC
 
-from src.models.link import Link
-from src.models.link_user import LinkUser
+from ..models import Link, LinkUser
 
 
 class WeightCalculator(ABC):

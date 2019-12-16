@@ -5,8 +5,8 @@ information, e.g. the shortest distance between the point and the link or the ne
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz"""
 
-from src.geo_utils import great_circle
 import math
+from ..geo_utils import great_circle
 
 
 class LinkDistance:

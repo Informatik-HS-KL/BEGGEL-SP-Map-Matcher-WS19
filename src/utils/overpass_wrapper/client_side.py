@@ -1,14 +1,8 @@
 import collections
 import time
-import requests
-from src.geohash_wrapper import GeoHashWrapper
 
-from src.models.tile import Tile
-from src.models.node import Node, NodeId
-from src.models.link_id import LinkId
-from src.models.link import Link
-from src.models.bounding_box import BoundingBox
-from src.utils.overpass_wrapper.overpass_wrapper import OverpassWrapper
+from src.models import Tile, BoundingBox
+from .overpass_wrapper import OverpassWrapper
 
 
 class OverpassWrapperClientSide(OverpassWrapper):
