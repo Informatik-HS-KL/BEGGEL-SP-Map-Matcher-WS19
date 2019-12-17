@@ -51,9 +51,7 @@ Links can be output as geojson and wkt.
 
 ### Tiles
 The map service groups all links and nodes into groups. These groups are the tiles.  
-A Tile has the size of a geohash (base32) with a predefined length (default 5). 
-This length can be changed in the configurations.  
-Link users are currently available as drivers, cyclists and pedestrians
+A Tile has a range of an [geohash](https://en.wikipedia.org/wiki/Geohash) (base32).
 
 ### Link User
 The rules for using the links are defined in the Link User subclasses.  
@@ -164,9 +162,11 @@ The Dijkstra also takes into account one-way streets.
 
 This example prints out all links with their distances around the first point (Node) in the Tile.
     
-## Data Visualisation (testing)
-After the start you have the opportunity visualize Links, Nodes, a route and Links in radius. 
-We implement a test web page under [localhost](http://http://localhost:5000/). 
+## Data Visualisation
+With the code <code>rest.app.run(host="localhost", port=5000)</code> you can start a web server for visualize.
+There you can display nodes, links and crossings in an specific geohash. 
+Furthermore you can calculate the shortest route between two points or 
+you display all links in an certain radius.
 
 ![Picture 1]
 
