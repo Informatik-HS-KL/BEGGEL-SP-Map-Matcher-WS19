@@ -38,14 +38,14 @@ was ist mit den imports
     from src.map_service import MapService
     from src.models.bounding_box import BoundingBox
     
-    def test()
+    def print_nodes_from_hash():
         """
         Print all nodes in Geohash 'u0v970'
         """
         mapService = MapService()
-        bbox = BoundingBox.from_geohash("u0v970") # One way to create a BoundingBox
-        nodes = mapService.get_nodes_in_bounding_box(bbox) # [..]_in_bounding_box functions load the
-                                                           # not yet loaded street data automatically
+        bbox = BoundingBox.from_geohash("u0v970")  # One way to create a BoundingBox
+        nodes = mapService.get_nodes_in_bounding_box(bbox)  # [..]_in_bounding_box functions load the
+        # not yet loaded street data automatically
         for node in nodes:
             print(node, node.get_lat(), node.get_lon())
         
