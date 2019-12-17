@@ -5,7 +5,7 @@
 # Map Service
 The Map Service is an interface to the [Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API). 
 It downloads street data and takes over their administration. 
-The street data downloaded individually via a [Geohash](https://en.wikipedia.org/wiki/Geohash) and stored in Tiles. 
+The street data are downloaded and stored in Tiles. 
 In the Tiles there are links that extend from intersection to intersection and nodes that represent individual points on the road.  
 It has implemented functions for routing and determining links within a certain radius to allow the user to easily map matching.  
 For a simpler visualisation of the links and nodes, a website was created using [Leaflet](https://leafletjs.com/). 
