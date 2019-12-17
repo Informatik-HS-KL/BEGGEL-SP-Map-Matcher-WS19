@@ -4,16 +4,16 @@
 
 # Map Service
 The Map Service is an interface to the [Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API). 
-He downloads street data and takes over their administration. 
+It downloads street data and takes over their administration. 
 The street data downloaded individually via a [Geohash](https://en.wikipedia.org/wiki/Geohash) and stored in Tiles. 
 In the Tiles there are links that extend from intersection to intersection and nodes that represent individual points on the road.  
 It has implemented functions for routing and determining links within a certain radius to allow the user to easily map matching.  
-For a simpler check of the links and nodes, a website was created using [Leaflet](https://leafletjs.com/). 
+For a simpler visualisation of the links and nodes, a website was created using [Leaflet](https://leafletjs.com/). 
 
 ## Requirements
 1. Python: 3.7 [(download)](https://www.python.org/downloads/)
 2. shapely
-3. geohash2 [(install)](https://pypi.org/project/geohash2/)
+3. geohash2
 
 ## Installation
 
@@ -29,15 +29,15 @@ In this configurations are 3 sections.
 In this selection are base parameters like overpass_url etc.
 2. HIGHWAY_CARS Selection  
 In this selection you can choose the loaded street types for vehicles.
-By Default all street types will loaded.  
-More information over the street types you can find [here](https://wiki.openstreetmap.org/wiki/Key:highway#Special_road_types)  
+By Default all street types will be loaded.  
+More information about the street types you can find [here](https://wiki.openstreetmap.org/wiki/Key:highway#Special_road_types)  
  
 ## Models
 The following paragraph discusses the data model in the Map Service
 
 ### Nodes
-Nodes are a reflection of the nodes of Overpass.  
-They have an ID consisting of a Lvl 12 Geohash and the Node Id from Overpass Node.  
+Nodes are a depict of the nodes of Overpass.  
+They have an ID consisting of a Lvl 12 Geohash and the Node Id from osm Node.  
 There are 2 types of Nodes:  
 one indicates the street shape and the other is an intersection.
 You can recognize them by the fact that crossings have links and shapes have parent links.  
@@ -45,12 +45,12 @@ Nodes can be output as geojson and wkt.
 
 ### Links
 Links are road sections between crossings.  
-They have an ID consisting of a osm way Id from Overpass and the start node Id.
-The link contains the tags from Overpass and offers the possibility to check whether a link user can use the link.
+They have an ID consisting of a osm way Id and the start node Id.
+The link contains the tags from Overpass.
 Links can be output as geojson and wkt.
 
 ### Tiles
-The map service groups all links and nodes into individual parts. These parts are the tiles.  
+The map service groups all links and nodes into groups. These groups are the tiles.  
 A Tile has the size of a geohash (base32) with a predefined length (default 5). 
 This length can be changed in the configurations.  
 Link users are currently available as drivers, cyclists and pedestrians
@@ -120,31 +120,35 @@ All functions that receive a bounding box load any needed tiles.
 
 ### Routing
     
-    def routing():
-        mapService = MapService()
+def routing():
+    mapService = MapService()
+
+    # Init Router with Linkuser (Car, Cyclist or Pedestrian)
+    router = RouterDijkstra(Car())
+
+    # set the start link (fraction default 0, from_start_to_end default true )
+    router.set_start_link(mapService.get_link(314409401, NodeId(258779029, "u0v9045fe6u1")))
+    ## optional fraction (position on link: 1>= fraction >= 0)
+    # router.set_start_link(mapService.get_link(314409401, NodeId(258779029, "u0v9045fe6u1")),0.0)
+    ## optional fraction and position (from_start_to_end as boolean)
+    # router.set_start_link(mapService.get_link(314409401, NodeId(258779029, "u0v9045fe6u1")),1.0, True)
+
+    # set the end link (fraction default 0, from_start_to_end default true )
+    router.set_end_link(mapService.get_link(25779169, NodeId(281181557, "u0v922p75804")))
+    ## optional fraction (position on link: 1>= fraction >= 0)
+    # router.set_end_link(mapService.get_link(25779169, NodeId(281181557, "u0v922p75804")),0.0)
+    ## optional fraction and position (from_start_to_end as boolean)
+    # router.set_end_link(mapService.get_link(25779169, NodeId(281181557, "u0v922p75804")),1.0, True)
+
+    # Calculates the shortest route and returns it as a list of nodes
+    result = router.compute()  # Returns a tuple with total wight and the way
+    print("Way weight: ",result[0], "in", result[1])
+    for link in result[2]:
+        print("next Link: ", link)
         
-        # Init Router with Linkuser (Car, Cyclist or Pedestrian)
-        router = RouterDijkstra(Car())
-    
-        # set the start link (fraction default 0, from_start_to_end default true )
-        router.set_start_link(mapService.get_link(314409401, NodeId(258779029, "u0v9045fe6u1")))
-        ## optional fraction (position on link: 1>= fraction >= 0)
-        # router.set_start_link(mapService.get_link(314409401, NodeId(258779029, "u0v9045fe6u1")),0.0)
-        ## optional fraction and position (from_start_to_end as boolean)
-        # router.set_start_link(mapService.get_link(314409401, NodeId(258779029, "u0v9045fe6u1")),1.0, True)
-    
-        # set the end link (fraction default 0, from_start_to_end default true )
-        router.set_end_link(mapService.get_link(25779169, NodeId(281181557, "u0v922p75804")))
-        ## optional fraction (position on link: 1>= fraction >= 0)
-        # router.set_end_link(mapService.get_link(25779169, NodeId(281181557, "u0v922p75804")),0.0)
-        ## optional fraction and position (from_start_to_end as boolean)
-        # router.set_end_link(mapService.get_link(25779169, NodeId(281181557, "u0v922p75804")),1.0, True)
-    
-        # Calculates the shortest route and returns it as a list of nodes
-        result_nodes = router.compute()  # Returns a list of nodes as a way
 This example calculates the route using the Dijkstra. 
-The route is returned as a node list. 
-The Dijkstra also takes into account one-way streets. 
+The function returns a tuple with total weight, unit and the route as list with links. 
+The Dijkstra also takes into account one-way streets.
     
 ### Distances
     
@@ -161,17 +165,16 @@ The Dijkstra also takes into account one-way streets.
 This example prints out all links with their distances around the first point (Node) in the Tile.
     
 ## Data Visualisation (testing)
-After the start you have the opportunity to Visual your Links and Nodes. 
+After the start you have the opportunity visualize Links, Nodes, a route and Links in radius. 
 We implement a test web page under [localhost](http://http://localhost:5000/). 
 
 ![Picture 1]
 
 
 ## Creator
-  
 - Lukas F.
 - Sebastian L.
 - Kai P.  
 
-Supervisor:  
-- Prof. Beggel  
+Supervisor:
+- Prof. Beggel
