@@ -1,19 +1,13 @@
 import collections
 import time
-import requests
-from src.geo_hash_wrapper import GeoHashWrapper
 
-from src.models.tile import Tile
-from src.models.node import Node, NodeId
-from src.models.link_id import LinkId
-from src.models.link import Link
-from src.models.bounding_box import BoundingBox
-from src.utils.overpass_wrapper.overpass_wrapper import OverpassWrapper
+from src.models import Tile, BoundingBox
+from .overpass_wrapper import OverpassWrapper
 
 
 class OverpassWrapperClientSide(OverpassWrapper):
     """
-        Subclass of OverpassWrapper which determines the intersections of ways on the client-side.
+    Subclass of OverpassWrapper which determines the intersections of ways on the client-side.
     """
 
     def __init__(self, config):
@@ -22,23 +16,23 @@ class OverpassWrapperClientSide(OverpassWrapper):
 
     def _get_intersections(self, osm_ways):
         """
-        Search for Crossings in osm Ways and returns them as Nodes
-        :param osm_nodes: raw osm nodes data parsed from json
+        Searches for Intersections of OSM-Ways and returns the osm-ids of the corresponding nodes.
         :param osm_ways: raw osm way data parsed from json
-        :return: List of NodeId
+        :return: list(int)
         """
 
-        all = []
+        all_nodes = []
         for way in osm_ways:
-            all.extend(way["nodes"])
+            all_nodes.extend(way["nodes"])
 
-        crossing_osm_ids = list(map(lambda x: x[0], filter(lambda i: i[1] > 1, collections.Counter(all).items())))
+        crossing_osm_ids = list(map(lambda x: x[0], filter(lambda i: i[1] > 1, collections.Counter(all_nodes).items())))
         return crossing_osm_ids
 
     def _build_query(self, geohash, q_filter: str):
         """
         Returns the URL to download the data, which is required to build the tile with the specified geohash.
-        The intersections of ways are NOT determined on server-side.
+        :param geohash: str
+        :param q_filter: str
         """
 
         bbox_str = "%s" % BoundingBox.from_geohash(geohash)
@@ -48,12 +42,11 @@ class OverpassWrapperClientSide(OverpassWrapper):
 
     def _create_tile(self, geo_hash, elements: dict):
         """
-        :param geo_hash: geohash as str
+        :param geo_hash: str
         :param elements: raw dict data from overpass json api
-        :return: Tile Object
+        :return: Tile-Object
         """
 
-        print("Build Datamodel ...")
         t0 = time.time()
 
         osm_nodes = list(filter(lambda e: e["type"] == "node", elements))
@@ -70,5 +63,5 @@ class OverpassWrapperClientSide(OverpassWrapper):
         t = Tile(geo_hash, nodes, links)
 
         t1 = time.time()
-        print("Zeit in s:", t1 - t0, "Links:", len(links), "Nodes:", len(nodes), "Crossingids:", len(crossings_osm_ids))
+
         return t

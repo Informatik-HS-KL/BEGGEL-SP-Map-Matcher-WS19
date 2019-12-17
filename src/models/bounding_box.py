@@ -4,12 +4,13 @@ determining the (geometric) relation of  a BoundingBox to a node/link/other Boun
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz"""
 
-
-from src.models.node import Node
+import geohash2 as geohash
 import src.models.link as link
 
-import src.geo_utils as ut
-import geohash2 as Geohash
+from .node import Node
+
+from ..geo_utils import number_is_in_interval, first_interval_contains_second_interval
+from ..geo_utils import convert_meter_2_lon, convert_meter_2_lat, overlap_intervals
 
 
 class BoundingBox:
@@ -32,20 +33,29 @@ class BoundingBox:
             raise TypeError("{} is not supported by this method.".format(type(item)))
 
     def contains_link(self, link):
-        """ if bbox of link and self bbox overlaps: true
-        :param link:
+        """
+        Returns True if self and the bounding box of link overlap.
+        :param link: Link-Object
         :return: bool
         """
-        #OLDlink.get_start_node() in self or link.get_end_node() in self
+
         return link.get_bbox().overlap(self)
 
     def contains_node(self, node: Node):
-        return (ut.number_is_in_interval(node.get_lat(), (self.south, self.north), 90) and
-                ut.number_is_in_interval(node.get_lon(), (self.west, self.east),  180))
+        """
+        Returns True if node is located in self.
+        :param node: Node-Object
+        :return: bool
+        """
+        return (number_is_in_interval(node.get_lat(), (self.south, self.north), 90) and
+                number_is_in_interval(node.get_lon(), (self.west, self.east), 180))
 
     def contains_bbox(self, other):
-        """Diese Methode überprüft, ob other eine Teilmenge von self ist.
-                Die Rückgabe erfolgt als boolean. Beachte: self == other liefert ebenfalls True."""
+        """
+        Returns True if self contains other. Remark: In case of self == other, True is returned.
+       :param other: BoundingBox-Object
+       :return: bool
+        """
 
         if self == other:
             return True
@@ -53,13 +63,13 @@ class BoundingBox:
         lat_interval_1 = (self.south, self.north)
         lat_interval_2 = (other.south, other.north)
 
-        if not ut.first_interval_contains_second_interval(lat_interval_1, lat_interval_2, 90):
+        if not first_interval_contains_second_interval(lat_interval_1, lat_interval_2, 90):
             return False
 
         lon_interval_1 = (self.west, self.east)
         lon_interval_2 = (other.west, other.east)
 
-        if not ut.first_interval_contains_second_interval(lon_interval_1, lon_interval_2, 180):
+        if not first_interval_contains_second_interval(lon_interval_1, lon_interval_2, 180):
             return False
 
         return True
@@ -75,23 +85,26 @@ class BoundingBox:
         return "(%s,%s,%s,%s)" % (self.south, self.west, self.north, self.east)
 
     def overlap(self, other_bbox):
-        """Diese Methode überprüft, ob sich zwei Bounding-Boxen überlappen.
-           Rückgabe erfolgt als boolean.
-           Beachte: Wenn die beiden Bounding-Boxen sich lediglich an ihren Rändern berühren, so zählt dies NICHT als Überlappung"""
+        """
+        Returns true if the self and other_bbox overlap. Remark: If self and other_bbox are only touching at their edges
+        False is returned.
+        :param other_bbox: BoundingBox-Object
+        :return bool
+        """
         if self == other_bbox:
             return True
 
         lat_interval_1 = (self.south, self.north)
         lat_interval_2 = (other_bbox.south, other_bbox.north)
 
-        if not ut.overlap_intervals(lat_interval_1, lat_interval_2, 90):
+        if not overlap_intervals(lat_interval_1, lat_interval_2, 90):
             # Hier wird wird nie ein overflow passieren
             return False
 
         lon_interval_1 = (self.west, self.east)
         lon_interval_2 = (other_bbox.west, other_bbox.east)
 
-        if not ut.overlap_intervals(lon_interval_1, lon_interval_2, 180):
+        if not overlap_intervals(lon_interval_1, lon_interval_2, 180):
             return False
 
         return True
@@ -99,20 +112,25 @@ class BoundingBox:
     @staticmethod
     def get_bbox_from_point(pos, radius=1):
         """
-        nimmt den punkt als mitte einer Bounding Box mit dem gegebenen "radius" in meter
-        :param pos:
-        :param radius:
-        :return:
+        Returns a Bounding Box with pos as center. Radius is the distance (in meter) from center to the south/west/
+        north/east-border of the Bounding Box.
+        :param pos: tuple
+        :param radius: int
+        :return: BoundingBox-Object
         """
 
         lat, lon = pos
-        radius_as_lat = ut.convert_meter_2_lat(radius)
-        radius_as_lon = ut.convert_meter_2_lon(radius, lat)
+        radius_as_lat = convert_meter_2_lat(radius)
+        radius_as_lon = convert_meter_2_lon(radius, lat)
 
         return BoundingBox(lat - radius_as_lat, lon - radius_as_lon, lat + radius_as_lat, lon + radius_as_lon)
 
-
     @staticmethod
-    def from_geohash(geohash):
-        bbox = Geohash.decode_exactly(geohash)
+    def from_geohash(geo_hash: str):
+        """
+        Returns a Bounding Box which covers the Tile with the specified geohash.
+        :param geo_hash: str
+        :return: BoundingBox-Object
+        """
+        bbox = geohash.decode_exactly(geo_hash)
         return BoundingBox(bbox[0] - bbox[2], bbox[1] - bbox[3], bbox[0] + bbox[2], bbox[1] + bbox[3])

@@ -6,6 +6,7 @@ class Node:
         return self.node_pos
 
 class Link:
+
     def __init__(self, start: tuple, end: tuple):
         self.start = start
         self.end = end

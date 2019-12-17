@@ -7,87 +7,86 @@ dimensions of such a tile, but also the Node- and Link-Objects which are located
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
 
-from src.models.link_id import LinkId
+from .link_id import LinkId
 
 
 class Tile:
 
     def __init__(self, geohash, nodes: dict, links: dict):
         """
-
         :param geohash: str
-        :param nodes: dict {nodeid: node}
-        :param links: dict {linkid:link}
+        :param nodes: dict {NodeId-Object: Node-Object}
+        :param links: dict {LinkId-Object: Link-Object}
         """
-
-        self.__nodes = nodes
-        self.__links = links
-        self.__geohash = geohash
+        self._nodes = nodes
+        self._links = links
+        self._geohash = geohash
 
     def get_geohash(self):
-        return self.__geohash
+        """
+        :return: str
+        """
+        return self._geohash
 
     def add_node(self, node):
-        self.__nodes.update({node.get_id(): node})
+        """
+        :param node: Node-Object
+        :return: None
+        """
+        self._nodes.update({node.get_id(): node})
 
     def add_link(self, link):
         """
-        :param link:
+        :param link: Link-Object
         :return:
         """
-        self.__links.update({link.get_id(), link})
+        self._links.update({link.get_id(), link})
 
     def get_node(self, nodeid):
         """
-        :param osm_id: int
-        :return: Node
+        :param nodeid: NodeId-Object
+        :return: Node-Object
         """
 
-        return self.__nodes.get(nodeid, None)
+        return self._nodes.get(nodeid, None)
 
     def get_node_from_osm_id(self, osmid):
         """
         :param osmid: int
         :return: Node Object
         """
-        res = list(filter(lambda n: n.osm_node_id == osmid, self.__nodes))
+        res = list(filter(lambda n: n.get_osm_id() == osmid, self._nodes))
         if len(res) == 1:
-            return self.__nodes.get(res[0])
+            return self._nodes.get(res[0])
         return None
 
     def get_nodes(self):
         """
-        :return: list [node,..]
+        :return: list(Node-Object)
         """
-        return self.__nodes.values()
+        return self._nodes.values()
 
     def get_nodes_with_keys(self):
         """
-        :return: dict {nodeid: node}
+        :return: dict {NodeId-Object: Node-Object}
         """
-        return self.__nodes
+        return self._nodes
 
     def get_links(self):
         """
-        :return: list [link, ..]
+        :return: list(Link-Object)
         """
-        return self.__links.values()
+        return self._links.values()
 
     def get_links_with_keys(self):
         """
-        :return: dict {linkid: link}
+        :return: dict {LinkId-Object: Link-Object}
         """
-        return self.__links
+        return self._links
 
     def get_link(self, link_id: LinkId):
         """
-        :return: Link
+        :return: Link-Object
         """
-        return self.__links[link_id]
+        return self._links[link_id]
 
-    def get_geohash(self):
-        """
-        Geohash from self
-        :return: str
-        """
-        return self.__geohash

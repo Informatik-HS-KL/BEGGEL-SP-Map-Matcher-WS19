@@ -3,19 +3,15 @@ Description: This files offers some mathematical and geographic-related methods.
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
 """
+from math import radians, sin, cos, acos, sqrt, isclose
 
-
-# from src.models.tile import Tile
-from math import radians, degrees, sin, cos, asin, acos, sqrt, isclose
-from src.models.tile import Tile
-from src.models.node import Node
 
 def great_circle(point1: tuple, point2: tuple):
     """
-    Angaben in Meter
-    :param point1:
-    :param point2:
-    :return:
+    Returns the Great-Circle-Distance between point1 and point2.
+    :param point1: tuple(lat, lon)
+    :param point2: tuple(lat, lon)
+    :return: float
     """
     lat1, lon1 = point1
     lat2, lon2 = point2
@@ -36,7 +32,7 @@ def great_circle(point1: tuple, point2: tuple):
 def convert_meter_2_lat(meter):
     """
     Converts a range in meter into a range in latitude-degrees.
-    :param meter:
+    :param meter: float
     :return: lat-range in float
     """
 
@@ -48,8 +44,8 @@ def convert_meter_2_lat(meter):
 def convert_meter_2_lon(meter, lat):
     """
     Converts a range in meter into a range in longitude-degrees.
-    :param meter:
-    :param lat:
+    :param meter: float
+    :param lat: the latitude on which the lon-range is measured in float
     :return: lon-range in float
     """
 
@@ -94,8 +90,14 @@ def overlap_intervals(interval_1, interval_2, overflow_mark):
 
 
 def first_interval_contains_second_interval(first_interval: tuple, second_interval: tuple, overflow_mark: float):
-    """Diese Methode überprüft, ob interval_2 eine Teilmenge von interval_1 ist.
-    Die Rückgabe erfolgt als boolean. Beachte: interval_1 == interval_2 liefert ebenfalls True."""
+    """
+    Returns True if first_interval contains second_interval. Remark: In case of first_interval == second_interval it is
+    also returned True.
+    :param first_interval: tuple
+    :param second_interval: tuple
+    :param overflow_mark: float
+    :return: bool
+    """
 
     if first_interval == second_interval:
         return True
@@ -103,119 +105,4 @@ def first_interval_contains_second_interval(first_interval: tuple, second_interv
     a2, b2 = second_interval
 
     return number_is_in_interval(a2, first_interval, overflow_mark) and \
-           number_is_in_interval(b2, first_interval, overflow_mark)
-
-
-def dot_product(a: tuple, b: tuple):
-    if not len(a) == len(b):
-        raise Exception('The Vectors have not the same length')
-    if len(a) == 0:
-        raise Exception('The Vectors have no items')
-    """Bildet das Skalarprodukt von zwei Vectoren"""
-    return sum([x * y for x, y in zip(a, b)])
-
-
-def vector_addition(a: tuple, b: tuple):
-    if not len(a) == len(b):
-        raise Exception('The Vectors have not the same length')
-    if len(a) == 0:
-        raise Exception('The Vectors have no items')
-    """Addiert zwei Vectoren"""
-    return tuple([x + y for x, y in zip(a, b)])
-
-
-def scalar_multiplication(scalar, vec):
-    if len(vec) == 0:
-        raise Exception('The Vectors have no items')
-    """Skalarmultiplikation"""
-    return tuple([scalar * y for y in vec])
-
-
-def orthogonal_projection(vec_from, vec_to):
-    return scalar_multiplication(dot_product(vec_from, vec_to) / dot_product(vec_to, vec_to), vec_to)
-
-
-def vector_subtraction(vector_a, vector_b):
-    if not len(vector_a) == len(vector_b):
-        raise Exception('The Vectors have not the same length')
-    if len(vector_a) == 0:
-        raise Exception('The Vectors have no items')
-    return tuple([x - y for x, y in zip(vector_a, vector_b)])
-
-
-def vector_norm(v: tuple):
-    if len(v) == 0:
-        raise Exception('The Vector has no items')
-
-    return sqrt(dot_product(v, v))
-
-
-def is_nullvector(v:tuple) -> bool:
-    """Überprüft, ob v der Nullvektor ist.
-    :return: bool"""
-    for i in range(0, len(v)):
-        if i != 0:
-            return False
-
-    return True
-
-
-def vectors_are_parallel(a: tuple, b: tuple) -> bool:
-    """Überprüft, ob zwei Vektoren (gleicher Dimension) parallel zueinander sind.
-    :return: boolean"""
-    if not len(a) == len(b):
-        raise Exception('The Vectors have not the same length')
-    if len(a) == 0:
-        raise Exception('The Vectors have no items')
-
-    if is_nullvector(a) or is_nullvector(b):  # Der Nullvektor ist zu jedem anderen Vektor parallel.
-        return True
-
-    factor = None
-
-    for i in range(0, len(a)):
-        if a[i] != 0 and b[i] != 0:
-            factor = b[0] / a[0]
-
-    if factor is None:
-        return False
-
-    for i in range(0, len(a)):
-        # isclose überprüft hier, ob die ersten zehn Ziffern (nicht Nachkommastellen) übereinstimmen.
-        if not isclose(b[i], a[i] * factor, rel_tol=1e-10):
-            return False
-
-    return True
-
-
-def vectors_have_same_direction(a: tuple, b: tuple) -> bool:
-    """Überprüft, ob zwei Vektoren (gleicher Dimension) in die gleiche Richtung zeigen.
-    :return: boolean
-    :raises: wirft Exception, wenn a und b unterschiedliche Dimensionen oder Dimension 0 haben."""
-
-    if not len(a) == len(b):
-        raise Exception('The Vectors have not the same length')
-    if len(a) == 0:
-        raise Exception('The Vectors have no items')
-
-    if is_nullvector(a) or is_nullvector(b):
-        return True
-
-    # Diese Schleife überprüft, ob a und b in jeder Komponente das gleiche Vorzeichen haben.
-    for i in range(0, len(a)):
-        if b[i] != 0:
-            if a[i]/b[i] < 0:
-                return False
-
-    return vectors_are_parallel(a, b)
-
-
-# Dieser Codesnipsel veranschaulicht, dass sich die spherische Geometrie nicht immer so verhält, wie man es erwartet.
-# sn = (49.4217069, 7.5606304)
-# mpoint = (49.421703949999994, 7.56109395)
-# pos = (49.42216749999999, 7.561096899999999)
-# print(great_circle(sn, mpoint))
-# print(great_circle(mpoint, pos))
-#
-# print(vector_norm(vector_subtraction(mpoint, sn)))
-# print(vector_norm(vector_subtraction(pos, mpoint)))
+        number_is_in_interval(b2, first_interval, overflow_mark)

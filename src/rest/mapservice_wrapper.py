@@ -2,24 +2,23 @@
 Wrapper Klass for Mapservice which will be used to get REST link access to Mapservice für Rest Api
 """
 
-from src.geo_hash_wrapper import GeoHashWrapper
-from src.models.bounding_box import BoundingBox
-from src.models.link_user import Car
-from src.utils.router import RouterDijkstra
+from ..models import BoundingBox, Car
+from ..geohash_wrapper import GeoHashWrapper
+from ..utils.router import RouterDijkstra
 
 
 class MapserviceWrapper:
 
     def __init__(self, mapservice):
 
-        self.ms = mapservice
+        self._ms = mapservice
 
     def get_dict_tiles(self):
         """
         :return: dict
         """
 
-        tiles = self.ms.get_all_cached_tiles()
+        tiles = self._ms.get_all_cached_tiles()
         data = {}
         for k, v in tiles.items():
             bbox = BoundingBox.from_geohash(k)
@@ -39,7 +38,7 @@ class MapserviceWrapper:
         :return: dict
         """
 
-        tiles = self.ms.get_all_cached_tiles()
+        tiles = self._ms.get_all_cached_tiles()
 
         count_nodes = 0
         count_links = 0
@@ -59,8 +58,7 @@ class MapserviceWrapper:
 
     def get_dict_geohashes(self, bbox):
         """
-
-        :param bbox:
+        :param bbox: BoundingBox-Object
         :return: dict
         """
 
@@ -85,7 +83,7 @@ class MapserviceWrapper:
         :return: dict
         """
 
-        tile = self.ms.get_tile(geohash)
+        tile = self._ms.get_tile(geohash)
         data = {
             "geohash": tile.get_geohash(),
             "nodes.length": len(tile.get_nodes()),
@@ -101,7 +99,7 @@ class MapserviceWrapper:
         :return: dict
         """
 
-        tile = self.ms.get_tile(geohash)
+        tile = self._ms.get_tile(geohash)
         data = []
         for node in tile.get_nodes():
             data.append(node.to_geojson())
@@ -110,12 +108,12 @@ class MapserviceWrapper:
 
     def get_dict_node(self, geohash, osm_id):
         """
-
-        :param nodeid:
+        :param geohash str
+        :param osm_id: int osm id
         :return: dict
         """
 
-        tile = self.ms.get_tile(geohash)
+        tile = self._ms.get_tile(geohash)
         node = tile.get_node_from_osm_id(osm_id)
         if not node:
             return {"error": "No Node with osm id:" + str(osm_id)}
@@ -128,7 +126,7 @@ class MapserviceWrapper:
         """
 
         data = []
-        tile = self.ms.get_tile(geohash)
+        tile = self._ms.get_tile(geohash)
 
         for link in tile.get_links():
             data.append(link.to_geojson())
@@ -150,7 +148,7 @@ class MapserviceWrapper:
         :return: dict
         """
 
-        tile = self.ms.get_tile(geohash)
+        tile = self._ms.get_tile(geohash)
         data = []
         for node in tile.get_nodes():
             if len(node.get_links()) > 2:
@@ -161,30 +159,29 @@ class MapserviceWrapper:
 
     def get_dict_way_links(self, way_id):
         """
-
-        :param wayid:
+        :param way_id:
         :return: dict
         """
 
         data = []
-        for link in self.ms.get_links(way_id):
+        for link in self._ms.get_links(way_id):
             data.append(link.to_geojson())
 
         return data
 
     def get_dict_linkdistances(self, pos, radius):
         """
-
-        :param point:
+        :param pos: tuple
+        :param radius: float
         :return: dict
         """
 
-        linkdists = self.ms.get_linkdistances_in_radius(pos, radius)
+        linkdists = self._ms.get_linkdistances_in_radius(pos, radius)
 
         data = [radius, []]
         for ld in linkdists:
             ld_data = {
-                "link": ld.link.to_geojson(),
+                "link": ld.get_link().to_geojson(),
                 "distance": ld.get_distance(),
                 "fraction": ld.get_fraction()
             }
@@ -196,15 +193,15 @@ class MapserviceWrapper:
         circle_size = 20
 
         try:
-            start_link = self.ms.get_linkdistances_in_radius(pos1, circle_size)[0].get_link()
-            end_link = self.ms.get_linkdistances_in_radius(pos2, circle_size)[0].get_link()
+            start_link = self._ms.get_linkdistances_in_radius(pos1, circle_size)[0].get_link()
+            end_link = self._ms.get_linkdistances_in_radius(pos2, circle_size)[0].get_link()
         except Exception:
             return {"exception": "no link found"}
 
         # router = RouterBaseDijkstra(Car())  # Mit Laden: ~11 ohne 1,21
         # router = RouterLinkDijkstra(Car())  # Mit Laden: ~12 ohne 3,31
         router = RouterDijkstra(Car())  # Mit Laden: ~13 ohne 0.85
-        router.set_max_iterations(self.ms.config.getint("DEFAULT", "max_dijkstra_iterations"))
+        router.set_max_iterations(self._ms.get_config().getint("DEFAULT", "max_dijkstra_iterations"))
 
         router.set_start_link(start_link)
         router.set_end_link(end_link)
@@ -212,7 +209,7 @@ class MapserviceWrapper:
             result = router.compute()
         except Exception as e:
             return {"exception": str(e)}
-        print(result)
+
         length = "{:.3f}".format(result[0]) + " " + result[1]
         data = [length, []]
         link_list = result[2]

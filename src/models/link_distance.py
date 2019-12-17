@@ -1,52 +1,42 @@
 """
-Description: Sometimes you want to find links within a certain radius around a certain position. In this context it is usually
-interesting to get further information about a link that was found. A LinkDistance-Object encapsulates all these
-information, e.g. the shortest distance between the point and the link or the nearest position on the link.
+Description: Sometimes you want to find links within a certain radius around a certain position. In this context it
+is usually interesting to get further information about a link that was found. A LinkDistance-Object encapsulates all
+these information, e.g. the shortest distance between the point and the link or the nearest position on the link.
 @date: 10/25/2019
-@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz"""
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
 
-from src.geo_utils import great_circle
 import math
+from ..geo_utils import great_circle
 
 
 class LinkDistance:
 
     def __init__(self, pos: tuple, link):
-        # (lat, lon) beschreibt den Punkt, in dessen Umkreis Links gesucht werden.
-        # Dabei werden die Abstände von (lat, lon) zu den jeweiligen Links mittels
-        # Ortogonalprojektion bestimmt.
+        """
+        :param pos: tuple
+        :param link: Link-Object
+        """
 
-        # Koordinaten in deren Umkreis links gesucht wurden
         self._lat_lon = pos
-
-        # Ortogonalprojektion von Punkt auf Link
-        self._matched_point: tuple = None
-
-        # Fraction beschreibt die Position auf dem Link. (latMatched, lonMatched)
-        # liegt ja nämlich vielleicht  irgendwo in der Mitte des Links, z.B. F=0.5
-        # F=0: StartKnoten, F=1: EndKnoten, F=0.5 : mitte des Links,....
-        self.fraction = None
-
-        # Das dazugehörige Link-Objekt
-        self.link = link
-
+        self._matched_point = None
+        self._fraction = None
+        self._link = link
         self._initialize_matched_point_and_fraction()
-        # distance zw. punkt und ortogonalprojekton von Punkt auf Link
-        self.distance = great_circle(self._matched_point, self._lat_lon)
+        self._distance = great_circle(self._matched_point, self._lat_lon)
 
     def get_distance(self):
         """
-        Returns the calculated distance between Link and Point
-        :return:
+        Returns the calculated distance between self_link and self_lat_lon.
+        :return: float
         """
-        return self.distance
+        return self._distance
 
     def get_fraction(self):
         """
-        Returns the next next position in percent on the link
-        :return:
+        :return: float
         """
-        return self.fraction
+        return self._fraction
 
     def _calc_fraction(self, link_segments, involved_segment):
         """
@@ -56,13 +46,12 @@ class LinkDistance:
         :return: None
         """
         distance = 0
-
         for seg in link_segments:
             if seg == involved_segment:
                 distance += great_circle(seg[0], self._matched_point)
-                if not self.link.get_length() == 0.0:
+                if not self._link.get_length() == 0.0:
                     # Links, die aus einem einzigen Punkt bestehen. (Falsche Daten Overpass)
-                    return distance / self.link.get_length()
+                    return distance / self._link.get_length()
                 return 0
             else:
                 distance += great_circle(seg[0], seg[1])
@@ -71,12 +60,11 @@ class LinkDistance:
     def _calc_shrink_factor(a_lat_deg, b_lat_deg):
         """Taken from:
         https://github.com/graphhopper/graphhopper/blob/master/api/src/main/java/com/graphhopper/util
-        /DistanceCalcEarth.java """
+        /DistanceCalcEarth.java
+        :param a_lat_deg: float
+        :param b_lat_deg: float
+        """
         return math.cos(math.radians((a_lat_deg + b_lat_deg) / 2))
-
-    # @staticmethod
-    # def _orthogonal_projection(vector_from, vector_to):
-    #     return (numpy.vdot(vector_from, vector_to) / numpy.vdot(vector_to, vector_to)) * vector_to
 
     def _calc_matched_point_of_link_segment(self, a: tuple, b: tuple) -> tuple:
         """
@@ -96,7 +84,7 @@ class LinkDistance:
 
         shrink_factor = self._calc_shrink_factor(a_lat_deg, b_lat_deg)
 
-        # _lat, _lon sind kartesische Koordinaten
+        # _lat, _lon are cartesian coordinates
         a_lat = a_lat_deg
         a_lon = a_lon_deg * shrink_factor
 
@@ -128,11 +116,10 @@ class LinkDistance:
     def _initialize_matched_point_and_fraction(self):
         """
         Performs the initialization of the attributes _matched_point and _fraction.
-
         :return: None
         """
 
-        link_segments = self.link.get_link_segments()
+        link_segments = self._link.get_link_segments()
         min_distance = 20037000  # biggest range of earth: 40074000 Meter
         matched_point = None
         involved_segment = None
@@ -146,10 +133,16 @@ class LinkDistance:
                 involved_segment = seg
 
         self._matched_point = matched_point
-        self.fraction = self._calc_fraction(link_segments, involved_segment)
+        self._fraction = self._calc_fraction(link_segments, involved_segment)
 
     def get_link(self):
-        return self.link
+        """
+        :return: Link-Object
+        """
+        return self._link
 
     def get_point(self):
+        """
+        :return: tuple(lat, lon)
+        """
         return self._lat_lon

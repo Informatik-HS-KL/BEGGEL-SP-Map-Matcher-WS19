@@ -247,6 +247,8 @@ var app = new Vue({
         clearRoute: function (res) {
 
             if(CACHE.routingLayer != null){
+                app.router.start = null;
+                app.router.end = null;
                 map.removeLayer(CACHE.routingLayer);
                 CACHE.routingLayer = L.layerGroup();
             }

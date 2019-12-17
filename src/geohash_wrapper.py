@@ -3,14 +3,11 @@ Description: The GeohashWrapper encapsulates the functionality of the following 
 https://github.com/vinsci/geohash/
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+https://github.com/vinsci/geohash/
 """
 
-# """
-# https://github.com/vinsci/geohash/
-#
-# """
 import geohash2 as geohash
-from src.models.bounding_box import BoundingBox
+from .models import BoundingBox
 
 
 class GeoHashWrapper:
@@ -21,40 +18,31 @@ class GeoHashWrapper:
         pass
 
     def get_geohash(self, pos: tuple, level):
-        """Wrapper fpr Geohash Lib"""
+        """
+        :param pos: tuple(lat, lon)
+        :param level: int
+        :return: str
+        """
+
         return geohash.encode(pos[0], pos[1], precision=level)
 
     def get_geohashes(self, bbox: BoundingBox, level: int):
         """
-        latLonMiddle = mitte der boundiung box
-        geoHashforMiddle  = getGeoHash(latLonMiddle, level -1 );
-        boundingBoxBig = getBoundingBox(geoHashforMiddle)
-
-        if (boundingBoxBig larger than latLon1, latlLon2):
-             raise "not Implemented yet";
-
-        base32 = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'b', 'c', 'd', 'e', 'f',
-                   'g', 'h', 'j', 'k', 'm', 'n', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
-
-        for b in base32:
-            newGeash = geoHashforMiddle + b;
-            if newgeohash overlaps with  latLon1, latlLon2:
-                listOfGeoHashes.append (newgeohash);
-
-        return listOfGeoHashes;
+        Returns the geohashes of the tiles which overlap with bbox.
+        :param bbox: BoundingBox-Object
+        :param level: int
+        :raises: Exception if bbox is too big
+        :return: list(str)
         """
 
         bbox_middle = ((bbox.south + bbox.north) / 2, (bbox.west + bbox.east) / 2)
         # Wir gehen ein geohash-Level höher:
         geohash_for_middle = self.get_geohash(bbox_middle, level - 1)
 
-        # Wenn bbox nicht in big_bounding_box liegt, dann müsste man eigentlich noch ein geohash-Level höher gehen. Das
-        # ist derzeit allerdings noch nicht implementiert.
-
         base_geohashes = [geohash_for_middle]
 
         if bbox not in BoundingBox.from_geohash(geohash_for_middle):
-            neighbors = self._get_neighbors(geohash_for_middle)
+            neighbors = self.get_neighbors(geohash_for_middle)
 
             if bbox not in self._get_bounding_box_from_neighbors(neighbors):
                 raise Exception(
@@ -75,6 +63,11 @@ class GeoHashWrapper:
         return found_geohashes
 
     def _get_bounding_box_from_neighbors(self, neighbors: dict):
+        """
+        Returns the Bounding Box which is covering the neighbors.
+        :param neighbors: dict
+        :return: BoundingBox-Object
+        """
 
         west = BoundingBox.from_geohash(neighbors["west"]).west
         east = BoundingBox.from_geohash(neighbors["east"]).east
@@ -93,11 +86,12 @@ class GeoHashWrapper:
 
         return BoundingBox(south, west, north, east)
 
-    def _get_neighbors(self, geohash_string):
+    def get_neighbors(self, geohash_string):
         """
+        Returns the geohashes of the neighbors Tiles.
         Adapted/copied from https://github.com/tammoippen/geohash-hilbert/blob/master/geohash_hilbert/_utils.py
-        :param geohash_string:
-        :return:
+        :param geohash_string: str
+        :return: dict
         """
         lat, lon, lat_err, lon_err = geohash.decode_exactly(geohash_string)
         precision = len(geohash_string)
