@@ -12,10 +12,10 @@ from src.geo_utils import great_circle, number_is_in_interval, overlap_intervals
 class TestGeoUtils(unittest.TestCase):
 
     def test_great_circle(self):
-        a = (49.186697, 7.629492)
-        b = (49.187240, 7.629905)
+        a = (50.1, 90.1)
+        b = (60.2, 110.45)
 
-        self.assertEqual(round(great_circle(a, b), 5), 0.06743)
+        self.assertEqual(round(great_circle(a, b), 2), 1700095.67)
 
     def test_number_is_in_interval(self):
         interval_1 = (0, 5)

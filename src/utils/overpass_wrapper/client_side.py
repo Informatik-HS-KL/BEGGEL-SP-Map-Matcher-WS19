@@ -47,7 +47,6 @@ class OverpassWrapperClientSide(OverpassWrapper):
         :return: Tile-Object
         """
 
-        print("Build Datamodel ...")
         t0 = time.time()
 
         osm_nodes = list(filter(lambda e: e["type"] == "node", elements))
@@ -64,5 +63,5 @@ class OverpassWrapperClientSide(OverpassWrapper):
         t = Tile(geo_hash, nodes, links)
 
         t1 = time.time()
-        print("Zeit in s:", t1 - t0, "Links:", len(links), "Nodes:", len(nodes), "Crossingids:", len(crossings_osm_ids))
+
         return t

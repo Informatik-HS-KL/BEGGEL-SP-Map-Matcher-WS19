@@ -59,7 +59,7 @@ def _get_smaller_tile(tile, smaller_geohash_str):
     for link in all_links:  # alle Links, die direkt im Tile liegen
         for n_id in link.get_node_ids():
             if n_id in nodes:
-                osm_ids.add(link.get_id().osm_way_id)
+                osm_ids.add(link.get_way_osm_id())
                 links[link.get_id()] = link
                 break
 
@@ -113,7 +113,6 @@ class MapService:
         :return: none
         """
         self._overpass_wrapper = opw
-        print("Hat geklappt")
 
     def get_nodes_in_bounding_box(self, bbox: BoundingBox):
         """

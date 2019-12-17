@@ -40,7 +40,7 @@ def _resp(data):
         return jdata
 
     except:
-        print(data)
+        pass
 
     return jdata
 
@@ -169,7 +169,6 @@ def route():
 
     start_pos = float(request.args.get("start_lat")), float(request.args.get("start_lon"))
     end_pos = float(request.args.get("end_lat")), float(request.args.get("end_lon"))
-    print(start_pos, end_pos)
 
     msw = MapserviceWrapper(map_service)
     data = msw.get_list_route(start_pos, end_pos)

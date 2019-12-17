@@ -13,7 +13,6 @@ class MapServiceConfig(ConfigParser):
 
     def __call__(self):
         super()
-        print("Config Class call")
 
     def options(self, section, no_defaults=False, **kwargs):
         """
@@ -40,4 +39,3 @@ def get_config():
 
 
 CONFIG = get_config()
-print("config.py loaded")

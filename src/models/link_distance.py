@@ -46,7 +46,6 @@ class LinkDistance:
         :return: None
         """
         distance = 0
-
         for seg in link_segments:
             if seg == involved_segment:
                 distance += great_circle(seg[0], self._matched_point)
@@ -134,7 +133,7 @@ class LinkDistance:
                 involved_segment = seg
 
         self._matched_point = matched_point
-        self.fraction = self._calc_fraction(link_segments, involved_segment)
+        self._fraction = self._calc_fraction(link_segments, involved_segment)
 
     def get_link(self):
         """

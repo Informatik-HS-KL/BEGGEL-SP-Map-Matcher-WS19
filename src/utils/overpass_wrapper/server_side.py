@@ -32,7 +32,6 @@ class OverpassWrapperServerSide(OverpassWrapper):
         :return: Tile-Object
         """
 
-        print("Build Datamodel ...")
         t0 = time.time()
 
         number_of_intersections = int(elements[0]["tags"]["nodes"])
@@ -51,7 +50,7 @@ class OverpassWrapperServerSide(OverpassWrapper):
         t = Tile(geo_hash, nodes, links)
 
         t1 = time.time()
-        print("Zeit in s:", t1 - t0, "Links:", len(links), "Nodes:", len(nodes), "Crossingids:", len(intersections))
+
         return t
 
     def _build_query(self, geohash, q_filter: str):

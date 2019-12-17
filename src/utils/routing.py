@@ -50,7 +50,6 @@ def point_to_point_dijkstra(initial, end):
     visited = set()
 
     while current_node != end:
-        print(current_node.get_id().get_geohash())
         visited.add(current_node)
         destinations = [link.get_end_node() for link in current_node.get_links()] + [link.get_start_node() for link in
                                                                                      current_node.get_links()]
@@ -80,7 +79,6 @@ def point_to_point_dijkstra(initial, end):
         path.append(current_node)
         next_node = shortest_paths[current_node][0]
         current_node = next_node
-        print(current_node)
     # Reverse path
     path = path[::-1]
 
@@ -133,7 +131,6 @@ def link_to_link_dijkstra(initial, end_link, weight_function: WeightCalculator()
         path.append(current_link.get_start_node())
         next_link = shortest_paths[current_link][0]
         current_link = next_link
-        print(current_link)
     # Reverse path
     path = path[::-1]
 

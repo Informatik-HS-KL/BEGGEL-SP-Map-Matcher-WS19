@@ -209,7 +209,7 @@ class MapserviceWrapper:
             result = router.compute()
         except Exception as e:
             return {"exception": str(e)}
-        print(result)
+
         length = "{:.3f}".format(result[0]) + " " + result[1]
         data = [length, []]
         link_list = result[2]

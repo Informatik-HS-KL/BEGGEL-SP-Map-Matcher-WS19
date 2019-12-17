@@ -5,8 +5,12 @@ from src.rest.app import app
 
 
 def main():
+    """
+    This methods runs all tests from the directory tests. If any test fails the corresponding assertion will print an
+    error. Otherwise nothing happens.
+    :return: None
+    """
     from tests.test_map_service import TestMapService
-
     t = TestMapService()
     t.test_map_service()
 
@@ -20,13 +24,16 @@ def main():
     t = TestNode()
     t.test_node()
 
+    from tests.test_geo_utils import TestGeoUtils
+    t = TestGeoUtils()
+    t.test_great_circle()
+    t.test_number_is_in_interval()
+    t.test_overlap_intervals()
 
-def main2():
-    ms = MapService()
-    ms.get_tile("u0v92")
-    links = ms.get_links(236069595)
-    for link in links:
-        print(link)
+    from tests.test_link_distance import TestLinkDistance
+    t = TestLinkDistance()
+    t.test_link_distance()
+
 
 def start_server():
 
@@ -36,5 +43,4 @@ def start_server():
 
 
 # main()
-# start_server()
-main2()
+start_server()
