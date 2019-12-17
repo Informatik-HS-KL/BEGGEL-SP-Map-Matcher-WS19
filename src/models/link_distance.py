@@ -17,38 +17,23 @@ class LinkDistance:
         :param pos: tuple
         :param link: Link-Object
         """
-        # (lat, lon) beschreibt den Punkt, in dessen Umkreis Links gesucht werden.
-        # Dabei werden die Abstände von (lat, lon) zu den jeweiligen Links mittels
-        # Ortogonalprojektion bestimmt.
 
-        # Koordinaten in deren Umkreis links gesucht wurden
         self._lat_lon = pos
-
-        # Ortogonalprojektion von Punkt auf Link
         self._matched_point = None
-
-        # Fraction beschreibt die Position auf dem Link. (latMatched, lonMatched)
-        # liegt ja nämlich vielleicht  irgendwo in der Mitte des Links, z.B. F=0.5
-        # F=0: StartKnoten, F=1: EndKnoten, F=0.5 : mitte des Links,....
         self._fraction = None
-
-        # Das dazugehörige Link-Objekt
         self._link = link
-
         self._initialize_matched_point_and_fraction()
-        # distance zw. punkt und ortogonalprojekton von Punkt auf Link
         self._distance = great_circle(self._matched_point, self._lat_lon)
 
     def get_distance(self):
         """
-        Returns the calculated distance between Link and Point
+        Returns the calculated distance between self_link and self_lat_lon.
         :return: float
         """
         return self._distance
 
     def get_fraction(self):
         """
-        Returns the next next position in percent on the link
         :return: float
         """
         return self._fraction
@@ -82,10 +67,6 @@ class LinkDistance:
         """
         return math.cos(math.radians((a_lat_deg + b_lat_deg) / 2))
 
-    # @staticmethod
-    # def _orthogonal_projection(vector_from, vector_to):
-    #     return (numpy.vdot(vector_from, vector_to) / numpy.vdot(vector_to, vector_to)) * vector_to
-
     def _calc_matched_point_of_link_segment(self, a: tuple, b: tuple) -> tuple:
         """
         Calculates the matched point of a link_segment like the method calcCrossingPointToEdge in:
@@ -104,7 +85,7 @@ class LinkDistance:
 
         shrink_factor = self._calc_shrink_factor(a_lat_deg, b_lat_deg)
 
-        # _lat, _lon sind kartesische Koordinaten
+        # _lat, _lon are cartesian coordinates
         a_lat = a_lat_deg
         a_lon = a_lon_deg * shrink_factor
 
@@ -163,6 +144,6 @@ class LinkDistance:
 
     def get_point(self):
         """
-        :return: tuple (lat, lon)
+        :return: tuple(lat, lon)
         """
         return self._lat_lon

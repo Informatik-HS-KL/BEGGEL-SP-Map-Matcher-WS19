@@ -33,7 +33,8 @@ class BoundingBox:
             raise TypeError("{} is not supported by this method.".format(type(item)))
 
     def contains_link(self, link):
-        """ if bbox of link and self bbox overlaps: true
+        """
+        Returns True if self and the bounding box of link overlap.
         :param link: Link-Object
         :return: bool
         """
@@ -42,7 +43,7 @@ class BoundingBox:
 
     def contains_node(self, node: Node):
         """
-        Node in BBox
+        Returns True if node is located in self.
         :param node: Node-Object
         :return: bool
         """
@@ -50,10 +51,10 @@ class BoundingBox:
                 number_is_in_interval(node.get_lon(), (self.west, self.east), 180))
 
     def contains_bbox(self, other):
-        """Diese Methode überprüft, ob other eine Teilmenge von self ist.
-           Die Rückgabe erfolgt als boolean. Beachte: self == other liefert ebenfalls True.
-           :param other: BoundingBox-Object
-           :return: bool
+        """
+        Returns True if self contains other. Remark: In case of self == other, True is returned.
+       :param other: BoundingBox-Object
+       :return: bool
         """
 
         if self == other:
@@ -84,9 +85,9 @@ class BoundingBox:
         return "(%s,%s,%s,%s)" % (self.south, self.west, self.north, self.east)
 
     def overlap(self, other_bbox):
-        """Diese Methode überprüft, ob sich zwei Bounding-Boxen überlappen.
-           Rückgabe erfolgt als boolean.
-           Beachte: Wenn die beiden Bounding-Boxen sich lediglich an ihren Rändern berühren, so zählt dies NICHT als Überlappung
+        """
+        Returns true if the self and other_bbox overlap. Remark: If self and other_bbox are only touching at their edges
+        False is returned.
         :param other_bbox: BoundingBox-Object
         :return bool
         """
@@ -111,7 +112,8 @@ class BoundingBox:
     @staticmethod
     def get_bbox_from_point(pos, radius=1):
         """
-        nimmt den punkt als mitte einer Bounding Box mit dem gegebenen "radius" in meter
+        Returns a Bounding Box with pos as center. Radius is the distance (in meter) from center to the south/west/
+        north/east-border of the Bounding Box.
         :param pos: tuple
         :param radius: int
         :return: BoundingBox-Object
@@ -126,6 +128,7 @@ class BoundingBox:
     @staticmethod
     def from_geohash(geo_hash: str):
         """
+        Returns a Bounding Box which covers the Tile with the specified geohash.
         :param geo_hash: str
         :return: BoundingBox-Object
         """

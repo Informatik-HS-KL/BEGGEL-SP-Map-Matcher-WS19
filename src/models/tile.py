@@ -14,12 +14,10 @@ class Tile:
 
     def __init__(self, geohash, nodes: dict, links: dict):
         """
-
         :param geohash: str
-        :param nodes: dict {nodeid: node}
-        :param links: dict {linkid:link}
+        :param nodes: dict {NodeId-Object: Node-Object}
+        :param links: dict {LinkId-Object: Link-Object}
         """
-
         self._nodes = nodes
         self._links = links
         self._geohash = geohash
@@ -64,31 +62,31 @@ class Tile:
 
     def get_nodes(self):
         """
-        :return: list [node,..]
+        :return: list(Node-Object)
         """
         return self._nodes.values()
 
     def get_nodes_with_keys(self):
         """
-        :return: dict {nodeid: node}
+        :return: dict {NodeId-Object: Node-Object}
         """
         return self._nodes
 
     def get_links(self):
         """
-        :return: list [link, ..]
+        :return: list(Link-Object)
         """
         return self._links.values()
 
     def get_links_with_keys(self):
         """
-        :return: dict {linkid: link}
+        :return: dict {LinkId-Object: Link-Object}
         """
         return self._links
 
     def get_link(self, link_id: LinkId):
         """
-        :return: Link
+        :return: Link-Object
         """
         return self._links[link_id]
 

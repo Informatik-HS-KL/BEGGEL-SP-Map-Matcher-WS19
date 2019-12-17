@@ -1,15 +1,9 @@
 """
-Description: A Link is a part of a street which if at all has only intersections at the beginning and/or the end. A Link might
-have a non-linear geometry. The geometry of a link is a LINESTRING.
+Description: A Link is a part of a street which if at all has only intersections at the beginning and/or the end. A Link
+might have a non-linear geometry. The geometry of a link is a LINESTRING.
 For WKT see: (https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry)
 @date: 10/25/2019
 @author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
-
-# Part of street where there is no intersection and that has a fixed set of properties.
-# A link might have a non-linear geometry. Geometry of a link is a LINESTRING!
-# for WKT see:
-# https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry
-#
 """
 
 import src.map_service
@@ -27,7 +21,7 @@ class Link:
         """
         :param link_id: LinkId-Object
         :param geometry: list(tuple)
-        :param node_ids: list(NodeId-Objects)
+        :param node_ids: list(NodeId-Object)
         """
         self._start_node_id = node_ids[0]
         self._end_node_id = node_ids[len(node_ids) - 1]
@@ -41,7 +35,7 @@ class Link:
 
     def get_bbox(self):
         """
-        bounding box of link resulted from geometry
+        Returns a Bounding Box which covers the geometry of the link.
         :return: BoundingBox-Object
         """
         s, w, n, e = LineString(self.get_geometry()).bounds
@@ -50,13 +44,13 @@ class Link:
 
     def get_start_node(self):
         """
-        :return Gibt den Startknoten (als Node) zurück.
+        :return Node-Object
         """
 
         return self._map_service.get_node(self._start_node_id)
 
     def get_end_node(self):
-        """ :return Gibt den Endknoten (als Node) zurück.
+        """ :return Node-Object
         """
         return self._map_service.get_node(self._end_node_id)
 
@@ -65,9 +59,9 @@ class Link:
 
     def get_links_at_start_node(self, link_user: LinkUser = None):
         """
-        Gibt alle vom Startknoten ausgehende Links zurück (exclusive self).
+        Returns all outgoing links from the start-node (exclusive self).
         :param link_user: LinkUser-Object
-        :return: Liste von Link-Objects
+        :return: list(Link-Object)
 
         """
 
@@ -88,9 +82,9 @@ class Link:
 
     def get_links_at_end_node(self, link_user: LinkUser = None):
         """
-        Gibt alle vom Endknoten ausgehende Links zurück (exclusive self).
+        Returns all outgoing links from the end-node (exclusive self).
         :param link_user: LinkUser-Object
-        :return: Liste von Link-Objekten
+        :return: list(Link-Object)
         """
 
         nodelinks = self.get_end_node().get_links()
@@ -110,7 +104,6 @@ class Link:
 
     def get_tags(self):
         """
-        Attributes of this Link
         :return: dict
         """
         return self._tags
@@ -133,7 +126,7 @@ class Link:
 
     def get_way_osm_id(self):
         """
-        :return: Osm Way id of self
+        :return: int
         """
         return self.get_id().get_osm_way_id()
 
@@ -145,7 +138,7 @@ class Link:
 
     def to_geojson(self):
         """
-        returns link as geojson feature
+        :return: dict
         """
 
         line_string_coordinates = []
@@ -172,16 +165,15 @@ class Link:
 
     def to_wkt(self):
         """
-        return WKT String from self
-        :return: WKT-String
+        :return: str
         """
         return LineString(self.get_geometry()).wkt
 
     def get_length(self):
         """
-        Returns the length of the link.
+        Returns the length of the link (in meter).
         The calculation of the length is done on demand and then saved in the corresponding attribute.
-        :return: int length in meter
+        :return: int
         """
         if self._length is None:
             self._length = 0
@@ -209,7 +201,7 @@ class Link:
     def get_link_segments(self) -> list:
         """
         Splits a link into segments, each consisting of two positions/coordinates.
-        :return: list, containing the segments
+        :return: list(tuple)
         """
         segments = list()
 

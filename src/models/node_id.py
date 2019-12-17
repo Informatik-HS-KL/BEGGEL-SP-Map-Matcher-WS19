@@ -1,6 +1,9 @@
 class NodeId:
     def __init__(self, osm_id, geohash):
-        """:param geohash: geohash wird in voller Länge (als String) angegeben."""
+        """
+        :param osm_id: int
+        :param geohash: str
+        """
         self._osm_id = osm_id
         self._geohash = geohash
 
@@ -21,7 +24,13 @@ class NodeId:
         return self._osm_id
 
     def get_osm_id(self):
+        """
+        :return: int
+        """
         return self._osm_id
 
     def get_geohash(self):
+        """
+        :return: str
+        """
         return self._geohash

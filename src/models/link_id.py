@@ -26,21 +26,19 @@ class LinkId:
         return hash("%s%s" % (self._osm_way_id, self._geohash))
 
     def get_start_node_id(self):
-        """Getter Startnode
-        :return: Nodeid
+        """
+        :return: NodeId-Object
         """
         return self._start_node_id
 
     def get_osm_way_id(self):
         """
-        Returns the osm way id
-        :return:
+        :return: int
         """
         return self._osm_way_id
 
     def get_geohash(self):
         """
-        Returns the geohash
-        :return:
+        :return: str
         """
         return self._geohash

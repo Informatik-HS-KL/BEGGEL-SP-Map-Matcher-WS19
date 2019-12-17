@@ -12,8 +12,8 @@ class Node:
 
     def __init__(self, node_id: NodeId, lat_lon: tuple):
         """
-        :param node_id: id from OSM Overpass API
-        :param lat_lon: tuple with the float position values lat and lon
+        :param node_id: NodeId-Object
+        :param lat_lon: tuple(lat, lon)
         """
         self._id = node_id
         self._latLon = lat_lon
@@ -23,7 +23,6 @@ class Node:
 
     def add_parent_link(self, link):
         """
-        Adds Parent Link of this Node
         :param link: Link Object
         :return: None
         """
@@ -31,15 +30,13 @@ class Node:
 
     def get_parent_links(self):
         """
-        getter for all parent Links from this Node Object
-        :return: list(linkobject, ..)
+        :return: list(Link-Object)
         """
         return self._parent_links
 
     def get_links(self):
         """
-        street sections relate to this Node
-        :return: list of Links
+        :return: list(link)
         """
         return self._links
 
@@ -68,14 +65,15 @@ class Node:
         return self._latLon[1]
 
     def set_tags(self, tags: dict):
-        """ set Tags to that Point
-        :param tags dict
+        """
+        :param tags: dict
+        :return: None
         """
         self._tags = tags
 
     def get_tags(self):
         """
-        :return: dict of saved Tags to this Node
+        :return: dict
         """
         return self._tags
 
@@ -88,7 +86,7 @@ class Node:
 
     def to_geojson(self):
         """
-        returns Node as geojson feature
+        :return: dict
         """
 
         data = {
@@ -106,7 +104,9 @@ class Node:
         return data
 
     def to_wkt(self):
-        """:return: Gibt den Knoten im WKT-Format (als String) zurück."""
+        """
+        :return: str
+        """
         lat, lon = self.get_latlon()
         return Point(lon, lat).wkt
 
@@ -115,14 +115,12 @@ class Node:
 
     def get_osm_id(self):
         """
-        Returns the OSM Id of the Node
         :return: int
         """
         return self.get_id().get_osm_id()
 
     def get_geohash(self):
         """
-        Returns the Node Geohash
-        :return:str
+        :return: str
         """
         return self.get_id().get_geohash()
