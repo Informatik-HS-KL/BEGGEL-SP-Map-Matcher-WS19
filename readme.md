@@ -1,6 +1,7 @@
 [Picture 1]: doc/images/webPage1.jpg  "Visualisation of Links and Nodes"
 [Picture 2]: doc/images/webPage.jpg  "Visualisation of Routing"
 [Picture 3]: doc/images/webPage3.jpg  "Visualisation of Link Distance"
+
 # Map Service
 The Map Service is an interface to the [Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API). 
 He downloads street data and takes over their administration. 
@@ -8,15 +9,15 @@ The street data downloaded individually via a [Geohash](https://en.wikipedia.org
 In the Tiles there are links that extend from intersection to intersection and nodes that represent individual points on the road.  
 It has implemented functions for routing and determining links within a certain radius to allow the user to easily map matching.  
 For a simpler check of the links and nodes, a website was created using [Leaflet](https://leafletjs.com/). 
-## Requirements
 
+## Requirements
 1. Python: 3.7 [(download)](https://www.python.org/downloads/)
 2. shapely
-3. flask
+3. geohash2 [(install)](https://pypi.org/project/geohash2/)
 
 ## Installation
-1. Install shapely
-2. in work
+
+
 ### Installation Shapely
 1. Install [Conda](https://docs.conda.io/en/latest/miniconda.html )
 2. Execute <code>conda install shapely</code> in Anaconda Prompt
@@ -33,6 +34,7 @@ More information over the street types you can find [here](https://wiki.openstre
  
 ## Models
 The following paragraph discusses the data model in the Map Service
+
 ### Nodes
 Nodes are a reflection of the nodes of Overpass.  
 They have an ID consisting of a Lvl 12 Geohash and the Node Id from Overpass Node.  
@@ -40,6 +42,7 @@ There are 2 types of Nodes:
 one indicates the street shape and the other is an intersection.
 You can recognize them by the fact that crossings have links and shapes have parent links.  
 Nodes can be output as geojson and wkt.
+
 ### Links
 Links are road sections between crossings.  
 They have an ID consisting of a osm way Id from Overpass and the start node Id.
@@ -47,18 +50,19 @@ The link contains the tags from Overpass and offers the possibility to check whe
 Links can be output as geojson and wkt.
 
 ### Tiles
-The Map Service stores all links and nodes as a group in a specific geohash (base32).  
-This is done with the help of the tile. 
+The map service groups all links and nodes into individual parts. These parts are the tiles.  
+A Tile has the size of a geohash (base32) with a predefined length (default 5). 
+This length can be changed in the configurations.  
+Link users are currently available as drivers, cyclists and pedestrians
+
+### Link User
+The rules for using the links are defined in the Link User subclasses.  
+These subclasses must have the methods can_navigate_from_start and can_navigate_to_start, which use a boolean to indicate whether the link can be used.  
+Link users are currently available as drivers, cyclists and pedestrians.
 
 ## Code Example
 This example load a Tile with the Geohash 'u0v970' from Overpass and print all nodes. 
-<!--
-was ist mit den imports 
-(muss man wenn man unser programm nutzt immer über src gehen)??
--->
-    from src.map_service import MapService
-    from src.models.bounding_box import BoundingBox
-    
+
     def print_nodes_from_hash():
         """
         Print all nodes in Geohash 'u0v970'
@@ -156,10 +160,6 @@ The Dijkstra also takes into account one-way streets.
 
 This example prints out all links with their distances around the first point (Node) in the Tile.
     
-## Own OverpassWrapper
-You're able to create Your Own OverpassWrapper Class.
-derive from the abstract OverpassWrapper and overwrite load_tile with your own 
- 
 ## Data Visualisation (testing)
 After the start you have the opportunity to Visual your Links and Nodes. 
 We implement a test web page under [localhost](http://http://localhost:5000/). 
