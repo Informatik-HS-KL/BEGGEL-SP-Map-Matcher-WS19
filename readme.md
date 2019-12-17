@@ -43,10 +43,12 @@ Nodes can be output as geojson and wkt.
 ### Links
 Links are road sections between crossings.  
 They have an ID consisting of a osm way Id from Overpass and the start node Id.
- 
+The link contains the tags from Overpass and offers the possibility to check whether a link user can use the link.
 Links can be output as geojson and wkt.
 
 ### Tiles
+The Map Service stores all links and nodes as a group in a specific geohash (base32).  
+This is done with the help of the tile. 
 
 ## Code Example
 This example load a Tile with the Geohash 'u0v970' from Overpass and print all nodes. 
@@ -72,7 +74,7 @@ was ist mit den imports
 Below is a list of the basic functions.  
 All functions that receive a bounding box load any needed tiles.
 
-### Functions to get Link(s) 
+### Get Link(s) 
 
     mapService = MapService()
     
@@ -88,7 +90,7 @@ All functions that receive a bounding box load any needed tiles.
     mapService.get_link(38936691, NodeId(418726074, "u0v978xvcgrt"))
     # returns a Link or None if nothing found
 
-### Functions to get Node(s) 
+### Get Node(s) 
     mapService = MapService()
     
     # To get a single Node
@@ -99,7 +101,7 @@ All functions that receive a bounding box load any needed tiles.
     mapService.get_nodes_in_bounding_box(BoundingBox.from_geohash("u0v970"))
     # returns a list with Nodes
     
-### Functions to get Tile(s)
+###  Get Tile(s)
     mapService = MapService()
     
     # To get a Tile
