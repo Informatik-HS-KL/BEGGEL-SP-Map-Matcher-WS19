@@ -7,7 +7,7 @@ from .overpass_wrapper import OverpassWrapper
 
 class OverpassWrapperClientSide(OverpassWrapper):
     """
-        Subclass of OverpassWrapper which determines the intersections of ways on the client-side.
+    Subclass of OverpassWrapper which determines the intersections of ways on the client-side.
     """
 
     def __init__(self, config):
@@ -16,9 +16,9 @@ class OverpassWrapperClientSide(OverpassWrapper):
 
     def _get_intersections(self, osm_ways):
         """
-        Search for Crossings in osm Ways and returns them as Nodes
+        Searches for Intersections of OSM-Ways and returns the osm-ids of the corresponding nodes.
         :param osm_ways: raw osm way data parsed from json
-        :return: List of NodeId
+        :return: list(int)
         """
 
         all_nodes = []
@@ -31,7 +31,6 @@ class OverpassWrapperClientSide(OverpassWrapper):
     def _build_query(self, geohash, q_filter: str):
         """
         Returns the URL to download the data, which is required to build the tile with the specified geohash.
-        The intersections of ways are NOT determined on server-side.
         :param geohash: str
         :param q_filter: str
         """
@@ -43,9 +42,9 @@ class OverpassWrapperClientSide(OverpassWrapper):
 
     def _create_tile(self, geo_hash, elements: dict):
         """
-        :param geo_hash: geohash as str
+        :param geo_hash: str
         :param elements: raw dict data from overpass json api
-        :return: Tile Object
+        :return: Tile-Object
         """
 
         print("Build Datamodel ...")

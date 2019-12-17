@@ -8,10 +8,10 @@ from math import radians, sin, cos, acos, sqrt, isclose
 
 def great_circle(point1: tuple, point2: tuple):
     """
-    Angaben in Meter
-    :param point1:
-    :param point2:
-    :return:
+    Returns the Great-Circle-Distance between point1 and point2.
+    :param point1: tuple(lat, lon)
+    :param point2: tuple(lat, lon)
+    :return: float
     """
     lat1, lon1 = point1
     lat2, lon2 = point2
@@ -32,7 +32,7 @@ def great_circle(point1: tuple, point2: tuple):
 def convert_meter_2_lat(meter):
     """
     Converts a range in meter into a range in latitude-degrees.
-    :param meter:
+    :param meter: float
     :return: lat-range in float
     """
 
@@ -44,8 +44,8 @@ def convert_meter_2_lat(meter):
 def convert_meter_2_lon(meter, lat):
     """
     Converts a range in meter into a range in longitude-degrees.
-    :param meter:
-    :param lat:
+    :param meter: float
+    :param lat: the latitude on which the lon-range is measured in float
     :return: lon-range in float
     """
 
@@ -90,8 +90,14 @@ def overlap_intervals(interval_1, interval_2, overflow_mark):
 
 
 def first_interval_contains_second_interval(first_interval: tuple, second_interval: tuple, overflow_mark: float):
-    """Diese Methode überprüft, ob interval_2 eine Teilmenge von interval_1 ist.
-    Die Rückgabe erfolgt als boolean. Beachte: interval_1 == interval_2 liefert ebenfalls True."""
+    """
+    Returns True if first_interval contains second_interval. Remark: In case of first_interval == second_interval it is
+    also returned True.
+    :param first_interval: tuple
+    :param second_interval: tuple
+    :param overflow_mark: float
+    :return: bool
+    """
 
     if first_interval == second_interval:
         return True

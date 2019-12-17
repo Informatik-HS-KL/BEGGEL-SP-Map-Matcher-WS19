@@ -13,9 +13,10 @@ class OverpassWrapperServerSide(OverpassWrapper):
 
     def _get_intersections(self, number_of_intersections, elements):
         """
+        Returns the osm-ids of the nodes which are intersections of OSM-Ways.
         :param number_of_intersections: int
         :param elements: dict
-        :return: list(osm_ids(int))
+        :return: list(int)
         """
         intersections = list()
 
@@ -26,7 +27,7 @@ class OverpassWrapperServerSide(OverpassWrapper):
 
     def _create_tile(self, geo_hash, elements: dict):
         """
-        :param geo_hash: geohash as str
+        :param geo_hash: str
         :param elements: raw dict data from overpass json api
         :return: Tile-Object
         """
