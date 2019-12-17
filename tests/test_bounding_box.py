@@ -83,13 +83,14 @@ class TestBoundingBox(unittest.TestCase):
         :return:
         """
         bbox = BoundingBox(50.0, 10.0, 50.5, 12.0)
-        # Liegen in der bbox
+
+        # Are located in bbox.
         n1 = Node(NodeId(1, ""), (50.0, 10.0))
         n2 = Node(NodeId(2, ""), (50.0, 11.0))
         n3 = Node(NodeId(3, ""), (50.2, 10.0))
         n4 = Node(NodeId(4, ""), (50.5, 11.0))
 
-        # Liegen nicht in der bbox
+        # Are not located in bbox.
         n5 = Node(NodeId(5, ""), (49.0, 9.0))
         n6 = Node(NodeId(6, ""), (49.0, 10.0))
         n7 = Node(NodeId(7, ""), (50.0, 9.0))

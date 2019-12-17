@@ -6,11 +6,12 @@ Description: This is a testfile for link.py
 
 import unittest
 
-from src.map_service import MapService
-from src.models.node import NodeId
+# from src.map_service import MapService
+from src.models import NodeId, Node
+from src.models import LinkId, Link
 
 
-class TestLinkDistance(unittest.TestCase):
+class TestLink(unittest.TestCase):
 
     def test_get_start_node(self):
         """"""

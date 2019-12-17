@@ -5,10 +5,10 @@ from src.rest.app import app
 
 
 def main():
-    from tests.test_map_service import TestMapService
-
-    t = TestMapService()
-    t.test_map_service()
+    # from tests.test_map_service import TestMapService
+    #
+    # t = TestMapService()
+    # t.test_map_service()
 
     from tests.test_bounding_box import TestBoundingBox
     t = TestBoundingBox()
@@ -16,6 +16,9 @@ def main():
     t.test_contains_node()
     t.test_overlap()
 
+    from tests.test_node import TestNode
+    t = TestNode()
+    t.test_node()
 
 
 def start_server():
@@ -25,5 +28,5 @@ def start_server():
         app.run(host="localhost", port=5000)
 
 
-# main()
-start_server()
+main()
+# start_server()
