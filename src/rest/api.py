@@ -1,9 +1,20 @@
+"""
+Description: This file defines the endpoints of the REST-API.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
+import time
 
 from flask import jsonify
-from flask import Response, request, Blueprint
+from flask import request, Blueprint
 from src.map_service import MapService
 from src.geo_hash_wrapper import GeoHashWrapper
 from src.models.bounding_box import BoundingBox
+from src.models.node import NodeId
+from src.utils.router import RouterBaseDijkstra, RouterLinkDijkstra, RouterDijkstra
+from src.models.link_user import Car
+
+from .mapservice_wrapper import MapserviceWrapper
 
 map_service = MapService()
 api = Blueprint('api', __name__)
@@ -16,7 +27,7 @@ def documentation():
         {"url":"/api/tiles/<geohash>/", "description": "get tile infos of given geohash"},
         { "url":"/api/tiles/<geohash>/nodes", "description":"get nodes of given tile"},
         { "url":"/api/tiles/<geohash>/nodes/1", "description":"get specific node of tile"},
-        { "url": "/api/tiles/<geohash>/crossroads", "description":"get crossroads of tile"},
+        { "url": "/api/tiles/<geohash>/intersections", "description":"get intersections of tile"},
         { "url": "/api/geohashes?bbox=south,west,north,east", "description": "Liste aller geohashes, die von dieser bbox betroffen sind"}
     ]
     return data
@@ -45,29 +56,24 @@ def get_doc():
     """
     return _resp(documentation())
 
-
 @api.route('tiles')
 @api.route('tiles/')
 def get_tiles():
     """ :return List of Geohashes of the cached Tiles
     """
 
-    tiles = map_service.get_all_cached_tiles()
-    data = {}
-    for k, v in tiles.items():
-        bbox = BoundingBox.from_geohash(k)
-        data[k] = {
-            "nodes.length": len(v.get_nodes()),
-            "bbox": {
-                "south": bbox.south,
-                "west": bbox.west,
-                "north": bbox.north,
-                "east": bbox.east
-            }
-        }
-
+    msw = MapserviceWrapper(map_service)
+    data = msw.get_dict_tiles()
     return _resp({"description": "All Cached Tiles", "tiles": data})
 
+@api.route('tiles/stats')
+def get_tiles_stats():
+    """ :return Statisiken zu allen tiles im cache
+    """
+
+    msw = MapserviceWrapper(map_service)
+    data = msw.get_dict_stats()
+    return _resp({"description": "All Cached Tiles", "tiles": data})
 
 @api.route('/geohashes', methods=["GET"])
 def get_geohashes():
@@ -80,18 +86,10 @@ def get_geohashes():
         bbox.append(float(val))
 
     south, west, north, east = tuple(bbox)
+    bbox = BoundingBox(south, west, north, east)
 
-    geohashes = GeoHashWrapper().get_geohashes(BoundingBox(south, west,north,east), 5)
-
-    data = {}
-
-    for geohash in geohashes:
-        data[geohash] = {
-            "south": BoundingBox.from_geohash(geohash).south,
-            "west": BoundingBox.from_geohash(geohash).west,
-            "north": BoundingBox.from_geohash(geohash).north,
-            "east": BoundingBox.from_geohash(geohash).east,
-        }
+    msw = MapserviceWrapper(map_service)
+    data = msw.get_dict_geohashes()
     return _resp(data)
 
 
@@ -103,14 +101,8 @@ def get_tile(geohash):
     if len(geohash) < 3:
         return jsonify({"Error": "Level have to be >= 4"})
 
-    tile = map_service.get_tile(geohash)
-    data = {
-        "geohash": tile.get_geohash(),
-        "nodes.length": len(tile.get_nodes()),
-        "links.length": len(tile.get_links()),
-        "bbox": str(BoundingBox.from_geohash(geohash))
-    }
-
+    msw = MapserviceWrapper(map_service)
+    data = msw.get_dict_tile(geohash)
     return _resp(data)
 
 
@@ -121,17 +113,8 @@ def get_nodes(geohash):
     if len(geohash) < 4:
         return jsonify({"Error": "Level have to be >= 4"})
 
-    tile = map_service.get_tile(geohash)
-    data = []
-    for node in tile.get_nodes():
-        point = {
-            "type": "Point",
-            "coordinates": list(node.get_latlon()),
-            "info": { "geohash": node.get_id().geohash,
-                      "osmid": node.get_id().osm_node_id}
-        }
-        data.append(point)
-
+    msw = MapserviceWrapper(map_service)
+    data = msw.get_dict_nodes(geohash)
     return _resp(data)
 
 
@@ -142,17 +125,10 @@ def get_node(geohash, osmid):
     if len(geohash) < 4:
         return jsonify({"Error": "Level have to be >= 4"})
 
-    tile = map_service.get_tile(geohash)
-    node = tile.get_node(osmid)
-    if not node:
-        return _resp({"error": "No Node with osm id:" + str(osmid)})
+    msw = MapserviceWrapper(map_service)
+    data = msw.get_dict_node(geohash, osmid)
 
-    point = {
-        "type": "Point",
-        "coordinates": list(node.get_latlon()),
-        "osmid": osmid
-    }
-    return _resp(point)
+    return _resp(data)
 
 
 @api.route('/tiles/<string:geohash>/links')
@@ -163,35 +139,42 @@ def get_links(geohash):
     if len(geohash) < 4:
         return jsonify({"Error": "Level have to be >= 4"})
 
-    data = []
-    tile = map_service.get_tile(geohash)
-
-    for link in tile.get_links():
-        data.append(link.to_geojson())
-
-    return _resp(data)
+    msw = MapserviceWrapper(map_service)
+    return _resp(msw.get_dict_links(geohash))
 
 
-@api.route('/tiles/<string:geohash>/crossroads')
-def get_crossroads(geohash):
+@api.route('/tiles/<string:geohash>/nodes/intersections')
+def get_intersections(geohash):
     """
-    Nodes wich represents a Crossing
+    Nodes wich represents a intersections
     :param geohash:
     :return: json
     """
     if len(geohash) < 4:
         return jsonify({"Error": "Level have to be >= 4"})
 
-    tile = map_service.get_tile(geohash)
-    data = []
-    for node in tile.get_nodes():
-        if len(node.get_links()) > 2:
-            point = {
-                "type": "Point",
-                "coordinates": list(node.get_latlon())
-            }
-            data.append(point)
+    msw = MapserviceWrapper(map_service)
+    data = msw.get_dict_intersections(geohash)
+    return _resp(data)
 
+
+@api.route('/route')
+def route():
+    """ ?geofrom=geohash&geoto=geohash&start_lat=[Number]&start_lon=[Number]&end_lat=[Number]&end_lon=[Number]
+
+    u0v90hsp01h2 OSM:1298232519
+
+    u0v90jk7p21y OSM:266528360
+
+    ?geofrom=u0v90hsp01h2&geoto=u0v90jk7p21y&osmfrom=1298232519&osmto=266528360
+    """
+
+    start_pos = float(request.args.get("start_lat")), float(request.args.get("start_lon"))
+    end_pos = float(request.args.get("end_lat")), float(request.args.get("end_lon"))
+    print(start_pos, end_pos)
+
+    msw = MapserviceWrapper(map_service)
+    data = msw.get_list_route(start_pos, end_pos)
     return _resp(data)
 
 
@@ -199,14 +182,21 @@ def get_crossroads(geohash):
 def get_way_links(way_id):
     """Links eines Ways"""
 
-    data = []
-    for link in map_service.get_links(way_id):
-        linestr = {
-            "type": "LineString",
-            "coordinates": [list(link.get_start_node().get_latlon()), list(link.get_end_node().get_latlon())]
-        }
-        data.append(linestr)
+    msw = MapserviceWrapper(map_service)
+    data = msw.get_dict_way_links()
+    return _resp(data)
 
+@api.route('/linkdistance', methods=["GET"])
+def get__linkdistance():
+    """Calculate Link Distances Canidates"""
+
+    from src.models.link_distance import LinkDistance
+
+    pos = float(request.args.get("lat")), float(request.args.get("lon"))
+    radius = int(request.args.get("radius"))
+
+    msw = MapserviceWrapper(map_service)
+    data = msw.get_dict_linkdistances(pos, radius=radius)
     return _resp(data)
 
 

@@ -1,3 +1,10 @@
+"""
+Description: This is a testfile for link.py
+@date: 11/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
+
+
 import unittest
 
 from src.models.link_distance import LinkDistance

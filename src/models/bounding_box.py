@@ -1,5 +1,13 @@
+"""
+Description: This class represents the geometry of a bounding box. It also offers some methods especially for
+determining the (geometric) relation of  a BoundingBox to a node/link/other BoundingBox.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz"""
+
+
 from src.models.node import Node
-from src.models.link import Link
+import src.models.link as link
+
 import src.geo_utils as ut
 import geohash2 as Geohash
 
@@ -17,19 +25,19 @@ class BoundingBox:
             return self.contains_node(item)
         elif isinstance(item, BoundingBox):
             return self.contains_bbox(item)
-        elif isinstance(item, Link):
+        elif isinstance(item, link.Link):
             return self.contains_link(item)
 
         else:
             raise TypeError("{} is not supported by this method.".format(type(item)))
 
-    def contains_link(self, link: Link):
-        """
+    def contains_link(self, link):
+        """ if bbox of link and self bbox overlaps: true
         :param link:
-        :return:
+        :return: bool
         """
-
-        return link.get_start_node() in self or link.get_end_node() in self
+        #OLDlink.get_start_node() in self or link.get_end_node() in self
+        return link.get_bbox().overlap(self)
 
     def contains_node(self, node: Node):
         return (ut.number_is_in_interval(node.get_lat(), (self.south, self.north), 90) and
@@ -99,7 +107,7 @@ class BoundingBox:
 
         lat, lon = pos
         radius_as_lat = ut.convert_meter_2_lat(radius)
-        radius_as_lon = ut.convert_meter_2_lon(radius)
+        radius_as_lon = ut.convert_meter_2_lon(radius, lat)
 
         return BoundingBox(lat - radius_as_lat, lon - radius_as_lon, lat + radius_as_lat, lon + radius_as_lon)
 

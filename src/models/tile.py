@@ -1,7 +1,16 @@
+"""
+Description: One way to encode a geographic coordinate, rather an area, is to use a geohash
+(https://en.wikipedia.org/wiki/Geohash). In doing so, the earth is split into tiles and each tile can be split into
+further tiles, depending on how accurate the encoding should be. Now a Tile-Object represents not only the geographic
+dimensions of such a tile, but also the Node- and Link-Objects which are located within this tile.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
+
 from src.models.link_id import LinkId
 
+
 class Tile:
-    ## maps nodeId --> Node object
 
     def __init__(self, geohash, nodes: dict, links: dict):
         """
@@ -26,7 +35,7 @@ class Tile:
         :param link:
         :return:
         """
-        self.__links.update(link.get_link_id(), link)
+        self.__links.update({link.get_id(), link})
 
     def get_node(self, nodeid):
         """
@@ -35,6 +44,16 @@ class Tile:
         """
 
         return self.__nodes.get(nodeid, None)
+
+    def get_node_from_osm_id(self, osmid):
+        """
+        :param osmid: int
+        :return: Node Object
+        """
+        res = list(filter(lambda n: n.osm_node_id == osmid, self.__nodes))
+        if len(res) == 1:
+            return self.__nodes.get(res[0])
+        return None
 
     def get_nodes(self):
         """
@@ -54,7 +73,6 @@ class Tile:
         """
         return self.__links.values()
 
-
     def get_links_with_keys(self):
         """
         :return: dict {linkid: link}
@@ -67,39 +85,9 @@ class Tile:
         """
         return self.__links[link_id]
 
-
     def get_geohash(self):
         """
         Geohash from self
         :return: str
         """
         return self.__geohash
-
-    # def get_nachbar(self):
-    #
-    #     nachbar = Tile[8]
-    #     nachbar[0] = get_right(get_top(self))
-    #     nachbar[1] = get_top(self)
-    #     nachbar[2] = get_left(get_top(self))
-    #     nachbar[3] = get_right(self)
-    #     nachbar[4] = get_left(self)
-    #     nachbar[5] = get_right(get_below(self))
-    #     nachbar[6] = get_below(self)
-    #     nachbar[7] = get_left(get_below(self))
-
-#
-# def get_top(other):
-#
-#     return other.get_geohash()
-#
-#
-# def get_below(other):
-#     return other.get_geohash()
-#
-#
-# def get_left(other):
-#     return other.get_geohash()
-#
-#
-# def get_right(other):
-#     return other.get_geohash()

@@ -1,5 +1,12 @@
-from configparser import ConfigParser, NoSectionError
+"""
+Description: Creates special Config Class for parsing and getting configurations
+see __init__.py für instanceiating during runtime
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
 
+import os
+from configparser import ConfigParser, NoSectionError
 
 class MapServiceConfig(ConfigParser):
 
@@ -20,5 +27,14 @@ class MapServiceConfig(ConfigParser):
         else:
             return super().options(section, **kwargs)
 
+
+def get_config():
+
+    CONFIG = MapServiceConfig()
+    CONFIG.read(os.path.dirname(__file__) + "/config.ini")
+
+    return CONFIG
+
+CONFIG = get_config()
 
 print("config.py loaded")

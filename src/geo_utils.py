@@ -1,10 +1,18 @@
+"""
+Description: This files offers some mathematical and geographic-related methods.
+@date: 10/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
+
+
 # from src.models.tile import Tile
 from math import radians, degrees, sin, cos, asin, acos, sqrt, isclose
-
+from src.models.tile import Tile
+from src.models.node import Node
 
 def great_circle(point1: tuple, point2: tuple):
     """
-    Angaben in KM
+    Angaben in Meter
     :param point1:
     :param point2:
     :return:
@@ -22,26 +30,30 @@ def great_circle(point1: tuple, point2: tuple):
     if result < -1.0:
         result = -1
 
-    return 6371 * (acos(result))
+    return 6371 * (acos(result)) * 1000
 
 
 def convert_meter_2_lat(meter):
     """
-    Convert meter to latitude difference
-    :return: lat-difference in float
+    Converts a range in meter into a range in latitude-degrees.
+    :param meter:
+    :return: lat-range in float
     """
 
-    meter_per_lat = great_circle((0, 0), (1, 0)) * 1000
+    meter_per_lat = great_circle((0, 0), (1, 0))
     lat_per_meter = 1 / meter_per_lat
     return meter * lat_per_meter
 
 
-def convert_meter_2_lon(meter):
+def convert_meter_2_lon(meter, lat):
     """
-    Convert meter to latitude difference
-    :return: lat-difference in float
+    Converts a range in meter into a range in longitude-degrees.
+    :param meter:
+    :param lat:
+    :return: lon-range in float
     """
-    meter_per_lon = great_circle((0, 0), (0, 1)) * 1000
+
+    meter_per_lon = great_circle((lat, 0), (lat, 1))
     lon_per_meter = 1 / meter_per_lon
     return meter * lon_per_meter
 

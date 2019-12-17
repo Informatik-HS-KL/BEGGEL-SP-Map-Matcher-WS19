@@ -1,3 +1,10 @@
+"""
+Description: This is a testfile for geo_utils.py
+@date: 11/25/2019
+@author: Lukas Felzmann, Sebastian Leilich, Kai Plautz
+"""
+
+
 import unittest
 
 from src.geo_utils import great_circle, dot_product, vector_addition, scalar_multiplication, vector_subtraction,\
