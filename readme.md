@@ -296,7 +296,6 @@ You can run ist with:
 
 
 ### Data Visualisation
-With the code <code>rest.app.run(host="localhost", port=5000)</code> you can start a web server for visualize.
 There you can display nodes, links and crossings in an specific geohash. 
 Furthermore you can calculate the shortest route between two points or 
 you display all links in an certain radius.
@@ -305,13 +304,13 @@ you display all links in an certain radius.
 1. Vue (https://vuejs.org/)
 2. Leadlet (https://leafletjs.com/)
 3. Bootstrap (https://getbootstrap.com/)
-4. Jquery(for Bootstrap)
+4. JQuery(for Bootstrap)
 
 ### Functions
-1. Show Nodes of geohash
-2. Show Links of geohash
-3. Show Intersections/Crossings
-4. Show Links in Linkdistance Radius
+1. Display Nodes of geohash
+2. Display Links of geohash
+3. Display Intersections/Crossings
+4. Display Links in Linkdistance Radius
 5. Route from two Points in Map
 
 ![Picture 1]
