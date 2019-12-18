@@ -133,7 +133,7 @@ Links that match a point in given radius.
 | --- |--- | --- |
 | get_distance()| float | Returns the calculated distance between self_link and self_lat_lon. |
 | get_fraction()| float | Returns the fraction as percentage, where the Link matched |
-| get_link() | Link | |
+| get_link() | Link | Return the matched Link|
 | get_point() | tuple| (lat, lon)| 
  
 ### LinkUser
@@ -143,8 +143,8 @@ Link users are currently available as drivers, cyclists and pedestrians.
 
 | Methods | Return | Description | 
 | --- |--- | --- |
-| can_navigate_from_start(link: Link) | bool|
-| can_navigate_to_start(link: Link )| bool |
+| can_navigate_from_start(link: Link) | bool. abstractmethod. Determine over overpass Tags and LinkUser rules |
+| can_navigate_to_start(link: Link )| bool. abstractmethod. Determine over overpass Tags and LinkUser rules |
 
 ### Tile
 The map service groups all links and nodes into groups. These groups are the tiles.  
