@@ -167,7 +167,9 @@ class Link:
         """
         :return: str
         """
-        return LineString(self.get_geometry()).wkt
+        geometry = list(map(lambda latlon: (latlon[1], latlon[0]), self.get_geometry()))
+
+        return LineString(geometry).wkt
 
     def get_length(self):
         """

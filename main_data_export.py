@@ -20,20 +20,19 @@ def main():
     nodes = mapService.get_nodes_in_bounding_box(BoundingBox (48.161844064843976, 11.572936935405323,48.1675975217803,11.578730506877491))
 
 
-    for node in nodes[:20000]:
-        #print(node.to_wkt())
+    for node in nodes[:50]:
+        print(node.to_wkt())
         #print(node.get_latlon())
-        if node.get_tags() is not None and len(node.get_tags()) > 4:
 
-            for k,v in node.get_tags().items():
-                print(k + " --> " + v )
+        for k,v in node.get_tags().items():
+            print(k + " --> " + v )
 
 
 
 
     links = mapService.get_links_in_bounding_box(BoundingBox (48.161844064843976, 11.572936935405323,48.1675975217803,11.578730506877491))
 
-    for link in links[:0]:
+    for link in links[:100]:
         print(link.to_wkt())
         print(link.get_geometry())
         for k,v in link.get_tags().items():

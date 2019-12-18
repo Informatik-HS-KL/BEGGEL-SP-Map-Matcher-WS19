@@ -69,7 +69,10 @@ class Node:
         :param tags: dict
         :return: None
         """
-        self._tags = tags
+        if tags is None:
+            self._tags = {}
+        else:
+            self._tags = tags
 
     def get_tags(self):
         """
