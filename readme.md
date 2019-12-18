@@ -152,16 +152,17 @@ A Tile has a range of an [geohash](https://en.wikipedia.org/wiki/Geohash) (base3
 
 | Methods | Return | Description | 
 | --- |--- | --- |
-| get_geohash() | str ||
-| add_node(node) | None| | 
-| add_link(link) | None||
-| get_node(nid: NodeId) | Node | 
-| get_link( linkid: LinkId) | Link | 
-| get_node_from_osm_id(osmid: int) | Node | 
-| get_nodes() | list |
-| get_nodes_with_keys() | dict |
-| get_links_with_keys() | dict |
-| get_links() | list | 
+| get_geohash() | str | Level 5 Geohash 32 Bit|
+| add_node(node) | None| Adds Node to Tile. Warning! Don't Change the Datamodel, when you don't know what you're doing. This Methods are used in OverpassWrapper to build the Graph.| 
+| add_link(link) | None| Adds Link to Tile Warning! Don't Change the Datamodel, when you don't know what you're doing This Methods are used in OverpassWrapper to build the Graph.|
+| get_node(nid: NodeId) | Node | Get Node Object from this Tile. Better use get_link from MapService|  
+| get_link( linkid: LinkId) | Link | get Link Object from this Tile. Better use get_link from MapService|
+| get_node_from_osm_id(osmid: int) | Node | return Node from osm_id from Overpass Api|
+| get_nodes() | list | All Nodes from one Tile|
+| get_nodes_with_keys() | dict | {NodeId: Node, ...}| 
+| get_links() | list | All Nodes from one Tile|
+| get_links_with_keys() | dict | {NodeId: Node, ...}|
+
 
 
 ## Code Example
