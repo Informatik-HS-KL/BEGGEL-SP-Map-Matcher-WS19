@@ -51,7 +51,7 @@ The following paragraph discusses the data model in the Map Service
 ### NodeId
 | Methods | Return | Description | 
 | --- |--- | --- | 
-| get_geohash() | str | | 
+| get_geohash() | str | Lvl 12, base32 Geohash like (u0v921ftzju8) | 
 | get_osm_id() | int | |
 
 ### Node
@@ -65,16 +65,16 @@ Nodes can be output as geojson and wkt.
 | Methods | Return |Description |
 | --- | --- | --- |
 | get_parent_links() | list ||
-| get_links() | list | |
+| get_links() | list | Empty if Node is no start or end of link|
 | get_id() | NodeId | |
-| get_latlon() | tuple(lat, lon) | |
+| get_latlon() | tuple(lat, lon) | the exact position on map|
 | get_lat() | float | |
 | get_lon() | float| |
 | get_tags() | dict| |
 | get_osm_id() | int ||
-| get_geohash() | str ||
-| set_tag(dict) | None || 
-| to_geojson() | dict ||
+| get_geohash() | str | Lvl 12, base32 Geohash |
+| set_tag(dict) | None | Tags from overpass | 
+| to_geojson() | dict | Node as geojson dic (geometry type: Point) |
 | to_wkt() | str ||
 | add_link(link: Link) | None ||
 | add_parent_link(link: Link) |None|| 
@@ -84,7 +84,7 @@ Nodes can be output as geojson and wkt.
 | --- |--- | --- | 
 | get_start_node_id() | NodeId | |  
 | get_osm_way_id() | int | |
-| get_geohash() | str| | 
+| get_geohash() | str| Lvl 12, base32 Geohash | 
 
 
 ### Link
@@ -98,41 +98,41 @@ Links can be output as geojson and wkt.
 | get_bbox() | BoundingBox |returns a BoundingBox which covers the geometry of the Link |
 | get_start_node() | Node | | 
 | get_end_node() | Node | |
-| get_links_at_start_node() | list | [Link, Link ,...] |
-| get_links_at_end_node() | list | [Link, Link ,...] |
+| get_links_at_start_node(user: LinkUser = None) | list | [Link, Link ,...]. Returns all outgoing links from the start-node (exclusive self). If the Linkuser is set, the outgoing Links will filter for usable   |
+| get_links_at_end_node(user: LinkUser = None) | list | [Link, Link ,...]. Returns all outgoing links from the end-node (exclusive self). If the Linkuser is set, the outgoing Links will filter for usable  |
 | get_tags() | dict | |
 | get_id() | LinkId | Geohash in that Id ist Geohash of Startnode |
 | get_way_osm_id() | int | Id given from Overpass Api|
 | set_tags() | None | dict of tags from overpass api { "highway": "footway"} | 
 | to_geojson() | dict | geojson like format | 
 | to_wkt() | str | LINESTRING |
-| get_length() | float | |
-| is_navigatable_from_start() | bool | |
-| is_navigatable_to_start() | bool | | 
-| get_link_segments() | list | [(lat,lon), ...] |
+| get_length() | float | Returns the length of the link (in meter). |
+| is_navigatable_from_start() | bool |Indicates, whether the specified user is permitted to use the link from the start-node to the end-node. |
+| is_navigatable_to_start() | bool |Indicates, whether the specified user is permitted to use the link from the end-node to the start-node. | 
+| get_link_segments() | list | [(lat,lon), ...]  Splits a link into segments, each consisting of two positions/coordinates.|
 | get_geometry() | list | | 
 | get_node_ids()| list | | 
-| get_geohash() | str | |
+| get_geohash() | str | Start Node Geohash |
 
 
 ### BoundingBox
 
 | Methods | Return | Description | 
 | --- |--- | --- |
-| contains_link(link: Link) | bool | |
-| contains_node(node: Node) | bool | |
-| contains_bbox(bbox: BoundingBox) | bool | | 
+| contains_link(link: Link) | bool | Returns True if self and the bounding box of link overlap. |
+| contains_node(node: Node) | bool | Returns True if Node is located in self. |
+| contains_bbox(bbox: BoundingBox) | bool | Returns True if self contains other. Remark: In case of self == other, True is returned.| 
 | overlap(bbox: BoundingBox) | bool | Intersection between given BoundingBox | 
-| get_bbox_from_point(pos: tuple, radius: int) | BoundingBox | static method | 
-| from_geohash(geohash: str)| BoundingBox| static method | 
+| get_bbox_from_point(pos: tuple, radius: int) | BoundingBox | static method. Returns a Bounding Box with pos as center. | 
+| from_geohash(geohash: str)| BoundingBox| static method. Returns a Bounding Box which covers the Tile with the specified geohash. | 
 
 ### LinkDistance
 Links that match a point in given radius.
 
 | Methods | Return | Description | 
 | --- |--- | --- |
-| get_distance()| float | distance to given point |
-| get_fraction()| float | |
+| get_distance()| float | Returns the calculated distance between self_link and self_lat_lon. |
+| get_fraction()| float | Returns the fraction as percentage, where the Link matched |
 | get_link() | Link | |
 | get_point() | tuple| (lat, lon)| 
  
