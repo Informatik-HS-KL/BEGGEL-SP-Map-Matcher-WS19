@@ -14,16 +14,28 @@ For a simpler visualisation of the links and nodes, a website was created using 
 1. Python: 3.7 [(download)](https://www.python.org/downloads/)
 2. shapely
 3. geohash2
+4. flask
 
 ## Installation
 
+git clone -b master https://github.com/Informatik-HS-KL/BEGGEL-SP-Map-Matcher-WS19.git
+
+Run main.py with Conda Python Interpeter
 
 ### Installation Shapely
 1. Install [Conda](https://docs.conda.io/en/latest/miniconda.html )
 2. Execute <code>conda install shapely</code> in Anaconda Prompt
 
 ## Configurations
-The base configurations of the Project are in the src/config.ini file.
+
+Set Your Own Config
+
+
+    mapservice = MapService()
+    mapservice.set_config('path/to/your/config.ini')
+   
+Default Configuation File you can see in Project: "src/config.ini"
+
 In this configurations are 3 sections.
 1. DEFAULT Selection  
 In this selection are base parameters like overpass_url etc.
@@ -31,10 +43,103 @@ In this selection are base parameters like overpass_url etc.
 In this selection you can choose the loaded street types for vehicles.
 By Default all street types will be loaded.  
 More information about the street types you can find [here](https://wiki.openstreetmap.org/wiki/Key:highway#Special_road_types)  
+
  
 ## Models
 The following paragraph discusses the data model in the Map Service
 
+### Node
+| Methods | Return |Description |
+| --- | --- | --- |
+| get_parent_links() | list ||
+| get_links() | list | |
+| get_id() | NodeId | |
+| get_latlon() | tuple(lat, lon) | |
+| get_lat() | float | |
+| get_lon() | float| |
+| get_tags() | dict| |
+| get_osm_id() | int ||
+| get_geohash() | str ||
+| set_tag(dict) | None || 
+| to_geojson() | dict ||
+| to_wkt() | str ||
+| add_link(link: Link) | None ||
+| add_parent_link(link: Link) |None|| 
+
+### Link
+| Methods | Return | Description |
+| --- | --- | --- |
+| get_bbox() | BoundingBox |returns a BoundingBox which covers the geometry of the Link |
+| get_start_node() | Node | | 
+| get_end_node() | Node | |
+| get_links_at_start_node() | list | [Link, Link ,...] |
+| get_links_at_end_node() | list | [Link, Link ,...] |
+| get_tags() | dict | |
+| get_id() | LinkId | |
+| get_way_osm_id() | int | |
+| set_tags() | None | | 
+| to_geojson() | dict | | 
+| to_wkt() | str | |
+| get_length() | float | |
+| is_navigatable_from_start() | bool | |
+| is_navigatable_to_start() | bool | | 
+| get_link_segments() | list | [(lat,lon), ...] |
+| get_geometry() | list | | 
+| get_node_ids()| list | | 
+| get_geohash() | str | |
+
+### NodeId
+| Methods | Return | Description | 
+| --- |--- | --- | 
+| get_geohash() | str | | 
+| get_osm_id() | int | |
+
+### LinkId
+| Methods | Return | Description | 
+| --- |--- | --- | 
+| get_start_node_id() | NodeId | |  
+| get_osm_way_id() | int | |
+| get_geohash() | str| | 
+
+### BoundingBox
+| Methods | Return | Description | 
+| --- |--- | --- |
+| contains_link(link: Link) | bool | |
+| contains_node(node: Node) | bool | |
+| contains_bbox(bbox: BoundingBox) | bool | | 
+| overlap(bbox: BoundingBox) | bool | | 
+| get_bbox_from_point(pos: tuple, radius: int) | BoundingBox | | 
+| from_geohash(geohash: str)| BoundingBox| | 
+
+### LinkDistance 
+| Methods | Return | Description | 
+| --- |--- | --- |
+| get_distance()| float | |
+| get_fraction()| float | |
+| get_link() | Link | |
+| get_point() | tuple| (lat, lon)| 
+ 
+### LinkUser
+| Methods | Return | Description | 
+| --- |--- | --- |
+| can_navigate_from_start(link: Link) | bool|
+| can_navigate_to_start(link: Link )| bool |
+
+### Tile
+| Methods | Return | Description | 
+| --- |--- | --- |
+| get_geohash() | str ||
+| add_node(node) | None| | 
+| add_link(link) | None||
+| get_node(nid: NodeId) | Node | 
+| get_link( linkid: LinkId) | Link | 
+| get_node_from_osm_id(osmid: int) | Node | 
+| get_nodes() | list |
+| get_nodes_with_keys() | dict |
+| get_links_with_keys() | dict |
+| get_links() | list | 
+
+ 
 ### Nodes
 Nodes are a depict of the nodes of Overpass.  
 They have an ID consisting of a Lvl 12 Geohash and the Node Id from osm Node.  
