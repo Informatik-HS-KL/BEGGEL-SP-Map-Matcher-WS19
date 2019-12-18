@@ -96,22 +96,22 @@ Links can be output as geojson and wkt.
 | Methods | Return | Description |
 | --- | --- | --- |
 | get_bbox() | BoundingBox |returns a BoundingBox which covers the geometry of the Link |
-| get_start_node() | Node | | 
-| get_end_node() | Node | |
+| get_start_node() | Node | return the start Node, access over Map Service to load the right link (if Node outside Tile)| 
+| get_end_node() | Node | return the end Node, access over Map Service to load the right link (if Node outside Tile)| 
 | get_links_at_start_node(user: LinkUser = None) | list | [Link, Link ,...]. Returns all outgoing links from the start-node (exclusive self). If the Linkuser is set, the outgoing Links will filter for usable   |
 | get_links_at_end_node(user: LinkUser = None) | list | [Link, Link ,...]. Returns all outgoing links from the end-node (exclusive self). If the Linkuser is set, the outgoing Links will filter for usable  |
-| get_tags() | dict | |
+| get_tags() | dict | tags from overpass|
 | get_id() | LinkId | Geohash in that Id ist Geohash of Startnode |
 | get_way_osm_id() | int | Id given from Overpass Api|
 | set_tags() | None | dict of tags from overpass api { "highway": "footway"} | 
-| to_geojson() | dict | geojson like format | 
+| to_geojson() | dict | geojson like format (geometry type: LineString)| 
 | to_wkt() | str | LINESTRING |
 | get_length() | float | Returns the length of the link (in meter). |
 | is_navigatable_from_start() | bool |Indicates, whether the specified user is permitted to use the link from the start-node to the end-node. |
 | is_navigatable_to_start() | bool |Indicates, whether the specified user is permitted to use the link from the end-node to the start-node. | 
 | get_link_segments() | list | [(lat,lon), ...]  Splits a link into segments, each consisting of two positions/coordinates.|
-| get_geometry() | list | | 
-| get_node_ids()| list | | 
+| get_geometry() | list | [(lat, lon), ...] returns all Node positions in Link| 
+| get_node_ids()| list | [NodeId, ...] returns all Nodes in link| 
 | get_geohash() | str | Start Node Geohash |
 
 
