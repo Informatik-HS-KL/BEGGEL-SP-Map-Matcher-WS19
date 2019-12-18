@@ -48,7 +48,20 @@ More information about the street types you can find [here](https://wiki.openstr
 ## Models
 The following paragraph discusses the data model in the Map Service
 
+### NodeId
+| Methods | Return | Description | 
+| --- |--- | --- | 
+| get_geohash() | str | | 
+| get_osm_id() | int | |
+
 ### Node
+Nodes are a depict of the nodes of Overpass.  
+They have an ID consisting of a Lvl 12 Geohash and the Node Id from osm Node.  
+There are 2 types of Nodes:  
+one indicates the street shape and the other is an intersection.
+You can recognize them by the fact that crossings have links and shapes have parent links.  
+Nodes can be output as geojson and wkt.
+
 | Methods | Return |Description |
 | --- | --- | --- |
 | get_parent_links() | list ||
@@ -66,7 +79,20 @@ The following paragraph discusses the data model in the Map Service
 | add_link(link: Link) | None ||
 | add_parent_link(link: Link) |None|| 
 
+### LinkId
+| Methods | Return | Description | 
+| --- |--- | --- | 
+| get_start_node_id() | NodeId | |  
+| get_osm_way_id() | int | |
+| get_geohash() | str| | 
+
+
 ### Link
+Links are road sections between crossings.  
+They have an ID consisting of a osm way Id and the start node Id.
+The link contains the tags from Overpass.
+Links can be output as geojson and wkt.
+
 | Methods | Return | Description |
 | --- | --- | --- |
 | get_bbox() | BoundingBox |returns a BoundingBox which covers the geometry of the Link |
@@ -75,11 +101,11 @@ The following paragraph discusses the data model in the Map Service
 | get_links_at_start_node() | list | [Link, Link ,...] |
 | get_links_at_end_node() | list | [Link, Link ,...] |
 | get_tags() | dict | |
-| get_id() | LinkId | |
-| get_way_osm_id() | int | |
-| set_tags() | None | | 
-| to_geojson() | dict | | 
-| to_wkt() | str | |
+| get_id() | LinkId | Geohash in that Id ist Geohash of Startnode |
+| get_way_osm_id() | int | Id given from Overpass Api|
+| set_tags() | None | dict of tags from overpass api { "highway": "footway"} | 
+| to_geojson() | dict | geojson like format | 
+| to_wkt() | str | LINESTRING |
 | get_length() | float | |
 | is_navigatable_from_start() | bool | |
 | is_navigatable_to_start() | bool | | 
@@ -88,44 +114,42 @@ The following paragraph discusses the data model in the Map Service
 | get_node_ids()| list | | 
 | get_geohash() | str | |
 
-### NodeId
-| Methods | Return | Description | 
-| --- |--- | --- | 
-| get_geohash() | str | | 
-| get_osm_id() | int | |
-
-### LinkId
-| Methods | Return | Description | 
-| --- |--- | --- | 
-| get_start_node_id() | NodeId | |  
-| get_osm_way_id() | int | |
-| get_geohash() | str| | 
 
 ### BoundingBox
+
 | Methods | Return | Description | 
 | --- |--- | --- |
 | contains_link(link: Link) | bool | |
 | contains_node(node: Node) | bool | |
 | contains_bbox(bbox: BoundingBox) | bool | | 
-| overlap(bbox: BoundingBox) | bool | | 
-| get_bbox_from_point(pos: tuple, radius: int) | BoundingBox | | 
-| from_geohash(geohash: str)| BoundingBox| | 
+| overlap(bbox: BoundingBox) | bool | Intersection between given BoundingBox | 
+| get_bbox_from_point(pos: tuple, radius: int) | BoundingBox | static method | 
+| from_geohash(geohash: str)| BoundingBox| static method | 
 
-### LinkDistance 
+### LinkDistance
+Links that match a point in given radius.
+
 | Methods | Return | Description | 
 | --- |--- | --- |
-| get_distance()| float | |
+| get_distance()| float | distance to given point |
 | get_fraction()| float | |
 | get_link() | Link | |
 | get_point() | tuple| (lat, lon)| 
  
 ### LinkUser
+The rules for using the links are defined in the Link User subclasses.  
+These subclasses must have the methods can_navigate_from_start and can_navigate_to_start, which use a boolean to indicate whether the link can be used.  
+Link users are currently available as drivers, cyclists and pedestrians.
+
 | Methods | Return | Description | 
 | --- |--- | --- |
 | can_navigate_from_start(link: Link) | bool|
 | can_navigate_to_start(link: Link )| bool |
 
 ### Tile
+The map service groups all links and nodes into groups. These groups are the tiles.  
+A Tile has a range of an [geohash](https://en.wikipedia.org/wiki/Geohash) (base32).
+
 | Methods | Return | Description | 
 | --- |--- | --- |
 | get_geohash() | str ||
@@ -139,29 +163,6 @@ The following paragraph discusses the data model in the Map Service
 | get_links_with_keys() | dict |
 | get_links() | list | 
 
- 
-### Nodes
-Nodes are a depict of the nodes of Overpass.  
-They have an ID consisting of a Lvl 12 Geohash and the Node Id from osm Node.  
-There are 2 types of Nodes:  
-one indicates the street shape and the other is an intersection.
-You can recognize them by the fact that crossings have links and shapes have parent links.  
-Nodes can be output as geojson and wkt.
-
-### Links
-Links are road sections between crossings.  
-They have an ID consisting of a osm way Id and the start node Id.
-The link contains the tags from Overpass.
-Links can be output as geojson and wkt.
-
-### Tiles
-The map service groups all links and nodes into groups. These groups are the tiles.  
-A Tile has a range of an [geohash](https://en.wikipedia.org/wiki/Geohash) (base32).
-
-### Link User
-The rules for using the links are defined in the Link User subclasses.  
-These subclasses must have the methods can_navigate_from_start and can_navigate_to_start, which use a boolean to indicate whether the link can be used.  
-Link users are currently available as drivers, cyclists and pedestrians.
 
 ## Code Example
 This example load a Tile with the Geohash 'u0v970' from Overpass and print all nodes. 
@@ -180,6 +181,23 @@ This example load a Tile with the Geohash 'u0v970' from Overpass and print all n
 ## Functions
 Below is a list of the basic functions.  
 All functions that receive a bounding box load any needed tiles.
+
+### MapService 
+
+| Methods | Return | Description | 
+| --- |--- | --- |
+| set_config("path/to/config.ini") | None | |
+| get_config()| MapServiceConfig | Special ConfigParser Object |
+| set_overpass_wrapper(opw: OverpassWrapper) | None | Default OverpassWrapperClientSide | 
+| get_links(way_id: int)| list | [Link, ...] |
+| get_links_in_bounding_box(BoundingBox) | list | [Link, ...] | 
+| get_nodes_in_bounding_box(bbox: BoundingBox)| list | [Node, ...]|
+| get_tile(geohash: str) | Tile | |
+| get_link_by_id(linkid: LinkId)| Link | | 
+| get_links(way_id: int) | list | [Link, ...]|
+| get_linkdistances_in_radius(pos:tuple, max_dist: float)| list | [Linkdistance, ...]|
+| get_node(nodeid: NodeId)| Node | |
+
 
 ### Get Link(s) 
 
