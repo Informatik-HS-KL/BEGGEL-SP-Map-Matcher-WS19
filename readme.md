@@ -199,6 +199,8 @@ All functions that receive a bounding box load any needed tiles.
 | get_node(nodeid: NodeId)| Node | |
 
 
+## Examples
+
 ### Get Link(s) 
 
     mapService = MapService()
@@ -285,19 +287,54 @@ The Dijkstra also takes into account one-way streets.
 
 This example prints out all links with their distances around the first point (Node) in the Tile.
     
-## Data Visualisation
+## Frontend 
+Frontend is designed for debugging and testing of that Mapservice.
+You can run ist with:
+
+    from src.rest.app import app
+    app.run(host="localhost", port=5000)
+
+
+### Data Visualisation
 With the code <code>rest.app.run(host="localhost", port=5000)</code> you can start a web server for visualize.
 There you can display nodes, links and crossings in an specific geohash. 
 Furthermore you can calculate the shortest route between two points or 
 you display all links in an certain radius.
 
+### Used Libaries
+1. Vue (https://vuejs.org/)
+2. Leadlet (https://leafletjs.com/)
+3. Bootstrap (https://getbootstrap.com/)
+4. Jquery(for Bootstrap)
+
+### Functions
+1. Show Nodes of geohash
+2. Show Links of geohash
+3. Show Intersections/Crossings
+4. Show Links in Linkdistance Radius
+5. Route from two Points in Map
+
 ![Picture 1]
 
-
+### REST-API
+    /api/tiles/
+    /api/tiles/stats
+    /api/tiles/<geohash:str>/
+    /api/tiles/<geohash:str>/nodes
+    /api/tiles/<geohash:str>/nodes/<osmid>
+    /api/tiles/<geohash:str>/nodes/intersections
+    /api/tiles/<geohash:str>/links
+    /route?start_lat=[Number]&start_lon=[Number]&end_lat=[Number]&end_lon=[Number]
+    /linkdistance?lat=[Number]&lon=[Number]&radius=[Int]
+    /geohashes?bbox=south,west,north,east
+    /ways/<wayid>/links
+    
+    
+    
 ## Creator
 - Lukas F.
 - Sebastian L.
 - Kai P.  
 
 Supervisor:
-- Prof. Beggel
+- Prof. Dr. Beggel
