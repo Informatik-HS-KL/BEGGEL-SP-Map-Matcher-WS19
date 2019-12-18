@@ -143,7 +143,7 @@ class Link:
 
         line_string_coordinates = []
         for p in self._geometry:
-            line_string_coordinates.append([p[0], p[1]])
+            line_string_coordinates.append([p[1], p[0]])
 
         data = {
             "type": "Feature",

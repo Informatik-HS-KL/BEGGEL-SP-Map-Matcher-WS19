@@ -76,8 +76,9 @@ function setView(map, coords) {
 function renderNodes(map, nodes, color, layer){
     var circleList = [];
     nodes.forEach(function (node) {
+        coords = [node.geometry.coordinates[1], node.geometry.coordinates[0]];
 
-        var circle = L.circle(node["geometry"]["coordinates"], {
+        var circle = L.circle(coords, {
             color: color,
             fillColor: color,
             fillOpacity: 0.2,
@@ -114,7 +115,9 @@ function renderLinks(map, links, color, layer){
     var polylineList = [];
 
     links.forEach(function (link) {
-        var leaflet_link = L.polyline(link.geometry.coordinates, {
+        coords = link.geometry.coordinates.map(x => [x[1], x[0]]);
+
+        var leaflet_link = L.polyline(coords, {
             color: color,
             fillColor: color,
             weight: 5,
@@ -177,7 +180,8 @@ var app = new Vue({
             sendReq(url,function (data) {
 
                 that.message = data;
-                setView(that.map, data[0].geometry.coordinates)
+                var coords = [data[0].geometry.coordinates[1], data[0].geometry.coordinates[0]];
+                setView(that.map, coords)
                 renderNodes(that.map, data, '#ff0911', CACHE.nodelayer)
                 that.logitems.unshift({
                     line1: "Nodes in " + that.geohash,
@@ -190,6 +194,8 @@ var app = new Vue({
             var that = this
             url = "/api/tiles/" + that.geohash + "/links";
             sendReq(url, function (data) {
+                var coords = [data[0].geometry.coordinates[0][1], data[0].geometry.coordinates[0][0]];
+                setView(that.map, coords)
                 renderLinks(that.map, data, "#ff7800", CACHE.linklayer)
                 that.logitems.unshift({
                     line1: "Links in "+ that.geohash,

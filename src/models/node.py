@@ -96,7 +96,7 @@ class Node:
             "type": "Feature",
             "geometry": {
                 "type": "Point",
-                "coordinates": [self.get_lat(), self.get_lon()]
+                "coordinates": [self.get_lon(), self.get_lat()]
             },
             "properties": {
                 "osm_node_id": self.get_osm_id(),

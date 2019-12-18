@@ -40,7 +40,7 @@
                                 </select>
                             </div>
 
-                            <input v-if="cmd != 'route' && cmd != 'linkdistance'" v-on:keyup.enter="loaddata" v-model="geohash"  type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="button-addon2">
+                            <input v-if="cmd != 'route' && cmd != 'linkdistance'"  v-model="geohash"  type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="button-addon2">
                             <input v-if="cmd == 'linkdistance'" v-model="linkdistance.radius"  type="text" class="form-control" placeholder="" aria-label="" aria-describedby="">
 
 
