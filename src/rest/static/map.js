@@ -206,7 +206,8 @@ var app = new Vue({
             var that = this;
             url = "/api/tiles/" + that.geohash + "/nodes/intersections";
             sendReq(url, function (data) {
-                setView(that.map, data[0].geometry.coordinates)
+                var coords = [data[0].geometry.coordinates[1], data[0].geometry.coordinates[0]];
+                setView(that.map, coords)
                 renderNodes(that.map, data, '#1109ff', CACHE.nodelayer)
                 that.logitems.unshift({
                     line1: "Kreuzungen in" + that.geohash,
