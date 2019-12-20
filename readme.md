@@ -338,3 +338,6 @@ you display all links in an certain radius.
 
 Supervisor:
 - Prof. Dr. Beggel
+
+## Licenses
+Data from <a href="http://www.openstreetmap.org/">OpenStreetMap</a> - publish under <a href="http://opendatacommons.org/licenses/odbl/">ODbL</a>
