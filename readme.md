@@ -3,15 +3,15 @@
 [Picture 3]: doc/images/webPage3.jpg  "Visualisation of Link Distance"
 
 # Map Service
-The Map Service is an interface to the [Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API). 
-It downloads street data and takes over their administration. 
-The street data are downloaded and stored in Tiles. 
-In the Tiles there are links that extend from intersection to intersection and nodes that represent individual points on the road.  
-It has implemented functions for routing and determining links within a certain radius to allow the user to easily map matching.  
-For a simpler visualisation of the links and nodes, a website was created using [Leaflet](https://leafletjs.com/). 
+MapService is a Python Library which encapsulates both the download of OpenStreetMap-Data 
+(via [Overpass API](https://wiki.openstreetmap.org/wiki/Overpass_API)) and the convertion of 
+this data into a own data model. Furthermore the MapService offers some advanced functionality,
+such as routing or the determination of streets within a certain radius. Besides that the 
+MapService offers a web frontend which visualizes most of the current functionality. This provides
+an easier introduction into the work with the MapService.
 
 ## Requirements
-1. Python: 3.7 [(download)](https://www.python.org/downloads/)
+1. Python 3.7 [(download)](https://www.python.org/downloads/)
 2. shapely
 3. geohash2
 4. flask
@@ -37,49 +37,50 @@ Set Your Own Config
 Default Configuation File you can see in Project: "src/config.ini"
 
 In this configurations are 3 sections.
-1. DEFAULT Selection  
-In this selection are base parameters like overpass_url etc.
-2. HIGHWAY_CARS Selection  
-In this selection you can choose the loaded street types for vehicles.
+1. DEFAULT Section  
+In this section are base parameters like overpass_url etc.
+2. HIGHWAY_CARS Section  
+In this section you can choose the loaded street types for vehicles.
 By Default all street types will be loaded.  
-More information about the street types you can find [here](https://wiki.openstreetmap.org/wiki/Key:highway#Special_road_types)  
+More information about the street types you can find [here](https://wiki.openstreetmap.org/wiki/Key:highway#Special_road_types).  
 
  
 ## Models
-The following paragraph discusses the data model in the Map Service
+The following paragraph discusses the data model of the MapService.
 
 ### NodeId
+A NodeId-Object consists of a OSM-Node-Id and a geohash. It offers the following methods:
+
 | Methods | Return | Description | 
 | --- |--- | --- | 
 | get_geohash() | str | Lvl 12, base32 Geohash like (u0v921ftzju8) | 
 | get_osm_id() | int | |
 
 ### Node
-Nodes are a depict of the nodes of Overpass.  
-They have an ID consisting of a Lvl 12 Geohash and the Node Id from osm Node.  
-There are 2 types of Nodes:  
-one indicates the street shape and the other is an intersection.
-You can recognize them by the fact that crossings have links and shapes have parent links.  
-Nodes can be output as geojson and wkt.
+A Node basically wraps the information of a OSM-Node. Besides that it offers some  
+useful methods shown in the following table: 
 
 | Methods | Return |Description |
 | --- | --- | --- |
 | get_parent_links() | list ||
 | get_links() | list | Empty if Node is no start or end of link|
 | get_id() | NodeId | |
-| get_latlon() | tuple(lat, lon) | the exact position on map|
+| get_latlon() | tuple(lat, lon) | |
 | get_lat() | float | |
 | get_lon() | float| |
 | get_tags() | dict| |
 | get_osm_id() | int ||
 | get_geohash() | str | Lvl 12, base32 Geohash |
-| set_tag(dict) | None | Tags from overpass | 
-| to_geojson() | dict | Node as geojson dic (geometry type: Point) |
+| set_tag(dict) | None | | 
+| to_geojson() | dict | Returns the geojson representation of the Node. |
 | to_wkt() | str ||
 | add_link(link: Link) | None ||
 | add_parent_link(link: Link) |None|| 
 
 ### LinkId
+A LinkId-Object consists of a OSM-Way-Id, a geohash and the NodeId of the start-node of the corresponding 
+link. It offers the following methods:
+
 | Methods | Return | Description | 
 | --- |--- | --- | 
 | get_start_node_id() | NodeId | |  
@@ -88,66 +89,67 @@ Nodes can be output as geojson and wkt.
 
 
 ### Link
-Links are road sections between crossings.  
-They have an ID consisting of a osm way Id and the start node Id.
-The link contains the tags from Overpass.
-Links can be output as geojson and wkt.
+A Link is a part of a street which (if at all) has only intersections at the beginning and/or 
+ the end. The tag-information of a Link is obtained from the corresponding OSM-Way.  
+ Just like Nodes, Links offer some useful methods shown in the following table:
 
 | Methods | Return | Description |
 | --- | --- | --- |
-| get_bbox() | BoundingBox |returns a BoundingBox which covers the geometry of the Link |
-| get_start_node() | Node | return the start Node, access over Map Service to load the right link (if Node outside Tile)| 
-| get_end_node() | Node | return the end Node, access over Map Service to load the right link (if Node outside Tile)| 
-| get_links_at_start_node(user: LinkUser = None) | list | [Link, Link ,...]. Returns all outgoing links from the start-node (exclusive self). If the Linkuser is set, the outgoing Links will filter for usable   |
-| get_links_at_end_node(user: LinkUser = None) | list | [Link, Link ,...]. Returns all outgoing links from the end-node (exclusive self). If the Linkuser is set, the outgoing Links will filter for usable  |
-| get_tags() | dict | tags from overpass|
-| get_id() | LinkId | Geohash in that Id ist Geohash of Startnode |
-| get_way_osm_id() | int | Id given from Overpass Api|
-| set_tags() | None | dict of tags from overpass api { "highway": "footway"} | 
+| get_bbox() | BoundingBox |Returns a BoundingBox which covers the geometry of the Link. |
+| get_start_node() | Node | | 
+| get_end_node() | Node | | 
+| get_links_at_start_node(user: LinkUser = None) | list | [Link, Link ,...]. Returns all outgoing links from the start-node (exclusive self). If the Linkuser is set, the outgoing Links will be filtered accordingly.   |
+| get_links_at_end_node(user: LinkUser = None) | list | [Link, Link ,...]. Returns all outgoing links from the end-node (exclusive self). If the Linkuser is set, the outgoing Links will filtered accordingly.  |
+| get_tags() | dict | |
+| get_id() | LinkId | |
+| get_way_osm_id() | int | Returns the OSM-Id of the correspondig OSM-Way.|
+| set_tags() | None | dict of tags { "highway": "footway"} | 
 | to_geojson() | dict | geojson like format (geometry type: LineString)| 
 | to_wkt() | str | LINESTRING |
 | get_length() | float | Returns the length of the link (in meter). |
 | is_navigatable_from_start() | bool |Indicates, whether the specified user is permitted to use the link from the start-node to the end-node. |
 | is_navigatable_to_start() | bool |Indicates, whether the specified user is permitted to use the link from the end-node to the start-node. | 
 | get_link_segments() | list | [(lat,lon), ...]  Splits a link into segments, each consisting of two positions/coordinates.|
-| get_geometry() | list | [(lat, lon), ...] returns all Node positions in Link| 
-| get_node_ids()| list | [NodeId, ...] returns all Nodes in link| 
-| get_geohash() | str | Start Node Geohash |
+| get_geometry() | list | [(lat, lon), ...] Returns all Node positions in Link.| 
+| get_node_ids()| list | [NodeId, ...] Returns all Nodes in Link.| 
+| get_geohash() | str | Returns the geohash of the start-node of the Link. |
 
 
 ### BoundingBox
 
 | Methods | Return | Description | 
 | --- |--- | --- |
-| contains_link(link: Link) | bool | Returns True if self and the bounding box of link overlap. |
+| contains_link(link: Link) | bool | Returns True if self and the BoundingBox of link overlap. |
 | contains_node(node: Node) | bool | Returns True if Node is located in self. |
 | contains_bbox(bbox: BoundingBox) | bool | Returns True if self contains other. Remark: In case of self == other, True is returned.| 
-| overlap(bbox: BoundingBox) | bool | Intersection between given BoundingBox | 
-| get_bbox_from_point(pos: tuple, radius: int) | BoundingBox | static method. Returns a Bounding Box with pos as center. | 
-| from_geohash(geohash: str)| BoundingBox| static method. Returns a Bounding Box which covers the Tile with the specified geohash. | 
+| overlap(bbox: BoundingBox) | bool | Returns True if self and bbox overlap. | 
+| get_bbox_from_point(pos: tuple, radius: int) | BoundingBox | Returns a BoundingBox with pos as center. | 
+| from_geohash(geohash: str)| BoundingBox| Returns a Bounding Box which covers the Tile with the specified geohash. | 
 
 ### LinkDistance
-Links that match a point in given radius.
+Sometimes you want to find links within a certain radius around a certain position. In this context it
+is usually interesting to get further information about a link that was found. A LinkDistance-Object encapsulates all
+these information and offers the following methods:
 
 | Methods | Return | Description | 
 | --- |--- | --- |
-| get_distance()| float | Returns the calculated distance between self_link and self_lat_lon. |
-| get_fraction()| float | Returns the fraction as percentage, where the Link matched |
-| get_link() | Link | Return the matched Link|
-| get_point() | tuple| (lat, lon)| 
+| get_distance()| float | Returns the calculated distance between the link and the point. |
+| get_fraction()| float | Returns the fraction as percentage, where the Link matched. |
+| get_link() | Link | |
+| get_point() | tuple| | 
  
 ### LinkUser
-The rules for using the links are defined in the Link User subclasses.  
-These subclasses must have the methods can_navigate_from_start and can_navigate_to_start, which use a boolean to indicate whether the link can be used.  
-Link users are currently available as drivers, cyclists and pedestrians.
+The rules for using the links are defined in the subclasses of LinkUser.  
+These subclasses must implement the methods can_navigate_from_start() and can_navigate_to_start() (shown in the table below).
+Currently LinkUser has the three subclasses Pedestrian, Cyclist and Car.
 
 | Methods | Return | Description | 
 | --- |--- | --- |
-| can_navigate_from_start(link: Link) | bool. abstractmethod. Determine over overpass Tags and LinkUser rules |
-| can_navigate_to_start(link: Link )| bool. abstractmethod. Determine over overpass Tags and LinkUser rules |
+| can_navigate_from_start(link: Link) | bool | Indicates whether link can be used from the start-node to the end-node by this link-user.|
+| can_navigate_to_start(link: Link )| bool |  Indicates whether link can be used from the end-node to the start-node by this link-user.|
 
 ### Tile
-The map service groups all links and nodes into groups. These groups are the tiles.  
+The map service groups all Nodes and Links into Tiles.   
 A Tile has a range of an [geohash](https://en.wikipedia.org/wiki/Geohash) (base32).
 
 | Methods | Return | Description | 
@@ -331,13 +333,13 @@ you display all links in an certain radius.
     
     
     
-## Creator
-- Lukas F.
-- Sebastian L.
-- Kai P.  
+## Creators
+- Lukas Felzmann
+- Sebastian Leilich
+- Kai Plautz 
 
 Supervisor:
 - Prof. Dr. Beggel
 
 ## Licenses
-Data from <a href="http://www.openstreetmap.org/">OpenStreetMap</a> - publish under <a href="http://opendatacommons.org/licenses/odbl/">ODbL</a>
+Data from <a href="http://www.openstreetmap.org/">OpenStreetMap</a> - published under <a href="http://opendatacommons.org/licenses/odbl/">ODbL</a>.
