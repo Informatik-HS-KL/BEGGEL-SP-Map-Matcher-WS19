@@ -16,7 +16,7 @@ an easier introduction into the work with the MapService.
 3. geohash2
 4. flask
 
-## Installation Linux
+## Installation Linux Ubuntu 18 LTS
 
     sudo apt-get install python3.7
 
@@ -32,7 +32,6 @@ an easier introduction into the work with the MapService.
 
 ## Installation Windows
 git clone -b master https://github.com/Informatik-HS-KL/BEGGEL-SP-Map-Matcher-WS19.git
-
 
 Run main.py with Conda Python Interpeter
 
