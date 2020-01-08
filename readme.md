@@ -18,17 +18,17 @@ an easier introduction into the work with the MapService.
 
 ## Installation Linux
 
-sudo apt-get install python3.7
+    sudo apt-get install python3.7
 
-python3.7 -m pip install shapely
-python3.7 -m pip install geohash2
-python3.7 -m pip install flask
+    python3.7 -m pip install shapely
+    python3.7 -m pip install geohash2
+    python3.7 -m pip install flask
 
-git clone -b master https://github.com/Informatik-HS-KL/BEGGEL-SP-Map-Matcher-WS19.git
+    git clone -b master https://github.com/Informatik-HS-KL/BEGGEL-SP-Map-Matcher-WS19.git
 
-cd BEGGEL-SP-Map-Matcher-WS19
+    cd BEGGEL-SP-Map-Matcher-WS19
 
-python3.7 main.py
+    python3.7 main.py
 
 ## Installation Windows
 git clone -b master https://github.com/Informatik-HS-KL/BEGGEL-SP-Map-Matcher-WS19.git
