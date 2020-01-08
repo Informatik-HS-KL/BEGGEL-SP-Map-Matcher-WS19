@@ -16,9 +16,23 @@ an easier introduction into the work with the MapService.
 3. geohash2
 4. flask
 
-## Installation
+## Installation Linux
+
+sudo apt-get install python3.7
+
+python3.7 -m pip install shapely
+python3.7 -m pip install geohash2
+python3.7 -m pip install flask
 
 git clone -b master https://github.com/Informatik-HS-KL/BEGGEL-SP-Map-Matcher-WS19.git
+
+cd BEGGEL-SP-Map-Matcher-WS19
+
+python3.7 main.py
+
+## Installation Windows
+git clone -b master https://github.com/Informatik-HS-KL/BEGGEL-SP-Map-Matcher-WS19.git
+
 
 Run main.py with Conda Python Interpeter
 
