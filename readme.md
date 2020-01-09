@@ -31,9 +31,23 @@ an easier introduction into the work with the MapService.
     python3.7 main.py
 
 ## Installation Windows
-git clone -b master https://github.com/Informatik-HS-KL/BEGGEL-SP-Map-Matcher-WS19.git
+1. Install Python 3.7 and Miniconda 
 
-Run main.py with Conda Python Interpeter
+    Python:    https://www.python.org/downloads/
+    
+    Miniconda: https://docs.conda.io/en/latest/miniconda.html
+
+2. Download and install packages with pip and conda commands:
+
+        pip install geohash2
+        pip install flask
+        conda install shapely
+
+3. Download projekt:
+
+        git clone -b master https://github.com/Informatik-HS-KL/BEGGEL-SP-Map-Matcher-WS19.git
+
+4. Run main.py with Conda Python Interpeter (default: user dir / miniconda)
 
 ### Installation Shapely
 1. Install [Conda](https://docs.conda.io/en/latest/miniconda.html )
