@@ -38,6 +38,11 @@ class OverpassWrapperClientSide(OverpassWrapper):
         bbox_str = "%s" % BoundingBox.from_geohash(geohash)
         query = '?data=[out:json];way%s%s->.ways;node(w.ways)->.nodes;.nodes out body; .ways out;' % (
             bbox_str, q_filter)
+
+        # adding this will also download the POIs in the region
+        # TODO: make it configuration to download pois
+        query += 'node%s["amenity"];out;' % (bbox_str)
+
         return query
 
     def _create_tile(self, geo_hash, elements: dict):
@@ -50,6 +55,7 @@ class OverpassWrapperClientSide(OverpassWrapper):
         t0 = time.time()
 
         osm_nodes = list(filter(lambda e: e["type"] == "node", elements))
+
         osm_ways = list(filter(lambda e: e["type"] == "way", elements))
         osm_id_nodes_dict = dict(
             map(lambda n: self._create_node(n["id"], (n["lat"], n["lon"]), n.get("tags")), osm_nodes))
