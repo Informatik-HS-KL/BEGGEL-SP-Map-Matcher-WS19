@@ -9,11 +9,6 @@ from src.models import Link
 from src.models import Node
 from src.rest.app import app
 
-
-def sanitize(string):
-    return string.replace(";", ",")
-
-
 def main():
     """
     This methods runs all tests from the directory tests. If any test fails the corresponding assertion will print an
@@ -26,51 +21,68 @@ def main():
     parser.add_argument('lng', type=float, help='center of search area as longitude')
     parser.add_argument('width', type=float, help='width of the search area', default=0.2)
     parser.add_argument('height', type=float, help='height of the search area', default=0.2)
+    parser.add_argument('elements', type=int, help='height of the search area', default=100)
     args = parser.parse_args()
-
-    map_service = MapService()
 
     pos = (args.lat, args.lng)
     dim = (args.width, args.height)
+    nodes, links = get_bbox(pos, dim)
+    type_lut = generate_types(links, nodes)
+    generate_poi(nodes, type_lut)
+    generate_link(links, type_lut)
 
+
+def get_bbox(pos, dim):
+    map_service = MapService()
     nodes = map_service.get_nodes_in_bounding_box(
         BoundingBox(pos[0] - dim[0] / 2, pos[1] - dim[1] / 2, pos[0] + dim[0] / 2, pos[1] + dim[1] / 2))
-
-    counter = 0
-    poi_arr = []
-    poi_tags = []
-    for node in nodes:
-        if "amenity" in node.get_tags():
-            print("{:-^50}".format(node.to_wkt()))
-            counter += 1
-            tmp_obj = {"id": counter,
-                       "lat": node.get_lat(),
-                       "lng": node.get_lon(),
-                       "type": sanitize(node.get_tags()["amenity"])}
-            for k, v in node.get_tags().items():
-                print("  " + k + " --> " + v)
-                if k != "amenity":
-                    poi_tags.append({"poi_id": counter, "name": sanitize(k), "value": sanitize(v)})
-            poi_arr.append(tmp_obj)
-
-    pd.DataFrame(poi_arr).to_csv("out/exported_poi.csv", sep=";", index=False)
-    pd.DataFrame(poi_tags).to_csv("out/exported_poi_tags.csv", sep=";", index_label="id")
-
-    # parse links
     links = map_service.get_links_in_bounding_box(
         BoundingBox(pos[0] - dim[0] / 2, pos[1] - dim[1] / 2, pos[0] + dim[0] / 2, pos[1] + dim[1] / 2))
 
-    for link in links[:1]:
-        print(link.to_wkt())
-        print(link.to_geojson())
-        print(link.get_geometry())
-        for k, v in link.get_tags().items():
-            print(k + " --> " + v)
-        print("Car from Start: ", link.is_navigatable_from_start(Car()))
-        print("Car to Start: ", link.is_navigatable_to_start(Car()))
-        print("Start Note: ", link.get_start_node().get_id())
-        print("End Note: ", link.get_end_node().get_id().get_osm_id())
-        print("Length Meter:", link.get_length())
+    return nodes, links
 
+
+def build_dict(seq, key):
+    return dict((d[key], dict(d, index=index)) for (index, d) in enumerate(seq))
+
+
+def generate_types(links, nodes):
+    osm_poi_set = set()
+    for node in nodes:
+        if "amenity" in node.get_tags():
+            osm_poi_set.add(node.get_tags()["amenity"])
+
+    osm_link_set = set()
+    for link in links:
+        if "highway" in link.get_tags():
+            osm_link_set.add(link.get_tags()["highway"])
+
+    osm_type_arr = []
+    for i, poi in enumerate(osm_poi_set):
+        osm_type_arr.append({"osm_type_name": poi, "source": "POI"})
+    for i, link in enumerate(osm_link_set):
+        osm_type_arr.append({"osm_type_name": link, "source": "LINK"})
+
+    pd.DataFrame(osm_type_arr).to_csv("out/osm_types.csv", sep=",", index_label="osm_type_id")
+    type_lut = build_dict(osm_type_arr, key="osm_type_name")
+    return type_lut
+
+
+def generate_poi(nodes, type_lut):
+    poi_arr = []
+    for node in nodes:
+        if "amenity" in node.get_tags():
+            poi_arr.append({"osm_id": node.get_osm_id(), "geom": node.to_wkt(), "osm_type": type_lut.get(node.get_tags()["amenity"])["index"]})
+    pd.DataFrame(poi_arr).to_csv("out/poi.csv", sep=",", index=False)
+
+
+def generate_link(links, type_lut):
+    link_arr = []
+    for link in links:
+        if "highway" in link.get_tags():
+            link_arr.append({"osm_id": link.get_way_osm_id(),
+                             "geom": link.to_wkt(),
+                             "osm_type": type_lut.get(link.get_tags()["highway"])["index"]})
+    pd.DataFrame(link_arr).to_csv("out/link.csv", sep=",", index=False)
 
 main()
