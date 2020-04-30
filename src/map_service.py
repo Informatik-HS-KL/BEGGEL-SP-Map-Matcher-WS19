@@ -88,6 +88,7 @@ class MapService:
         self._config = CONFIG
         self._geohash_level = self._config.getint("DEFAULT", "geohashlevel")
         self._load_poi = self._config.getboolean("DEFAULT", "load_poi")
+        self.load_admin_area = self._config.getboolean("DEFAULT", "load_admin_area")
         self._overpass_wrapper = OverpassWrapperClientSide(self._config)
 
     def set_config(self, config_path):

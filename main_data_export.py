@@ -9,6 +9,7 @@ from src.models import Link
 from src.models import Node
 from src.rest.app import app
 
+
 def main():
     """
     This methods runs all tests from the directory tests. If any test fails the corresponding assertion will print an
@@ -28,8 +29,14 @@ def main():
     dim = (args.width, args.height)
     nodes, links = get_bbox(pos, dim)
     type_lut = generate_types(links, nodes)
-    generate_poi(nodes, type_lut)
-    generate_link(links, type_lut)
+
+    nodes = filter(lambda el: "amenity" in el.get_tags(), nodes)
+    links = filter(lambda el: "highway" in el.get_tags(), links)
+
+    poi_elements, poi_tags = generate_elements(nodes, type_lut, master_tag="amenity", element_name="POI")
+    link_elements, link_tags = generate_elements(links, type_lut, master_tag="highway", add_unique_counter=True, element_name="LINK")
+    pd.DataFrame(poi_tags + link_tags).to_csv("out/tags.csv", sep=",", index=False)
+    pd.DataFrame(poi_elements + link_elements).to_csv("out/osm_elements.csv", sep=",", index=False)
 
 
 def get_bbox(pos, dim):
@@ -68,21 +75,35 @@ def generate_types(links, nodes):
     return type_lut
 
 
-def generate_poi(nodes, type_lut):
-    poi_arr = []
-    for node in nodes:
-        if "amenity" in node.get_tags():
-            poi_arr.append({"osm_id": node.get_osm_id(), "geom": node.to_wkt(), "osm_type": type_lut.get(node.get_tags()["amenity"])["index"]})
-    pd.DataFrame(poi_arr).to_csv("out/poi.csv", sep=",", index=False)
-
-
-def generate_link(links, type_lut):
+def generate_elements(elements, type_lut, master_tag, element_name, add_unique_counter=False):
     link_arr = []
-    for link in links:
-        if "highway" in link.get_tags():
-            link_arr.append({"osm_id": link.get_way_osm_id(),
-                             "geom": link.to_wkt(),
-                             "osm_type": type_lut.get(link.get_tags()["highway"])["index"]})
-    pd.DataFrame(link_arr).to_csv("out/link.csv", sep=",", index=False)
+    tag_arr = []
+    for i, element in enumerate(elements):
+        if master_tag in element.get_tags():
+            osm_id = find_id_method(element)
+            if add_unique_counter:
+                osm_id = str(osm_id) + ":" + str(i)
+            link_arr.append({"osm_id": osm_id,
+                             "geom": element.to_wkt(),
+                             "osm_type_id": type_lut.get(element.get_tags()[master_tag])["index"],
+                             "type": element_name})
+            tag_arr += generate_tags(osm_id, element.get_tags().items())
+    return link_arr, tag_arr
+
+
+def find_id_method(element):
+    if "get_way_osm_id" in dir(element):
+        osm_id = getattr(element, 'get_way_osm_id')()
+    else:
+        osm_id = getattr(element, 'get_osm_id')()
+    return osm_id
+
+
+def generate_tags(node_id, tag_list):
+    tag_arr = []
+    for k, v in tag_list:
+        tag_arr.append({"osm_id": node_id, "tag_name": k, "tag_value": v})
+    return tag_arr
+
 
 main()

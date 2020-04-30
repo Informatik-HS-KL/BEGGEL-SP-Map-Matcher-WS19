@@ -41,7 +41,11 @@ class OverpassWrapperClientSide(OverpassWrapper):
 
         # adding this will also download the POIs in the region
         # TODO: make it configuration to download pois
-        query += 'node%s["amenity"];out;' % (bbox_str)
+        query += 'node%s["amenity"];out;' % bbox_str
+
+        # this will download the admin areas
+        # TODO: add to config, make level configurable
+        query += 'relation["boundary"="administrative"]["admin_level"="9"]%s;out body;>;' % bbox_str
 
         return query
 
@@ -57,6 +61,9 @@ class OverpassWrapperClientSide(OverpassWrapper):
         osm_nodes = list(filter(lambda e: e["type"] == "node", elements))
 
         osm_ways = list(filter(lambda e: e["type"] == "way", elements))
+
+        osm_relation = list(filter(lambda e: e["type"] == "relation", elements))
+
         osm_id_nodes_dict = dict(
             map(lambda n: self._create_node(n["id"], (n["lat"], n["lon"]), n.get("tags")), osm_nodes))
 
