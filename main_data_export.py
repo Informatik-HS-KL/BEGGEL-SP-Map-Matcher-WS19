@@ -102,7 +102,8 @@ def find_id_method(element):
 def generate_tags(node_id, tag_list):
     tag_arr = []
     for k, v in tag_list:
-        tag_arr.append({"osm_id": node_id, "tag_name": k, "tag_value": v})
+        if k not in ["amenity", "highway"]:
+            tag_arr.append({"osm_id": node_id, "tag_name": k, "tag_value": v})
     return tag_arr
 
 
