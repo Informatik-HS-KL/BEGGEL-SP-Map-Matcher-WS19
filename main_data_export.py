@@ -28,15 +28,22 @@ def main():
     pos = (args.lat, args.lng)
     dim = (args.width, args.height)
     nodes, links = get_bbox(pos, dim)
-    type_lut = generate_types(links, nodes)
+    type_lut, osm_type_arr = generate_types(links, nodes)
 
     nodes = filter(lambda el: "amenity" in el.get_tags(), nodes)
     links = filter(lambda el: "highway" in el.get_tags(), links)
 
-    poi_elements, poi_tags = generate_elements(nodes, type_lut, master_tag="amenity", element_name="POI")
-    link_elements, link_tags = generate_elements(links, type_lut, master_tag="highway", add_unique_counter=True, element_name="LINK")
+    poi_lut, poi_elements, poi_tags = generate_elements(nodes, type_lut, master_tag="amenity", element_name="POI")
+    link_lut, link_elements, link_tags = generate_elements(links, type_lut, master_tag="highway",
+                                                           add_unique_counter=True,
+                                                           element_name="LINK")
+
+    links = get_link_info(link_lut)
+
     pd.DataFrame(poi_tags + link_tags).to_csv("out/tags.csv", sep=",", index=False)
     pd.DataFrame(poi_elements + link_elements).to_csv("out/osm_elements.csv", sep=",", index=False)
+    pd.DataFrame(osm_type_arr).to_csv("out/osm_types.csv", sep=",", index_label="osm_type_id")
+    pd.DataFrame(links).to_csv("out/link.csv", sep=",", index=False)
 
 
 def get_bbox(pos, dim):
@@ -70,28 +77,29 @@ def generate_types(links, nodes):
     for i, link in enumerate(osm_link_set):
         osm_type_arr.append({"osm_type_name": link, "source": "LINK"})
 
-    pd.DataFrame(osm_type_arr).to_csv("out/osm_types.csv", sep=",", index_label="osm_type_id")
     type_lut = build_dict(osm_type_arr, key="osm_type_name")
-    return type_lut
+    return type_lut, osm_type_arr
 
 
 def generate_elements(elements, type_lut, master_tag, element_name, add_unique_counter=False):
-    link_arr = []
+    element_arr = []
     tag_arr = []
+    element_lut = dict()
     for i, element in enumerate(elements):
         if master_tag in element.get_tags():
-            osm_id = find_id_method(element)
+            osm_id = get_osm_id(element)
             if add_unique_counter:
                 osm_id = str(osm_id) + ":" + str(i)
-            link_arr.append({"osm_id": osm_id,
-                             "geom": element.to_wkt(),
-                             "osm_type_id": type_lut.get(element.get_tags()[master_tag])["index"],
-                             "type": element_name})
+            element_arr.append({"osm_id": osm_id,
+                                "geom": element.to_wkt(),
+                                "osm_type_id": type_lut.get(element.get_tags()[master_tag])["index"],
+                                "type": element_name})
+            element_lut[osm_id] = element
             tag_arr += generate_tags(osm_id, element.get_tags().items())
-    return link_arr, tag_arr
+    return element_lut, element_arr, tag_arr
 
 
-def find_id_method(element):
+def get_osm_id(element):
     if "get_way_osm_id" in dir(element):
         osm_id = getattr(element, 'get_way_osm_id')()
     else:
@@ -105,6 +113,23 @@ def generate_tags(node_id, tag_list):
         if k not in ["amenity", "highway"]:
             tag_arr.append({"osm_id": node_id, "tag_name": k, "tag_value": v})
     return tag_arr
+
+
+def get_link_info(elements):
+    links = []
+    for osm_id, element in elements.items():
+        max_speed = element.get_tags()["maxspeed"] if "maxspeed" in element.get_tags() else "unknown"
+        start_node_id = element.get_start_node().get_id().get_osm_id()
+        end_node_id = element.get_end_node().get_id().get_osm_id()
+        car_navigable_from_start = element.is_navigatable_from_start(Car())
+        car_navigable_to_start = element.is_navigatable_to_start(Car())
+        links.append({"osm_id": osm_id,
+                      "speed_limit": max_speed,
+                      "start_node": start_node_id,
+                      "end_node": end_node_id,
+                      "is_navigable_from_start": car_navigable_from_start,
+                      "is_navigable_to_end": car_navigable_to_start})
+    return links
 
 
 main()
