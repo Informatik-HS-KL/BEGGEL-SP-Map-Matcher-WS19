@@ -38,12 +38,13 @@ def main():
                                                            add_unique_counter=True,
                                                            element_name="LINK")
 
-    links = get_link_info(link_lut)
+    links, link_connections = get_link_info(link_lut)
 
     pd.DataFrame(poi_tags + link_tags).to_csv("out/tags.csv", sep=",", index=False)
     pd.DataFrame(poi_elements + link_elements).to_csv("out/osm_elements.csv", sep=",", index=False)
     pd.DataFrame(osm_type_arr).to_csv("out/osm_types.csv", sep=",", index_label="osm_type_id")
     pd.DataFrame(links).to_csv("out/link.csv", sep=",", index=False)
+    pd.DataFrame(link_connections).to_csv("out/link_connection.csv", sep=",", index=False)
 
 
 def get_bbox(pos, dim):
@@ -94,7 +95,7 @@ def generate_elements(elements, type_lut, master_tag, element_name, add_unique_c
                                 "geom": element.to_wkt(),
                                 "osm_type_id": type_lut.get(element.get_tags()[master_tag])["index"],
                                 "type": element_name})
-            element_lut[osm_id] = element
+            element_lut[element] = osm_id
             tag_arr += generate_tags(osm_id, element.get_tags().items())
     return element_lut, element_arr, tag_arr
 
@@ -115,9 +116,22 @@ def generate_tags(node_id, tag_list):
     return tag_arr
 
 
+# TODO: Missing to_node!
+def find_connected_links(connected_to, start_links, elements, from_name):
+    links = []
+    for link in start_links:
+        if link in elements:
+            from_link = connected_to
+            to_link = elements[link]
+            from_node = from_name
+            links.append({"from_link": from_link, "to_link": to_link, "from_node": from_node})
+    return links
+
+
 def get_link_info(elements):
     links = []
-    for osm_id, element in elements.items():
+    link_connections = []
+    for element, osm_id in elements.items():
         max_speed = element.get_tags()["maxspeed"] if "maxspeed" in element.get_tags() else "unknown"
         start_node_id = element.get_start_node().get_id().get_osm_id()
         end_node_id = element.get_end_node().get_id().get_osm_id()
@@ -129,7 +143,13 @@ def get_link_info(elements):
                       "end_node": end_node_id,
                       "is_navigable_from_start": car_navigable_from_start,
                       "is_navigable_to_end": car_navigable_to_start})
-    return links
+
+        end_links = element.get_links_at_end_node()
+        start_links = element.get_links_at_start_node()
+        start_connections = find_connected_links(osm_id, start_links, elements, "START")
+        end_connections = find_connected_links(osm_id, end_links, elements, "END")
+        link_connections += start_connections + end_connections
+    return links, link_connections
 
 
 main()

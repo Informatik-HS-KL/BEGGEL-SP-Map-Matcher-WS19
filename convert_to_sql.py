@@ -30,6 +30,8 @@ def write_sql(content, filename="out/full.sql"):
 
 sql = '\n'.join([convert_to_csv("out/osm_types.csv", 'osm_type'),
                  convert_to_csv("out/osm_elements.csv", 'osm_element', replace_points),
-                 convert_to_csv("out/tags.csv", 'tag')])
+                 convert_to_csv("out/tags.csv", 'tag'),
+                 convert_to_csv("out/link.csv", 'link'),
+                 convert_to_csv("out/link_connection.csv", 'link_connection')])
 write_sql(sql)
 
