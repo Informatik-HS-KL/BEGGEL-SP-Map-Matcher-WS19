@@ -9,7 +9,7 @@ def convert_to_csv(filename, table_name, value_function=lambda x: x, table_schem
         reader = csv.reader(f)
         columns = next(reader)
         query = 'INSERT INTO {0}.{1}({2}) VALUES\n'.format(table_schema, table_name, ', '.join(columns))
-        query += ','.join(['(' + ', '.join(map((lambda x: value_function(repr_single(x))), row)) + ')\n' for row in reader])
+        query += ','.join(['(' + ', '.join(map((lambda x: value_function(sanitize(x))), row)) + ')\n' for row in reader])
         return query + ";\n"
 
 
@@ -18,8 +18,8 @@ def replace_points(string):
 
 
 # TODO: Escape String
-def repr_single(s):
-    return "'" + repr('"' + s)[2:]
+def sanitize(s):
+    return "'" + s.replace("'", " ") + "'"
 
 
 def write_sql(content, filename="out/full.sql"):
