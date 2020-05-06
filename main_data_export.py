@@ -22,7 +22,6 @@ def main():
     parser.add_argument('lng', type=float, help='center of search area as longitude')
     parser.add_argument('width', type=float, help='width of the search area', default=0.2)
     parser.add_argument('height', type=float, help='height of the search area', default=0.2)
-    parser.add_argument('elements', type=int, help='height of the search area', default=100)
     args = parser.parse_args()
 
     pos = (args.lat, args.lng)
@@ -117,15 +116,16 @@ def generate_tags(node_id, tag_list):
 
 
 # TODO: Missing to_node!
-def find_connected_links(connected_to, start_links, elements, from_name):
-    links = []
+def find_connected_links(connected_to_id, start_links, elements, from_name):
+    links = dict()
     for link in start_links:
         if link in elements:
-            from_link = connected_to
+            from_link = connected_to_id
             to_link = elements[link]
             from_node = from_name
-            links.append({"from_link": from_link, "to_link": to_link, "from_node": from_node})
-    return links
+            unique_id = str(from_link) + "_" + to_link + "_" + from_node
+            links[unique_id] = {"from_link": from_link, "to_link": to_link, "from_node": from_node}
+    return list(links.values())
 
 
 def get_link_info(elements):
